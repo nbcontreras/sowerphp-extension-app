@@ -9,7 +9,7 @@ La extensión requiere que previamente se haya cargado la extensión general, ya
 que es utilizada por esta. Por lo cual verificar que el archivo
 *webroot/index.php* al menos contenga en la definición de extensiones:
 
-	$_EXTENSIONS = array('app', 'general');
+	$_EXTENSIONS = array('SowerPHP/app', 'SowerPHP/general');
 
 La extensión usará los módulos:
 
