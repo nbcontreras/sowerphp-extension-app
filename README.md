@@ -9,7 +9,7 @@ La extensión requiere que previamente se haya cargado la extensión general, ya
 que es utilizada por esta. Por lo cual verificar que el archivo
 *webroot/index.php* al menos contenga en la definición de extensiones:
 
-	$_EXTENSIONS = array('SowerPHP/app', 'SowerPHP/general');
+	$_EXTENSIONS = array('sowerphp/app', 'sowerphp/general');
 
 La extensión usará los módulos:
 
@@ -17,30 +17,32 @@ La extensión usará los módulos:
 -	Sistema
 -	Sistema.Usuarios (este será autocargado)
 
-AuthComponent
--------------
+Componente: Auth
+----------------
 
-Esta extensión por defecto cargará el componente *AuthComponent* por lo cual los
+Esta extensión por defecto cargará el componente *Auth* por lo cual los
 controladores estarán obligados a revisar si el usuario que accede dispone de
 permisos para acceder a los recursos (o sea se ha autenticado y dispone de
 permisos). En caso que se requiera hacer métodos de controladores públicos se
 debe sobreescribir el método *beforeFilter* del correspondiente controlador
 autorizando el método, ejemplo:
 
-	public function beforeFilter () {
+	public function beforeFilter ()
+	{
 		$this->Auth->allow('ingresar', 'salir', 'imagen');
 		parent::beforeFilter();
 	}
 
 En caso que se requiera que solo se pida estar autenticado (y para evitar estar
 agregando recursos a la tabla auth en la base de datos) utilizar en el método
-*beforeFilter* el método *allowWithLogin* de *AuthComponent*, ejemplo:
+*beforeFilter* el método *allowWithLogin* del componente *Auth*, ejemplo:
 
 	$this->Auth->allowWithLogin('perfil');
 
 En resumen el ejemplo completo queda como:
 
-	public function beforeFilter () {
+	public function beforeFilter ()
+	{
 		$this->Auth->allow('ingresar', 'salir', 'imagen');
 		$this->Auth->allowWithLogin('perfil');
 		parent::beforeFilter();
@@ -48,7 +50,8 @@ En resumen el ejemplo completo queda como:
 
 Si se quiere permitir todos los métodos de un controlador se puede utilizar:
 
-	public function beforeFilter () {
+	public function beforeFilter ()
+	{
 	}
 	
 Módulos

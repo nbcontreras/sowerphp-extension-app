@@ -2,7 +2,7 @@
 <p>Las instrucciones para recuperar su contraseña serán envíadas a su correo
 electrónico, por favor ingrese su usuario o email a continuación:</p>
 <?php
-$f = new FormHelper ();
+$f = new \sowerphp\general\View_Helper_Form ();
 echo $f->begin(array('focus'=>'id', 'onsubmit'=>'Form.check()'));
 echo $f->input (array(
 	'name'=>'id',

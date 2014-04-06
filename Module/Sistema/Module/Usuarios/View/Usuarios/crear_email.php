@@ -3,7 +3,7 @@
 Bienvenid@, se ha creado una cuenta para usted en la aplicación web disponible
 en:
 
-	<?php echo $_url,"\n"; ?>
+    <?php echo $_url,"\n"; ?>
 
 Sus datos de acceso son:
 
@@ -12,7 +12,7 @@ Contraseña: <?php echo $contrasenia,"\n"; ?>
 
 El enlace directo para iniciar sesión es el siguiente:
 
-	<?php echo $_url; ?>/usuarios/ingresar
+    <?php echo $_url; ?>/usuarios/ingresar
 
 Una vez ingrese al sistema puede editar su perfil, cambiando su contraseña y
 otros datos básicos de su cuenta.

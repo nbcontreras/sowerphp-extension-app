@@ -21,31 +21,26 @@
  * En caso contrario, consulte <http://www.gnu.org/licenses/gpl.html>.
  */
 
-// Clase abstracta para el acceso a la base de datos (padre de esta)
-App::uses('UsuarioGrupoBase', 'Sistema.Usuarios.Model');
+// namespace del modelo
+namespace sowerphp\app\Sistema\Usuarios;
 
 /**
- * Clase final para mapear la tabla usuario_grupo de la base de datos
- * Relación entre usuarios y los grupos a los que pertenecen
+ * Clase para mapear la tabla usuario_grupo de la base de datos
+ * Comentario de la tabla: Relación entre usuarios y los grupos a los que pertenecen
  * Esta clase permite trabajar sobre un registro de la tabla usuario_grupo
- * @author MiPaGiNa Code Generator
- * @version 2013-06-30 12:54:20
+ * @author SowerPHP Code Generator
+ * @version 2014-04-05 17:32:18
  */
-final class UsuarioGrupo extends UsuarioGrupoBase {
+class Model_UsuarioGrupo extends Model_Base_UsuarioGrupo
+{
 
-	public static $fkModule = array(
-		'Usuario' => 'Sistema.Usuarios.',
-		'Grupo' => 'Sistema.Usuarios.'
-	); ///< Módulos que utiliza esta clase
+    // Datos para la conexión a la base de datos
+    protected $_database = 'default'; ///< Base de datos del modelo
+    protected $_table = 'usuario_grupo'; ///< Tabla del modelo
 
-}
+    public static $fkNamespace = array(
+        'Model_Usuario' => 'sowerphp\app\Sistema\Usuarios',
+        'Model_Grupo' => 'sowerphp\app\Sistema\Usuarios'
+    ); ///< Namespaces que utiliza esta clase
 
-/**
- * Clase final para mapear la tabla usuario_grupo de la base de datos
- * Relación entre usuarios y los grupos a los que pertenecen
- * Esta clase permite trabajar sobre un conjunto de registros de la tabla usuario_grupo
- * @author MiPaGiNa Code Generator
- * @version 2013-06-30 12:54:20
- */
-final class UsuarioGrupos extends UsuarioGruposBase {
 }

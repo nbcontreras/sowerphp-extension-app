@@ -2,7 +2,7 @@
 
 <h2>Datos personales</h2>
 <?php
-$form = new FormHelper();
+$form = new \sowerphp\general\View_Helper_Form();
 echo $form->begin(array(
 	'id' => 'datosUsuario',
 	'onsubmit' => 'Form.check(\'datosUsuario\')'

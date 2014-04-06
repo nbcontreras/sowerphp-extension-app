@@ -1,23 +1,23 @@
 {
-	"name": "sowerphp/app",
-	"description": "Extensión: app",
-	"type": "library",
-	"keywords": ["sowerphp", "extension"],
-	"homepage": "http://sowerphp.org",
-	"license": "GPL-3.0+",
-	"authors": [
-		{
-			"name": "Equipo de SowerPHP",
-			"homepage": "https://github.com/sowerphp/extension-app/graphs/contributors"
-		}
-	],
-	"support": {
-		"issues": "https://github.com/sowerphp/extension-app/issues",
-		"forum": "http://stackoverflow.com/tags/sowerphp",
-		"irc": "irc://irc.freenode.org/#sowerphp",
-		"source": "https://github.com/sowerphp/extension-app"
-	},
-	"require": {
-		"php": "~5.3"
-	}
+    "name": "sowerphp/app",
+    "description": "Extensión: app",
+    "type": "library",
+    "keywords": ["sowerphp", "extension"],
+    "homepage": "http://sowerphp.org",
+    "license": "GPL-3.0+",
+    "authors": [
+        {
+            "name": "Equipo de SowerPHP",
+            "homepage": "https://github.com/sowerphp/extension-app/graphs/contributors"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/sowerphp/extension-app/issues",
+        "forum": "http://stackoverflow.com/tags/sowerphp",
+        "irc": "irc://irc.freenode.org/#sowerphp",
+        "source": "https://github.com/sowerphp/extension-app"
+    },
+    "require": {
+        "php": "~5.5"
+    }
 }

@@ -22,31 +22,31 @@
  */
 
 // Tema de la página (diseño)
-Configure::write('page.layout', 'App');
+sowerphp\core\Configure::write('page.layout', 'App');
 
 // Textos de la página
-Configure::write('page.footer', array(
-	'left'	=> '',
-	'right'	=> 'Página web generada utilizando el framework <a href="http://sowerphp.org">SowerPHP</a>'
+sowerphp\core\Configure::write('page.footer', array(
+    'left' => '',
+    'right' => 'Página web generada utilizando el framework <a href="http://sowerphp.org">SowerPHP</a>'
 ));
 
 // Menú principal del sitio web
-Configure::write('nav.website', array(
-	'/inicio'=>'Inicio',
-	'/contacto'=>'Contacto'
+sowerphp\core\Configure::write('nav.website', array(
+    '/inicio'=>'Inicio',
+    '/contacto'=>'Contacto'
 ));
 
 // Menú principal de la aplicación
-Configure::write('nav.app', array(
-	'/sistema'=>'Sistema'
+sowerphp\core\Configure::write('nav.app', array(
+    '/sistema'=>'Sistema'
 ));
 
 // Módulos que usará esta aplicación
-Module::uses(array(
-	'Exportar',
-	'Sistema',
-	'Sistema.Usuarios' => array('autoLoad' => true),
+sowerphp\core\Module::uses(array(
+    'Exportar',
+    'Sistema',
+    'Sistema.Usuarios' => array('autoLoad' => true),
 ));
 
 // Registros por página
-Configure::write('app.registers_per_page', 20);
+sowerphp\core\Configure::write('app.registers_per_page', 20);

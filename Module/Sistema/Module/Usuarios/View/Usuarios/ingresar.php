@@ -1,6 +1,6 @@
 <h1>Iniciar sesión</h1>
 <?php
-$form = new FormHelper();
+$form = new sowerphp\general\View_Helper_Form();
 echo $form->begin(array('focus'=>'usuario', 'onsubmit'=>'Form.check()'));
 echo $form->input(array(
 	'name'=>'usuario',

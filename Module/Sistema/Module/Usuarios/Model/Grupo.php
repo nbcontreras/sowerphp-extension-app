@@ -21,28 +21,23 @@
  * En caso contrario, consulte <http://www.gnu.org/licenses/gpl.html>.
  */
 
-// Clase abstracta para el acceso a la base de datos (padre de esta)
-App::uses('GrupoBase', 'Sistema.Usuarios.Model');
+// namespace del modelo
+namespace sowerphp\app\Sistema\Usuarios;
 
 /**
- * Clase final para mapear la tabla grupo de la base de datos
- * Tabla para grupos del sistema
+ * Clase para mapear la tabla grupo de la base de datos
+ * Comentario de la tabla: Grupos de la aplicación
  * Esta clase permite trabajar sobre un registro de la tabla grupo
- * @author MiPaGiNa Code Generator
- * @version 2013-06-30 12:54:20
+ * @author SowerPHP Code Generator
+ * @version 2014-04-05 17:32:18
  */
-final class Grupo extends GrupoBase {
+class Model_Grupo extends Model_Base_Grupo
+{
 
-	public static $fkModule = array(); ///< Módulos que utiliza esta clase
+    // Datos para la conexión a la base de datos
+    protected $_database = 'default'; ///< Base de datos del modelo
+    protected $_table = 'grupo'; ///< Tabla del modelo
 
-}
+    public static $fkNamespace = array(); ///< Namespaces que utiliza esta clase
 
-/**
- * Clase final para mapear la tabla grupo de la base de datos
- * Tabla para grupos del sistema
- * Esta clase permite trabajar sobre un conjunto de registros de la tabla grupo
- * @author MiPaGiNa Code Generator
- * @version 2013-06-30 12:54:20
- */
-final class Grupos extends GruposBase {
 }

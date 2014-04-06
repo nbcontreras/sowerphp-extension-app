@@ -1,7 +1,7 @@
-<h1>Recuperación de contraseña del usuario <em><?php echo $usuario; ?></em></h1>
+<h1>Recuperación de contraseña del usuario <em><?=$usuario?></em></h1>
 <p>A continuación ingrese el código que le fue enviado por correo electrónico y su nueva contraseña.</p>
 <?php
-$f = new FormHelper ();
+$f = new \sowerphp\general\View_Helper_Form ();
 echo $f->begin(array('focus'=>'codigo', 'onsubmit'=>'Form.check()'));
 echo $f->input (array(
 	'name'=>'codigo',

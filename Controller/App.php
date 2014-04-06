@@ -21,21 +21,30 @@
  * En caso contrario, consulte <http://www.gnu.org/licenses/gpl.html>.
  */
 
-// Clase extendida por esta clase
-App::uses('Controller', 'Controller');
+namespace sowerphp\app;
 
 /**
  * Clase que sirve para extender la clase Controller, este archivo
  * deberá ser sobreescrito en cada una de las aplicaciones
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2013-06-24
+ * @version 2014-03-29
  */
-class AppController extends Controller {
-	
-	public $components = array(
-		'Auth' => array(
-			'model' => array('location' => 'Sistema.Usuarios.Model')
-		),
-	);
+class Controller_App extends \sowerphp\core\Controller
+{
+
+    public $components = array('Auth');
+
+    /**
+     * Constructor de la clase
+     * @param request Objeto con la solicitud realizada
+     * @param response Objeto para la respuesta que se enviará al cliente
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-03-29
+     */
+    public function __construct (\sowerphp\core\Network_Request $request, \sowerphp\core\Network_Response $response)
+    {
+        parent::__construct ($request, $response);
+        $this->set('_Auth', $this->Auth);
+    }
 
 }

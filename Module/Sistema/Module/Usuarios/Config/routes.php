@@ -21,38 +21,38 @@
  * En caso contrario, consulte <http://www.gnu.org/licenses/gpl.html>.
  */
 
-Router::connect('/usuarios/ingresar', array(
-	'module' => 'Sistema.Usuarios',
-	'controller' => 'usuarios',
-	'action' => 'ingresar',
+\sowerphp\core\Routing_Router::connect('/usuarios/ingresar', array(
+    'module' => 'Sistema.Usuarios',
+    'controller' => 'usuarios',
+    'action' => 'ingresar',
 ));
 
-Router::connect('/usuarios/ingresar/*', array(
-	'module' => 'Sistema.Usuarios',
-	'controller' => 'usuarios',
-	'action' => 'ingresar',
+\sowerphp\core\Routing_Router::connect('/usuarios/ingresar/*', array(
+    'module' => 'Sistema.Usuarios',
+    'controller' => 'usuarios',
+    'action' => 'ingresar',
 ));
 
-Router::connect('/usuarios/salir', array(
-	'module' => 'Sistema.Usuarios',
-	'controller' => 'usuarios',
-	'action' => 'salir',
+\sowerphp\core\Routing_Router::connect('/usuarios/salir', array(
+    'module' => 'Sistema.Usuarios',
+    'controller' => 'usuarios',
+    'action' => 'salir',
 ));
 
-Router::connect('/usuarios/perfil', array(
-	'module' => 'Sistema.Usuarios',
-	'controller' => 'usuarios',
-	'action' => 'perfil',
+\sowerphp\core\Routing_Router::connect('/usuarios/perfil', array(
+    'module' => 'Sistema.Usuarios',
+    'controller' => 'usuarios',
+    'action' => 'perfil',
 ));
 
-Router::connect('/usuarios/contrasenia/recuperar', array(
-	'module' => 'Sistema.Usuarios',
-	'controller' => 'usuarios',
-	'action' => 'contrasenia_recuperar',
+\sowerphp\core\Routing_Router::connect('/usuarios/contrasenia/recuperar', array(
+    'module' => 'Sistema.Usuarios',
+    'controller' => 'usuarios',
+    'action' => 'contrasenia_recuperar',
 ));
 
-Router::connect('/usuarios/contrasenia/recuperar/*', array(
-	'module' => 'Sistema.Usuarios',
-	'controller' => 'usuarios',
-	'action' => 'contrasenia_recuperar',
+\sowerphp\core\Routing_Router::connect('/usuarios/contrasenia/recuperar/*', array(
+    'module' => 'Sistema.Usuarios',
+    'controller' => 'usuarios',
+    'action' => 'contrasenia_recuperar',
 ));
