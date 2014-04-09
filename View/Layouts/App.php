@@ -9,8 +9,9 @@
         <link type="text/css" href="<?=$_base?>/layouts/<?=$_layout?>/css/screen.css" media="screen" rel="stylesheet" />
         <link type="text/css" href="<?=$_base?>/layouts/<?=$_layout?>/css/print.css" media="print" rel="stylesheet" />
         <script type="text/javascript" src="<?=$_base?>/js/jquery.js"></script>
-        <script type="text/javascript" src="<?=$_base?>/js/app.js"></script>
+        <script type="text/javascript" src="<?=$_base?>/js/__.js"></script>
         <script type="text/javascript" src="<?=$_base?>/js/form.js"></script>
+        <script type="text/javascript" src="<?=$_base?>/js/app.js"></script>
         <script type="text/javascript" src="<?=$_base?>/js/jquery-ui/jquery-ui.js"></script>
         <link rel="stylesheet" type="text/css" href="<?=$_base?>/js/jquery-ui/css/smoothness/jquery-ui.css" media="screen"/>
 <?=$_header_extra?>
