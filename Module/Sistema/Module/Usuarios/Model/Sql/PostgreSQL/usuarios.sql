@@ -86,7 +86,7 @@ CREATE TABLE auth (
 );
 COMMENT ON TABLE auth IS 'Permisos de grupos para acceder a recursos';
 COMMENT ON COLUMN auth.id IS 'Identificador (serial)';
-COMMENT ON COLUMN auth.grupo IS 'Grupo al que se le condede el permiso';
+COMMENT ON COLUMN auth.grupo IS 'Grupo al que se le concede el permiso';
 COMMENT ON COLUMN auth.recurso IS 'Recurso al que el grupo tiene acceso';
 
 -- DATOS PARA EL MÓDULO:  Sistema.Usuarios
