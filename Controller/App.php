@@ -15,7 +15,7 @@
  * MERCANTIL o de APTITUD PARA UN PROPÓSITO DETERMINADO.
  * Consulte los detalles de la Licencia Pública General GNU para obtener
  * una información más detallada.
- * 
+ *
  * Debería haber recibido una copia de la Licencia Pública General GNU
  * junto a este programa.
  * En caso contrario, consulte <http://www.gnu.org/licenses/gpl.html>.

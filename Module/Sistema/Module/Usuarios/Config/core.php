@@ -23,7 +23,7 @@
 
 // Menú para el módulo
 \sowerphp\core\Configure::write('nav.module', array(
-    '/usuarios/listar?search=activo:t' => array(
+    '/usuarios/listar?search=activo:1' => array(
         'name' => 'Usuarios',
         'desc' => 'Usuarios del sistema',
         'imag' => '/sistema/usuarios/img/icons/48x48/usuario.png',
