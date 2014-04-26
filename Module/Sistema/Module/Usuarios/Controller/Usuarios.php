@@ -30,14 +30,23 @@ namespace sowerphp\app\Sistema\Usuarios;
  * Comentario de la tabla: Usuarios de la aplicación
  * Esta clase permite controlar las acciones entre el modelo y vista para la
  * tabla usuario
- * @author SowerPHP Code Generator
- * @version 2014-04-05 17:32:18
+ * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+ * @version 2014-04-23
  */
-class Controller_Usuarios extends Controller_Base_Usuarios
+class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
 {
 
-    protected $module_url = '/sistema/usuarios/';
+    protected $namespace = __NAMESPACE__; ///< Namespace del controlador y modelos asociados
+    protected $columnsView = [
+        'listar'=>['id', 'nombre', 'usuario', 'activo', 'ultimo_ingreso_fecha_hora']
+    ]; ///< Columnas que se deben mostrar en las vistas
 
+    /**
+     * Permitir ciertas acciones y luego ejecutar verificar permisos con
+     * parent::beforeFilter()
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-04-23
+     */
     public function beforeFilter ()
     {
         $this->Auth->allow('ingresar', 'salir', 'contrasenia_recuperar');
@@ -45,6 +54,12 @@ class Controller_Usuarios extends Controller_Base_Usuarios
         parent::beforeFilter();
     }
 
+    /**
+     * Acción para que un usuario ingrese al sistema (inicie sesión)
+     * @param redirect Ruta (en base64) de hacia donde hay que redireccionar una vez se autentica el usuario
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-04-23
+     */
     public function ingresar ($redirect = null)
     {
         if ($redirect) $redirect = base64_decode ($redirect);
@@ -52,10 +67,22 @@ class Controller_Usuarios extends Controller_Base_Usuarios
         $this->Auth->login($this);
     }
 
-    public function salir () {
+    /**
+     * Acción para que un usuario cierra la sesión
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-04-23
+     */
+    public function salir ()
+    {
         $this->Auth->logout($this);
     }
 
+    /**
+     * Acción para recuperar la contraseña
+     * @param usuario Usuario al que se desea recuperar su contraseña
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-04-23
+     */
     public function contrasenia_recuperar ($usuario = null)
     {
         $this->autoRender = false;
@@ -125,6 +152,15 @@ class Controller_Usuarios extends Controller_Base_Usuarios
         }
     }
 
+    /**
+     * Método que envía el correo con los datos para poder recuperar la contraseña
+     * @param correo Donde enviar el email
+     * @param nombre Nombre "real" del usuario
+     * @param usuario Nombre de usuario
+     * @param hash Hash para identificar que el usuario es quien dice ser y cambiar su contraseña
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-04-23
+     */
     private function contrasenia_recuperar_email ($correo, $nombre, $usuario, $hash)
     {
         $this->layout = null;
@@ -141,8 +177,20 @@ class Controller_Usuarios extends Controller_Base_Usuarios
         $email->send($msg);
     }
 
+    /**
+     * Acción para crear un nuevo usuario
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-04-24
+     */
     public function crear ()
     {
+        if (!empty($_GET['listar'])) {
+            $filterListarUrl = '?listar='.$_GET['listar'];
+            $filterListar = base64_decode($_GET['listar']);
+        } else {
+            $filterListarUrl = '';
+            $filterListar = '';
+        }
         // si se envió el formulario se procesa
         if (isset($_POST['submit'])) {
             $Usuario = new Model_Usuario();
@@ -151,19 +199,19 @@ class Controller_Usuarios extends Controller_Base_Usuarios
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario '.$_POST['usuario'].' ya está en uso'
                 );
-                $this->redirect('/sistema/usuarios/usuarios/crear');
+                $this->redirect('/sistema/usuarios/usuarios/crear'.$filterListarUrl);
             }
             if ($Usuario->checkIfHashAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Hash seleccionado ya está en uso'
                 );
-                $this->redirect('/sistema/usuarios/usuarios/crear');
+                $this->redirect('/sistema/usuarios/usuarios/crear'.$filterListarUrl);
             }
             if ($Usuario->checkIfEmailAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Email seleccionado ya está en uso'
                 );
-                $this->redirect('/sistema/usuarios/usuarios/crear');
+                $this->redirect('/sistema/usuarios/usuarios/crear'.$filterListarUrl);
             }
             if (empty($Usuario->contrasenia)) {
                 $Usuario->contrasenia = string_random (8);
@@ -183,48 +231,67 @@ class Controller_Usuarios extends Controller_Base_Usuarios
             $msg = $this->render('Usuarios/crear_email')->body();
             $this->layout = $layout;
             $Usuario->contrasenia = $this->Auth->hash($Usuario->contrasenia);
-            $Usuario->save();
-//            if(method_exists($this, 'u')) $this->u();
-            $email = new \sowerphp\core\Network_Email();
-            $email->to($Usuario->email);
-            $email->subject('Cuenta de usuario creada');
-            $email->send($msg);
-            \sowerphp\core\Model_Datasource_Session::message(
-                'Registro Usuario creado (se envió email a '.$Usuario->email.' con los datos de acceso'
-            );
-            $this->redirect($this->module_url.'usuarios/listar');
+            if($Usuario->save()) {
+                // enviar correo
+                $emailConfig = \sowerphp\core\Configure::read('email.default');
+                if (!empty($emailConfig['type']) && !empty($emailConfig['type']) && !empty($emailConfig['pass'])) {
+                    $email = new \sowerphp\core\Network_Email();
+                    $email->to($Usuario->email);
+                    $email->subject('Cuenta de usuario creada');
+                    $email->send($msg);
+                    $msg = 'Registro creado (se envió email a '.$Usuario->email.' con los datos de acceso)';
+                } else {
+                    $msg = 'Registro creado (no se envió correo)';
+                }
+            } else {
+                $msg = 'Registro no creado (hubo algún error)';
+            }
+            \sowerphp\core\Model_Datasource_Session::message($msg);
+            $this->redirect('/sistema/usuarios/usuarios/listar'.$filterListar);
         }
         // setear variables
         Model_Usuario::$columnsInfo['contrasenia']['null'] = true;
         Model_Usuario::$columnsInfo['hash']['null'] = true;
         $this->set(array(
             'accion' => 'Crear',
-            'columnsInfo' => Model_Usuario::$columnsInfo,
+            'columns' => Model_Usuario::$columnsInfo,
         ));
         $this->autoRender = false;
-        $this->render ('Usuarios/crear_editar');
+        $this->render ('Maintainer/crear_editar', 'sowerphp/app');
     }
 
+    /**
+     * Acción para editar un nuevo usuario
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-04-24
+     */
     public function editar ($id)
     {
+        if (!empty($_GET['listar'])) {
+            $filterListarUrl = '?listar='.$_GET['listar'];
+            $filterListar = base64_decode($_GET['listar']);
+        } else {
+            $filterListarUrl = '';
+            $filterListar = '';
+        }
         $Usuario = new Model_Usuario($id);
         // si el registro que se quiere editar no existe error
         if(!$Usuario->exists()) {
             \sowerphp\core\Model_Datasource_Session::message(
-                'Registro Usuario('.implode(', ', func_get_args()).') no existe, no se puede editar'
+                'Registro ('.implode(', ', func_get_args()).') no existe, no se puede editar'
             );
-            $this->redirect($this->module_url.'usuarios/listar');
+            $this->redirect('/sistema/usuarios/usuarios/listar'.$filterListar);
         }
         // si no se ha enviado el formulario se mostrará
         if(!isset($_POST['submit'])) {
             Model_Usuario::$columnsInfo['contrasenia']['null'] = true;
             $this->set(array(
                 'accion' => 'Editar',
-                'Usuario' => $Usuario,
-                'columnsInfo' => Model_Usuario::$columnsInfo,
+                'Obj' => $Usuario,
+                'columns' => Model_Usuario::$columnsInfo,
             ));
             $this->autoRender = false;
-            $this->render ('Usuarios/crear_editar');
+            $this->render ('Maintainer/crear_editar', 'sowerphp/app');
         }
         // si se envió el formulario se procesa
         else {
@@ -233,22 +300,21 @@ class Controller_Usuarios extends Controller_Base_Usuarios
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario '.$_POST['usuario'].' ya está en uso'
                 );
-                $this->redirect('/sistema/usuarios/usuarios/editar/'.$id);
+                $this->redirect('/sistema/usuarios/usuarios/editar/'.$id.$filterListarUrl);
             }
             if ($Usuario->checkIfHashAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Hash seleccionado ya está en uso'
                 );
-                $this->redirect('/sistema/usuarios/usuarios/editar/'.$id);
+                $this->redirect('/sistema/usuarios/usuarios/editar/'.$id.$filterListarUrl);
             }
             if ($Usuario->checkIfEmailAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Email seleccionado ya está en uso'
                 );
-                $this->redirect('/sistema/usuarios/usuarios/editar/'.$id);
+                $this->redirect('/sistema/usuarios/usuarios/editar/'.$id.$filterListarUrl);
             }
             $Usuario->save();
-//            if(method_exists($this, 'u')) $this->u();
             if(!empty($_POST['contrasenia'])) {
                 $Usuario->saveContrasenia(
                     $_POST['contrasenia'],
@@ -258,10 +324,15 @@ class Controller_Usuarios extends Controller_Base_Usuarios
             \sowerphp\core\Model_Datasource_Session::message(
                 'Registro Usuario('.implode(', ', func_get_args()).') editado'
             );
-            $this->redirect($this->module_url.'usuarios/listar');
+            $this->redirect('/sistema/usuarios/usuarios/listar'.$filterListar);
         }
     }
 
+    /**
+     * Acción para mostrar y editar el perfil del usuario que esta autenticado
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-04-24
+     */
     public function perfil ()
     {
         // obtener usuario

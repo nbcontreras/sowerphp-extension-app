@@ -33,9 +33,9 @@ namespace sowerphp\app\Sistema\Usuarios;
  * @author SowerPHP Code Generator
  * @version 2014-04-05 17:32:18
  */
-class Controller_UsuarioGrupos extends Controller_Base_UsuarioGrupos
+class Controller_UsuarioGrupos extends \sowerphp\app\Controller_Maintainer
 {
 
-    protected $module_url = '/sistema/usuarios/';
+    protected $namespace = __NAMESPACE__; ///< Namespace del controlador y modelos asociados
 
 }

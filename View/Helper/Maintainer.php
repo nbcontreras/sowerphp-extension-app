@@ -69,7 +69,7 @@ class View_Helper_Maintainer extends \sowerphp\general\View_Helper_Table
     {
         $buffer = '<script type="text/javascript" src="'._BASE.'/js/mantenedor.js"></script>'."\n";
         $buffer .= $this->form->begin(array('onsubmit'=>'buscar(this)'))."\n";
-        $buffer .= '<div style="float:left"><a href="'.$this->options['link'].'/crear" title="Crear nuevo registro"><img src="'._BASE.'/img/icons/16x16/actions/new.png" alt="" /></a></div>'."\n";
+        $buffer .= '<div style="float:left"><a href="'.$this->options['link'].'/crear'.$this->options['listarFilterUrl'].'" title="Crear nuevo registro"><img src="'._BASE.'/img/icons/16x16/actions/new.png" alt="" /></a></div>'."\n";
         if ($page)
             $buffer .= $this->paginator ($pages, $page)."\n";
         $buffer .= parent::generate ($data, $this->options['thead']);

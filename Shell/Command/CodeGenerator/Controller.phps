@@ -21,21 +21,21 @@
  * En caso contrario, consulte <http://www.gnu.org/licenses/gpl.html>.
  */
 
-// namespace del modelo
-namespace sowerphp\app\Sistema\Usuarios;
+// namespace del controlador
+namespace {namespace};
 
 /**
- * Clase para mapear la tabla usuario_grupo de la base de datos
- * Comentario de la tabla: Relación entre usuarios y los grupos a los que pertenecen
- * Esta clase permite trabajar sobre un conjunto de registros de la tabla usuario_grupo
- * @author SowerPHP Code Generator
- * @version 2014-04-05 17:32:18
+ * Clase para el controlador asociado a la tabla {table} de la base de
+ * datos
+ * Comentario de la tabla: {comment}
+ * Esta clase permite controlar las acciones entre el modelo y vista para la
+ * tabla {table}
+ * @author {author}
+ * @version {version}
  */
-class Model_UsuarioGrupos extends \Model_Plural_App
+class Controller_{classs} extends \Controller_Maintainer
 {
 
-    // Datos para la conexión a la base de datos
-    protected $_database = 'default'; ///< Base de datos del modelo
-    protected $_table = 'usuario_grupo'; ///< Tabla del modelo
+    protected $namespace = __NAMESPACE__; ///< Namespace del controlador y modelos asociados
 
 }

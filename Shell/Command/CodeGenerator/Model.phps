@@ -22,20 +22,33 @@
  */
 
 // namespace del modelo
-namespace sowerphp\app\Sistema\Usuarios;
+namespace {namespace};
 
 /**
- * Clase para mapear la tabla usuario_grupo de la base de datos
- * Comentario de la tabla: Relación entre usuarios y los grupos a los que pertenecen
- * Esta clase permite trabajar sobre un conjunto de registros de la tabla usuario_grupo
- * @author SowerPHP Code Generator
- * @version 2014-04-05 17:32:18
+ * Clase para mapear la tabla {table} de la base de datos
+ * Comentario de la tabla: {comment}
+ * Esta clase permite trabajar sobre un registro de la tabla {table}
+ * @author {author}
+ * @version {version}
  */
-class Model_UsuarioGrupos extends \Model_Plural_App
+class Model_{class} extends \Model_App
 {
 
     // Datos para la conexión a la base de datos
-    protected $_database = 'default'; ///< Base de datos del modelo
-    protected $_table = 'usuario_grupo'; ///< Tabla del modelo
+    protected $_database = '{database}'; ///< Base de datos del modelo
+    protected $_table = '{table}'; ///< Tabla del modelo
+
+    // Atributos de la clase (columnas en la base de datos)
+    {columns}
+
+    // Información de las columnas de la tabla en la base de datos
+    public static $columnsInfo = array(
+{columnsInfo}
+    );
+
+    // Comentario de la tabla en la base de datos
+    public static $tableComment = '{comment}';
+
+    public static $fkNamespace = array({fkNamespace}); ///< Namespaces que utiliza esta clase
 
 }

@@ -21,21 +21,13 @@
  * En caso contrario, consulte <http://www.gnu.org/licenses/gpl.html>.
  */
 
-// namespace del modelo
-namespace sowerphp\app\Sistema\Usuarios;
+namespace sowerphp\app;
 
 /**
- * Clase para mapear la tabla usuario_grupo de la base de datos
- * Comentario de la tabla: Relación entre usuarios y los grupos a los que pertenecen
- * Esta clase permite trabajar sobre un conjunto de registros de la tabla usuario_grupo
- * @author SowerPHP Code Generator
- * @version 2014-04-05 17:32:18
+ * Clase abstracta para todos los modelos  (clase sobreescribible)
+ * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+ * @version 2014-03-29
  */
-class Model_UsuarioGrupos extends \Model_Plural_App
+abstract class Model_Plural_App extends Model_Plural
 {
-
-    // Datos para la conexión a la base de datos
-    protected $_database = 'default'; ///< Base de datos del modelo
-    protected $_table = 'usuario_grupo'; ///< Tabla del modelo
-
 }
