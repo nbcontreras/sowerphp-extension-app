@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Clase para generar los mantenedores
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-03-23
+ * @version 2014-04-26
  */
 class View_Helper_Maintainer extends \sowerphp\general\View_Helper_Table
 {
@@ -38,17 +38,17 @@ class View_Helper_Maintainer extends \sowerphp\general\View_Helper_Table
      * Constructor de la clase
      * @param options Arreglo con las opciones para el mantenedor
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-03-20
+     * @version 2014-04-26
      */
     public function __construct ($options = array(), $filter = true)
     {
         if ($filter) {
             $this->options = array_merge(array(
-                'link'=>'', 'linkEnd'=>'', 'thead'=>2, 'remove'=>array(2),
+                'link'=>'', 'linkEnd'=>'', 'listarFilterUrl'=>'', 'thead'=>2, 'remove'=>array(2),
             ), $options);
         } else {
             $this->options = array_merge(array(
-                'link'=>'', 'linkEnd'=>'', 'thead'=>1, 'remove'=>array(),
+                'link'=>'', 'linkEnd'=>'', 'listarFilterUrl'=>'', 'thead'=>1, 'remove'=>array(),
             ), $options);
         }
         $this->form = new \sowerphp\general\View_Helper_Form('normal');
