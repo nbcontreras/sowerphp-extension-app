@@ -69,8 +69,8 @@ foreach ($Objs as &$obj) {
         else if ($info['fk']['table']) {
             // si no es vacía la columna
             if (!empty($obj->{$column})) {
-                $method = 'get'.\sowerphp\core\Utility_Inflector::camelize($column);
-                $row[] = $obj->$method()->{$info['fk']['table']};
+                $method = 'get'.\sowerphp\core\Utility_Inflector::camelize($info['fk']['table']);
+                $row[] = $obj->$method($obj->$column)->{$info['fk']['table']};
             } else {
                 $row[] = '';
             }
