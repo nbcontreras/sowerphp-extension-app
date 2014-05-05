@@ -59,6 +59,13 @@ foreach ($_nav_website as $link=>&$name) {
 ?>
                 </ul>
                 <div id="navapp-icons">
+<?php
+if (\sowerphp\core\Module::loaded('Sistema.Enlaces')) {
+?>
+                    <a href="<?=$_base?>/enlaces" title="Listado de enlaces">
+                        <img src="<?=$_base?>/sistema/enlaces/img/icons/16x16/enlaces.png" alt="" />
+                    </a>
+<?php } ?>
                     <a href="<?=$_base?>/usuarios/perfil" title="Perfil del usuario <?php echo \sowerphp\core\Model_Datasource_Session::read('auth.usuario'); ?>">
                         <img src="<?=$_base?>/img/icons/16x16/navapp/profile.png" alt="" />
                     </a>
