@@ -82,4 +82,7 @@ foreach ($columns as $column => &$info) {
 // terminar formulario
 echo $form->end('Guardar');
 ?>
-<p><span style="color:red">* campo es obligatorio</span></p>
+<div style="float:left;color:red">* campo es obligatorio</div>
+<div style="float:right;margin-bottom:1em;font-size:0.8em">
+    <a href="<?=$_base.$listarUrl?>">Volver al listado de registros</a>
+</div>

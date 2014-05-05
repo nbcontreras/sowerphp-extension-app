@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Clase que implementa los métodos básicos de un mantenedor, métodos CRUD.
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-04-26
+ * @version 2014-05-04
  */
 class Controller_Maintainer extends \Controller_App
 {
@@ -163,17 +163,17 @@ class Controller_Maintainer extends \Controller_App
     /**
      * Acción para crear un registro en la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-24
+     * @version 2014-05-04
      */
     public function crear ()
     {
+        $filterListar = !empty($_GET['listar']) ? base64_decode($_GET['listar']) : '';
         // si se envió el formulario se procesa
         if (isset($_POST['submit'])) {
             $Obj = new $this->model();
             $Obj->set($_POST);
             $msg = $Obj->save() ? 'Registro creado' : 'Registro no creado';
             \sowerphp\core\Model_Datasource_Session::message($msg);
-            $filterListar = !empty($_GET['listar']) ? base64_decode($_GET['listar']) : '';
             $this->redirect(
                 $this->module_url.$this->request->params['controller'].'/listar'.$filterListar
             );
@@ -185,6 +185,7 @@ class Controller_Maintainer extends \Controller_App
             'fkNamespace' => $model::$fkNamespace,
             'accion' => 'Crear',
             'columns' => $model::$columnsInfo,
+            'listarUrl' => $this->module_url.$this->request->params['controller'].'/listar'.$filterListar,
         ));
         // renderizar
         $this->autoRender = false;
@@ -195,7 +196,7 @@ class Controller_Maintainer extends \Controller_App
      * Acción para editar un registro de la tabla
      * @param pk Parámetro que representa la PK, pueden ser varios parámetros los pasados
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-24
+     * @version 2014-05-04
      */
     public function editar ($pk)
     {
@@ -218,6 +219,7 @@ class Controller_Maintainer extends \Controller_App
                 'columns' => $model::$columnsInfo,
                 'fkNamespace' => $model::$fkNamespace,
                 'accion' => 'Editar',
+                'listarUrl' => $this->module_url.$this->request->params['controller'].'/listar'.$filterListar,
             ));
             // renderizar
              $this->autoRender = false;
