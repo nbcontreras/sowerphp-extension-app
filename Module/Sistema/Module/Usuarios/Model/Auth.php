@@ -29,7 +29,7 @@ namespace sowerphp\app\Sistema\Usuarios;
  * Comentario de la tabla: Permisos de grupos para acceder a recursos
  * Esta clase permite trabajar sobre un registro de la tabla auth
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-04-24
+ * @version 2014-05-04
  */
 class Model_Auth extends \Model_App
 {
@@ -88,11 +88,13 @@ class Model_Auth extends \Model_App
     /**
      * Método que revisa los permisos de un usuario sobre un recurso
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-24
+     * @version 2014-05-04
      */
     public function check ($usuario, $recurso = null)
     {
-        return (boolean) $this->db->getValue('
+        $recurso = is_string($recurso) ? $recurso : $recurso->request;
+        // chequeo "rápido"
+        $ok = (boolean) $this->db->getValue('
             SELECT COUNT(*)
             FROM auth
             WHERE
@@ -120,8 +122,39 @@ class Model_Auth extends \Model_App
                 )
         ', [
             ':usuario' => $usuario,
-            ':recurso' => is_string($recurso) ? $recurso : $recurso->request,
+            ':recurso' => $recurso,
         ]);
+        if ($ok) {
+            return true;
+        }
+        // chequeo desglosando permisos (más lento)
+        // esto evita tener que asignar cada recurso por el que se debe "pasar"
+        // para llegar al recurso final que se quiere acceder
+        $permisos = $this->db->getCol('
+            SELECT a.recurso
+            FROM auth AS a, usuario_grupo AS ug
+            WHERE
+                ug.usuario = :usuario
+                AND a.grupo = ug.grupo
+        ', [':usuario'=>$usuario]);
+        foreach ($permisos as &$permiso) {
+            $partes = explode('/', $permiso);
+            array_shift($partes);
+            $aux = '';
+            foreach ($partes as &$parte) {
+                if ($parte=='*') {
+                    if (strpos($recurso, $aux)!==false) {
+                        return true;
+                    }
+                } else {
+                    $aux .= '/'.$parte;
+                    if ($recurso === $aux)
+                        return true;
+                }
+            }
+        }
+        // si no se encontró permiso => false
+        return false;
     }
 
 }
