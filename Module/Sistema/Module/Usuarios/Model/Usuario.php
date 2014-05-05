@@ -234,6 +234,7 @@ class Model_Usuario extends \Model_App
 
     /**
      * Método que revisa si el nombre de usuario ya existe en la base de datos
+     * @return =true si el nombre de usuario ya existe
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-04-19
      */
@@ -254,6 +255,7 @@ class Model_Usuario extends \Model_App
 
     /**
      * Método que revisa si el email ya existe en la base de datos
+     * @return =true si el correo ya existe
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-04-19
      */
@@ -274,6 +276,7 @@ class Model_Usuario extends \Model_App
 
     /**
      * Método que revisa si el hash del usuario ya existe en la base de datos
+     * @return =true si el hash ya existe
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-04-19
      */
@@ -290,6 +293,75 @@ class Model_Usuario extends \Model_App
                 WHERE id != :id AND hash = :hash
             ', [':id'=>$this->id, ':hash'=>$this->hash]);
         }
+    }
+
+    /**
+     * Método que entrega el listado a los que pertenece el usuario
+     * @return Arreglo asociativo con el GID como clave y el nombre del grupo como valor
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-05-04
+     */
+    public function groups ()
+    {
+        return $this->db->getAssociativeArray('
+            SELECT g.id, g.grupo
+            FROM grupo AS g, usuario_grupo AS ug
+            WHERE ug.usuario = :usuario AND g.id = ug.grupo
+            ORDER BY g.grupo
+        ', [':usuario'=>$this->id]);
+    }
+
+    /**
+     * Método que permite determinar si un usuario pertenece a cierto grupo
+     * @return Arreglo asociativo con el GID como clave y el nombre del grupo como valor
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-05-04
+     */
+    public function inGroup ($grupo)
+    {
+        return (boolean)$this->db->getValue('
+            SELECT COUNT(*)
+            FROM grupo AS g, usuario_grupo AS ug
+            WHERE ug.usuario = :usuario AND g.id = ug.grupo AND g.grupo = :grupo
+        ', [':usuario'=>$this->id, ':grupo'=>$grupo]);
+    }
+
+    /**
+     * Método que asigna los grupos al usuario, eliminando otros que no están
+     * en el listado
+     * @param grupos Arreglo con los GIDs de los grupos que se deben asignar/mantener
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-05-04
+     */
+    public function saveGrupos ($grupos)
+    {
+        $grupos = array_map('intval', $grupos);
+        $this->db->beginTransaction();
+        $this->db->query ('
+            DELETE FROM usuario_grupo
+            WHERE
+                usuario = :usuario
+                AND grupo NOT IN ('.implode(', ', $grupos).')
+        ', [':usuario'=>$this->id]);
+        foreach ($grupos as &$grupo) {
+            (new Model_UsuarioGrupo ($this->id, $grupo))->save();
+        }
+        $this->db->commit();
+    }
+
+    /**
+     * Método que busca los grupos a los que pertenece el usuario
+     * @return Arreglo con los grupos del usuario (solo el nombre)
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-05-05
+     */
+    public function grupos ()
+    {
+        return $this->db->getRow('
+            SELECT g.grupo
+            FROM grupo AS g, usuario_grupo AS ug
+            WHERE ug.usuario = :usuario AND ug.grupo = g.id
+        ', [':usuario' => $this->id]);
     }
 
 }

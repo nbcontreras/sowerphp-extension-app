@@ -31,7 +31,7 @@ namespace sowerphp\app\Sistema\Usuarios;
  * Esta clase permite controlar las acciones entre el modelo y vista para la
  * tabla usuario
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-04-23
+ * @version 2014-05-05
  */
 class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
 {
@@ -195,59 +195,64 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         if (isset($_POST['submit'])) {
             $Usuario = new Model_Usuario();
             $Usuario->set($_POST);
+            $ok = true;
             if ($Usuario->checkIfUsuarioAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario '.$_POST['usuario'].' ya está en uso'
                 );
-                $this->redirect('/sistema/usuarios/usuarios/crear'.$filterListarUrl);
+                $ok = false;
             }
-            if ($Usuario->checkIfHashAlreadyExists ()) {
+            if ($ok and $Usuario->checkIfHashAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Hash seleccionado ya está en uso'
                 );
-                $this->redirect('/sistema/usuarios/usuarios/crear'.$filterListarUrl);
+                $ok = false;
             }
-            if ($Usuario->checkIfEmailAlreadyExists ()) {
+            if ($ok and $Usuario->checkIfEmailAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Email seleccionado ya está en uso'
                 );
-                $this->redirect('/sistema/usuarios/usuarios/crear'.$filterListarUrl);
+                $ok = false;
             }
-            if (empty($Usuario->contrasenia)) {
-                $Usuario->contrasenia = string_random (8);
-            }
-            if (empty($Usuario->hash)) {
-                do {
-                    $Usuario->hash = string_random (32);
-                } while ($Usuario->checkIfHashAlreadyExists ());
-            }
-            $layout = $this->layout;
-            $this->layout = null;
-            $this->set(array(
-                'nombre'=>$Usuario->nombre,
-                'usuario'=>$Usuario->usuario,
-                'contrasenia'=>$Usuario->contrasenia,
-            ));
-            $msg = $this->render('Usuarios/crear_email')->body();
-            $this->layout = $layout;
-            $Usuario->contrasenia = $this->Auth->hash($Usuario->contrasenia);
-            if($Usuario->save()) {
-                // enviar correo
-                $emailConfig = \sowerphp\core\Configure::read('email.default');
-                if (!empty($emailConfig['type']) && !empty($emailConfig['type']) && !empty($emailConfig['pass'])) {
-                    $email = new \sowerphp\core\Network_Email();
-                    $email->to($Usuario->email);
-                    $email->subject('Cuenta de usuario creada');
-                    $email->send($msg);
-                    $msg = 'Registro creado (se envió email a '.$Usuario->email.' con los datos de acceso)';
-                } else {
-                    $msg = 'Registro creado (no se envió correo)';
+            if ($ok) {
+                if (empty($Usuario->contrasenia)) {
+                    $Usuario->contrasenia = string_random (8);
                 }
-            } else {
-                $msg = 'Registro no creado (hubo algún error)';
+                $contrasenia = $Usuario->contrasenia;
+                $Usuario->contrasenia = $this->Auth->hash($Usuario->contrasenia);
+                if (empty($Usuario->hash)) {
+                    do {
+                        $Usuario->hash = string_random (32);
+                    } while ($Usuario->checkIfHashAlreadyExists ());
+                }
+                if($Usuario->save()) {
+                    $Usuario->saveGrupos($_POST['grupos']);
+                    // enviar correo
+                    $emailConfig = \sowerphp\core\Configure::read('email.default');
+                    if (!empty($emailConfig['type']) && !empty($emailConfig['type']) && !empty($emailConfig['pass'])) {
+                    $layout = $this->layout;
+                        $this->layout = null;
+                        $this->set(array(
+                            'nombre'=>$Usuario->nombre,
+                            'usuario'=>$Usuario->usuario,
+                            'contrasenia'=>$contrasenia,
+                        ));
+                        $msg = $this->render('Usuarios/crear_email')->body();
+                        $this->layout = $layout;
+                        $email = new \sowerphp\core\Network_Email();
+                        $email->to($Usuario->email);
+                        $email->subject('Cuenta de usuario creada');
+                        $email->send($msg);
+                        $msg = 'Registro creado (se envió email a '.$Usuario->email.' con los datos de acceso)';
+                    } else {
+                        $msg = 'Registro creado (no se envió correo)';
+                    }
+                } else {
+                    $msg = 'Registro no creado (hubo algún error)';
+                }
+                \sowerphp\core\Model_Datasource_Session::message($msg);
+                $this->redirect('/sistema/usuarios/usuarios/listar'.$filterListar);
             }
-            \sowerphp\core\Model_Datasource_Session::message($msg);
-            $this->redirect('/sistema/usuarios/usuarios/listar'.$filterListar);
         }
         // setear variables
         Model_Usuario::$columnsInfo['contrasenia']['null'] = true;
@@ -255,9 +260,12 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         $this->set(array(
             'accion' => 'Crear',
             'columns' => Model_Usuario::$columnsInfo,
+            'grupos_asignados' => (isset($_POST['grupos'])?$_POST['grupos']:[]),
+            'listarUrl'=>'/sistema/usuarios/usuarios/listar'.$filterListar
         ));
+        $this->setGruposAsignables();
         $this->autoRender = false;
-        $this->render ('Maintainer/crear_editar', 'sowerphp/app');
+        $this->render ('Usuarios/crear_editar');
     }
 
     /**
@@ -285,13 +293,17 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         // si no se ha enviado el formulario se mostrará
         if(!isset($_POST['submit'])) {
             Model_Usuario::$columnsInfo['contrasenia']['null'] = true;
+            $grupos_asignados = $Usuario->groups();
+            $this->setGruposAsignables();
             $this->set(array(
                 'accion' => 'Editar',
                 'Obj' => $Usuario,
                 'columns' => Model_Usuario::$columnsInfo,
+                'grupos_asignados' => array_keys($grupos_asignados),
+                'listarUrl'=>'/sistema/usuarios/usuarios/listar'.$filterListar
             ));
             $this->autoRender = false;
-            $this->render ('Maintainer/crear_editar', 'sowerphp/app');
+            $this->render ('Usuarios/crear_editar');
         }
         // si se envió el formulario se procesa
         else {
@@ -321,6 +333,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     $this->Auth->settings['model']['user']['hash']
                 );
             }
+            $Usuario->saveGrupos($_POST['grupos']);
             \sowerphp\core\Model_Datasource_Session::message(
                 'Registro Usuario('.implode(', ', func_get_args()).') editado'
             );
@@ -329,9 +342,33 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     }
 
     /**
+     * Método que asigna los grupos que el usuario logueado puede asignar al
+     * crear o editar un usuario
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-05-04
+     */
+    private function setGruposAsignables ()
+    {
+        $grupos = (new Model_Grupos())->getList();
+        // si el usuario no pertenece al grupo sysadmin quitar los grupos
+        // sysadmin y appadmin del listado para evitar que los asignen
+        if (!(new Model_Usuario (\sowerphp\core\Model_Datasource_Session::read('auth.id')))->inGroup('sysadmin')) {
+            $aux = $grupos;
+            $grupos = [];
+            foreach ($aux as $key => &$grupo) {
+                if (!in_array($grupo['glosa'], ['sysadmin', 'appadmin'])) {
+                    $grupos[] = $grupo;
+                }
+            }
+            unset ($aux);
+        }
+        $this->set('grupos', $grupos);
+    }
+
+    /**
      * Acción para mostrar y editar el perfil del usuario que esta autenticado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-24
+     * @version 2014-05-05
      */
     public function perfil ()
     {
@@ -392,6 +429,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         else {
             $this->set(array(
                 'Usuario' => $Usuario,
+                'grupos' => $Usuario->grupos(),
             ));
         }
     }
