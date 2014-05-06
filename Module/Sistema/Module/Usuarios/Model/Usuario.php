@@ -331,20 +331,27 @@ class Model_Usuario extends \Model_App
      * en el listado
      * @param grupos Arreglo con los GIDs de los grupos que se deben asignar/mantener
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-05-04
+     * @version 2014-05-05
      */
     public function saveGrupos ($grupos)
     {
         $grupos = array_map('intval', $grupos);
         $this->db->beginTransaction();
-        $this->db->query ('
-            DELETE FROM usuario_grupo
-            WHERE
-                usuario = :usuario
-                AND grupo NOT IN ('.implode(', ', $grupos).')
-        ', [':usuario'=>$this->id]);
-        foreach ($grupos as &$grupo) {
-            (new Model_UsuarioGrupo ($this->id, $grupo))->save();
+        if ($grupos) {
+            $this->db->query ('
+                DELETE FROM usuario_grupo
+                WHERE
+                    usuario = :usuario
+                    AND grupo NOT IN ('.implode(', ', $grupos).')
+            ', [':usuario'=>$this->id]);
+            foreach ($grupos as &$grupo) {
+                (new Model_UsuarioGrupo ($this->id, $grupo))->save();
+            }
+        } else {
+            $this->db->query ('
+                DELETE FROM usuario_grupo
+                WHERE usuario = :usuario
+            ', [':usuario'=>$this->id]);
         }
         $this->db->commit();
     }
@@ -357,10 +364,11 @@ class Model_Usuario extends \Model_App
      */
     public function grupos ()
     {
-        return $this->db->getRow('
+        return $this->db->getCol('
             SELECT g.grupo
             FROM grupo AS g, usuario_grupo AS ug
             WHERE ug.usuario = :usuario AND ug.grupo = g.id
+            ORDER BY g.grupo
         ', [':usuario' => $this->id]);
     }
 
