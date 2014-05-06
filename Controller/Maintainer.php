@@ -152,7 +152,7 @@ class Controller_Maintainer extends \Controller_App
             'pages' => isset($pages) ? $pages : 0,
             'linkEnd' => ($orderby ? '/'.$orderby.'/'.$order : '').$searchUrl,
             'fkNamespace' => $model::$fkNamespace,
-            'comment' => '',
+            'comment' => $model::$tableComment,
             '_header_extra' => ['js'=>['/js/mantenedor.js']],
             'listarFilterUrl' => '?listar='.base64_encode('/'.$page.($orderby ? '/'.$orderby.'/'.$order : '').$searchUrl),
         ));
