@@ -168,6 +168,9 @@ class Model_Usuario extends \Model_App
 
     );
 
+    // Comentario de la tabla en la base de datos
+    public static $tableComment = 'Usuarios de la aplicación';
+
     /**
      * Constructor de la clase usuario
      * Permite crear el objeto usuario ya sea recibiendo el id del usuario

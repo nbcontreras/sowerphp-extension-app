@@ -85,6 +85,9 @@ class Model_Auth extends \Model_App
 
     );
 
+    // Comentario de la tabla en la base de datos
+    public static $tableComment = 'Permisos de grupos para acceder a recursos';
+
     /**
      * Método que revisa los permisos de un usuario sobre un recurso
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)

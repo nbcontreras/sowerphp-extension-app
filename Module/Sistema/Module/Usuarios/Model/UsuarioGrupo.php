@@ -86,4 +86,7 @@ class Model_UsuarioGrupo extends \Model_App
 
     );
 
+    // Comentario de la tabla en la base de datos
+    public static $tableComment = 'Relación entre usuarios y los grupos a los que pertenecen';
+
 }
