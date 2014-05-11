@@ -17,29 +17,7 @@
  * Debería haber recibido una copia de la Licencia Pública General GNU
  * junto a este programa.
  * En caso contrario, consulte <http://www.gnu.org/licenses/gpl.html>.
- */ 
-
-/**
- * Implementación sincrónica de $.getJSON, esto para poder recuperar
- * el objeto json fuera de la funcion que se ejecuta en success
- * @param url Url desde donde se obtendrá el JSON
- * @param data Datos que se deben enviar por la URL (como GET)
- * @return json Datos retornados por la página
- * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2011-05-02
  */
-function getJSON (url, data) {
-	var json;
-	$.ajax({
-		type: 'GET',
-	url: url,
-	dataType: 'json',
-	success: function (result) {json = result;},
-	       data: data,
-	async: false
-	});
-	return json;
-}
 
 /**
  * Función para autocompletar un input de un formulario
@@ -49,20 +27,20 @@ function getJSON (url, data) {
  * @version 2014-03-16
  */
 function autocomplete (id, url) {
-	var field = id+'Field';
-	$(function(){ $('#'+field).keyup(function(){
-		if($('#'+field).val()!='' && $('#'+field).val().length > 2) {
-			$.getJSON(url, { filter: $('#'+field).val() }, function(data) {
-				var items = [];
-				$.each(data, function(key, val) {
-					items.push(val.glosa);
-				});
-				$('#'+field).autocomplete({
-					source: items
-					, autoFocus: true
-					, minLength: 3
-				});
-			});
-		}
-	});});
+    var field = id+'Field';
+    $(function(){ $('#'+field).keyup(function(){
+        if($('#'+field).val()!='' && $('#'+field).val().length > 2) {
+            $.getJSON(url, { filter: $('#'+field).val() }, function(data) {
+                var items = [];
+                $.each(data, function(key, val) {
+                    items.push(val.glosa);
+                });
+                $('#'+field).autocomplete({
+                    source: items
+                    , autoFocus: true
+                    , minLength: 3
+                });
+            });
+        }
+    });});
 }
