@@ -63,7 +63,7 @@ class View_Helper_Maintainer extends \sowerphp\general\View_Helper_Table
      * @param pages Cantidad total de páginas que tienen los registros
      * @param page Página que se está revisando o 0 para no usar el paginador
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-03-20
+     * @version 2014-05-14
      */
     public function listar ($data, $pages = 1, $page = 1)
     {
@@ -73,7 +73,7 @@ class View_Helper_Maintainer extends \sowerphp\general\View_Helper_Table
         if ($page)
             $buffer .= $this->paginator ($pages, $page)."\n";
         $buffer .= parent::generate ($data, $this->options['thead']);
-        $buffer .= $this->form->end(array('type'=>null))."\n";
+        $buffer .= $this->form->end(false)."\n";
         $buffer .= '<div style="text-align:right;margin-bottom:1em;font-size:0.8em">'."\n";
         if ($page)
             $buffer .= '<a href="'.$this->options['link'].'/listar/0'.$this->options['linkEnd'].'">Mostrar todos los registros (sin paginar)</a>'."\n";
