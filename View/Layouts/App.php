@@ -14,6 +14,12 @@
         <script type="text/javascript" src="<?=$_base?>/js/app.js"></script>
         <script type="text/javascript" src="<?=$_base?>/js/jquery-ui/jquery-ui.js"></script>
         <link rel="stylesheet" type="text/css" href="<?=$_base?>/js/jquery-ui/css/smoothness/jquery-ui.css" media="screen"/>
+        <script type="text/javascript">
+            var _url = "<?=$_url?>",
+                _base = "<?=$_base?>",
+                _request = "<?=$_request?>"
+            ;
+        </script>
 <?=$_header_extra?>
     </head>
     <body>
