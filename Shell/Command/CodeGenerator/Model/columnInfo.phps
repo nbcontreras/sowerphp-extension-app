@@ -4,7 +4,7 @@
             'type'      => '{type}',
             'length'    => {length},
             'null'      => {null},
-            'default'   => "{default}",
+            'default'   => '{default}',
             'auto'      => {auto},
             'pk'        => {pk},
             'fk'        => {fk}

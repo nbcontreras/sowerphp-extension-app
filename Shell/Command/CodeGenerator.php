@@ -271,7 +271,7 @@ class Shell_Command_CodeGenerator extends \Shell_App
                     'type'        => $column['type'],
                     'length'    => !empty($column['length'])?$column['length']:'null',
                     'null'        => ($column['null']==='YES'||$column['null']==1)?'true':'false',
-                    'default'    => $column['default'],
+                    'default'    => str_replace("'", "\'", $column['default']),
                     'auto'        => ($column['auto']==='YES'||$column['auto']==1)?'true':'false',
                     'pk'        => in_array($column['name'], $info['pk'])?'true':'false',
                     'fk'        => is_array($column['fk']) ? 'array(\'table\' => \''.$column['fk']['table'].'\', \'column\' => \''.$column['fk']['column'].'\')':'null',
