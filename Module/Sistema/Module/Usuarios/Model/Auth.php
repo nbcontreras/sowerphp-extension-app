@@ -91,11 +91,16 @@ class Model_Auth extends \Model_App
     /**
      * Método que revisa los permisos de un usuario sobre un recurso
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-05-04
+     * @version 2014-08-08
      */
     public function check ($usuario, $recurso = null)
     {
         $recurso = is_string($recurso) ? $recurso : $recurso->request;
+        // determinar que usar para strpos
+        if (in_array($this->db->config['type'], ['MariaDB', 'MySQL']))
+            $strpos = 'INSTR';
+        else
+            $strpos = 'strpos';
         // chequeo "rápido"
         $ok = (boolean) $this->db->getValue('
             SELECT COUNT(*)
@@ -113,8 +118,8 @@ class Model_Auth extends \Model_App
                     OR recurso||\'/\' = :recurso
                     -- verificar si existe algo del tipo recurso*
                     OR
-                    CASE WHEN strpos(recurso,\'*\')!=0 THEN
-                        CASE WHEN strpos(:recurso, substring(recurso from 1 for length(recurso)-1))=1 THEN
+                    CASE WHEN '.$strpos.'(recurso,\'*\')!=0 THEN
+                        CASE WHEN '.$strpos.'(:recurso, substring(recurso from 1 for length(recurso)-1))=1 THEN
                             true
                         ELSE
                             false
