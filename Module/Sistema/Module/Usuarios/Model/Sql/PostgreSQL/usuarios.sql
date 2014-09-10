@@ -89,22 +89,37 @@ COMMENT ON COLUMN auth.id IS 'Identificador (serial)';
 COMMENT ON COLUMN auth.grupo IS 'Grupo al que se le concede el permiso';
 COMMENT ON COLUMN auth.recurso IS 'Recurso al que el grupo tiene acceso';
 
--- DATOS PARA EL MÓDULO:  Sistema.Usuarios
+-- DATOS PARA EL MÓDULO: Sistema.Usuarios
 
 INSERT INTO grupo (grupo) VALUES
-    ('sysadmin'), -- Grupo para quienes desarrollan la aplicación
-    ('appadmin')  -- Grupo para aquellos que administran la aplicación y al no ser desarrolladores no necesitan "ver todo"
+	-- Grupo para quienes desarrollan la aplicación
+	('sysadmin'),
+	-- Grupo para aquellos que administran la aplicación y al no ser 
+	-- desarrolladores no necesitan "ver todo"
+	('appadmin'),
+	-- Grupo para crear/editar/eliminar cuentas de usuario
+	('passwd')
 ;
+
 INSERT INTO auth (grupo, recurso) VALUES
-    ((SELECT id FROM grupo WHERE grupo = 'sysadmin'), '*') -- grupo sysadmin tiene acceso a todos los recursos de la aplicación
+	-- grupo sysadmin tiene acceso a todos los recursos de la aplicación
+	((SELECT id FROM grupo WHERE grupo = 'sysadmin'), '*'),
+	((SELECT id FROM grupo WHERE grupo = 'appadmin'), '/sistema*'),
+	((SELECT id FROM grupo WHERE grupo = 'passwd'), 
+		'/sistema/usuarios/usuarios*')
 ;
 
 INSERT INTO usuario (nombre, usuario, email, contrasenia, hash) VALUES
-    -- usuario por defecto Administrador con clave admin, el hash único DEBE ser cambiado es un riesgo dejar el mismo!!!
-    ('Administrador', 'admin', 'admin@example.com', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 't7dr5B1ujphds043WMMEFWwFLeyWYqMU')
+	-- usuario por defecto admin con clave admin, el hash único DEBE ser 
+	-- cambiado, ¡¡¡ES UN RIESGO DEJAR EL MISMO!!!
+	('Administrador', 'admin', 'admin@example.com', 
+	'8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 
+	't7dr5B1ujphds043WMMEFWwFLeyWYqMU')
 ;
+
 INSERT INTO usuario_grupo (usuario, grupo, primario) VALUES
-    ((SELECT id FROM usuario WHERE usuario = 'admin'), (SELECT id FROM grupo WHERE grupo = 'sysadmin'), true)
+	((SELECT id FROM usuario WHERE usuario = 'admin'),
+		(SELECT id FROM grupo WHERE grupo = 'sysadmin'), true)
 ;
 
 COMMIT;

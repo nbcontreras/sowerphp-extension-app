@@ -89,12 +89,17 @@ INSERT INTO grupo (grupo) VALUES
 	('sysadmin'),
 	-- Grupo para aquellos que administran la aplicación y al no ser 
 	-- desarrolladores no necesitan "ver todo"
-	('appadmin')  
+	('appadmin'),
+	-- Grupo para crear/editar/eliminar cuentas de usuario
+	('passwd')
 ;
 
 INSERT INTO auth (grupo, recurso) VALUES
 	-- grupo sysadmin tiene acceso a todos los recursos de la aplicación
-	((SELECT id FROM grupo WHERE grupo = 'sysadmin'), '*')
+	((SELECT id FROM grupo WHERE grupo = 'sysadmin'), '*'),
+	((SELECT id FROM grupo WHERE grupo = 'appadmin'), '/sistema*'),
+	((SELECT id FROM grupo WHERE grupo = 'passwd'), 
+		'/sistema/usuarios/usuarios*')
 ;
 
 INSERT INTO usuario (nombre, usuario, email, contrasenia, hash) VALUES
