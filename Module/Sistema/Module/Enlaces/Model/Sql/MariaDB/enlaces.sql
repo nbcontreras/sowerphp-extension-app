@@ -16,7 +16,7 @@ CREATE TABLE enlace_categoria (
 	CONSTRAINT enlace_categoria_madre_fkey FOREIGN KEY (madre)
 		REFERENCES enlace_categoria (id)
 		MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
-) COMMENT 'Categorías de los enlaces de la aplicación';
+) ENGINE=InnoDB COMMENT 'Categorías de los enlaces de la aplicación';
 
 -- tabla que contiene los enlaces
 DROP TABLE IF EXISTS enlace CASCADE;
@@ -32,7 +32,7 @@ CREATE TABLE enlace (
 	CONSTRAINT enlace_categoria_fkey FOREIGN KEY (categoria)
 		REFERENCES enlace_categoria (id)
 		MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
-) COMMENT 'Enlaces de la aplicación';
+) ENGINE=InnoDB COMMENT 'Enlaces de la aplicación';
 
 SET FOREIGN_KEY_CHECKS=1;
 COMMIT;
