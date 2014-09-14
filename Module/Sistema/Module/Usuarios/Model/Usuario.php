@@ -315,18 +315,25 @@ class Model_Usuario extends \Model_App
     }
 
     /**
-     * Método que permite determinar si un usuario pertenece a cierto grupo
-     * @return Arreglo asociativo con el GID como clave y el nombre del grupo como valor
+     * Método que permite determinar si un usuario pertenece a cierto grupo.
+     * Además se revisará si pertenece al grupo sysadmin, en cuyo caso también
+     * entregará true
+     * @param grupos Arreglo con los grupos que se desean revisar
+     * @return =true si pertenece a alguno de los grupos que se solicitaron
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-05-04
+     * @version 2014-09-14
      */
-    public function inGroup ($grupo)
+    public function inGroup ($grupos = [])
     {
+        $grupos[] = 'sysadmin';
         return (boolean)$this->db->getValue('
             SELECT COUNT(*)
             FROM grupo AS g, usuario_grupo AS ug
-            WHERE ug.usuario = :usuario AND g.id = ug.grupo AND g.grupo = :grupo
-        ', [':usuario'=>$this->id, ':grupo'=>$grupo]);
+            WHERE
+                ug.usuario = :usuario
+                AND g.id = ug.grupo
+                AND g.grupo IN (\''.implode('\', \'', $grupos).'\')
+        ', [':usuario'=>$this->id]);
     }
 
     /**

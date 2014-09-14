@@ -352,7 +352,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         $grupos = (new Model_Grupos())->getList();
         // si el usuario no pertenece al grupo sysadmin quitar los grupos
         // sysadmin y appadmin del listado para evitar que los asignen
-        if (!(new Model_Usuario (\sowerphp\core\Model_Datasource_Session::read('auth.id')))->inGroup('sysadmin')) {
+        if (!(new Model_Usuario (\sowerphp\core\Model_Datasource_Session::read('auth.id')))->inGroup()) {
             $aux = $grupos;
             $grupos = [];
             foreach ($aux as $key => &$grupo) {
