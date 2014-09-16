@@ -82,9 +82,11 @@ foreach ($Objs as &$obj) {
     }
     $pkValues = $obj->getPkValues();
     $pkURL = implode('/', array_map('urlencode', $pkValues));
-    $row[] =
-        '<a href="'.$_base.$module_url.$controller.'/editar/'.$pkURL.$listarFilterUrl.'" title="Editar"><img src="'.$_base.'/img/icons/16x16/actions/edit.png" alt="" /></a> '.
-        '<a href="'.$_base.$module_url.$controller.'/eliminar/'.$pkURL.$listarFilterUrl.'" title="Eliminar" onclick="return eliminar(\''.$model.'\', \''.implode(', ', $pkValues).'\')"><img src="'.$_base.'/img/icons/16x16/actions/delete.png" alt="" /></a>';
+    $actions = '<a href="'.$_base.$module_url.$controller.'/editar/'.$pkURL.$listarFilterUrl.'" title="Editar"><img src="'.$_base.'/img/icons/16x16/actions/edit.png" alt="" /></a>';
+    if ($deleteRecord) {
+        $actions .= ' <a href="'.$_base.$module_url.$controller.'/eliminar/'.$pkURL.$listarFilterUrl.'" title="Eliminar" onclick="return eliminar(\''.$model.'\', \''.implode(', ', $pkValues).'\')"><img src="'.$_base.'/img/icons/16x16/actions/delete.png" alt="" /></a>';
+    }
+    $row[] = $actions;
     $data[] = $row;
 }
 

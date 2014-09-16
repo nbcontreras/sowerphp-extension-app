@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Clase que implementa los métodos básicos de un mantenedor, métodos CRUD.
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-05-04
+ * @version 2014-09-15
  */
 class Controller_Maintainer extends \Controller_App
 {
@@ -34,6 +34,7 @@ class Controller_Maintainer extends \Controller_App
     private $model; ///< Atributo con el namespace y clase del modelo singular
     private $models; ///< Atributo con el namespace y clase del modelo plural
     private $module_url; ///< Atributo con la url para acceder el módulo
+    protected $deleteRecord = true; ///< Indica si se permite o no borrar registros
 
     /**
      * Constructor del controlador
@@ -155,6 +156,7 @@ class Controller_Maintainer extends \Controller_App
             'comment' => $model::$tableComment,
             '_header_extra' => ['js'=>['/js/mantenedor.js']],
             'listarFilterUrl' => '?listar='.base64_encode('/'.$page.($orderby ? '/'.$orderby.'/'.$order : '').$searchUrl),
+            'deleteRecord' => $this->deleteRecord,
         ));
         $this->autoRender = false;
         $this->render('Maintainer/listar', 'sowerphp/app');
@@ -240,10 +242,18 @@ class Controller_Maintainer extends \Controller_App
      * Acción para eliminar un registro de la tabla
      * @param pk Parámetro que representa la PK, pueden ser varios parámetros los pasados
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-24
+     * @version 2014-09-15
      */
     public function eliminar ($pk)
     {
+        if (!$this->deleteRecord) {
+            \sowerphp\core\Model_Datasource_Session::message(
+                'No se permite el borrado de registros'
+            );
+            $this->redirect(
+                $this->module_url.$this->request->params['controller'].'/listar'.$filterListar
+            );
+        }
         $filterListar = !empty($_GET['listar']) ? base64_decode($_GET['listar']) : '';
         $Obj = new $this->model(func_get_args());
         // si el registro que se quiere eliminar no existe error
