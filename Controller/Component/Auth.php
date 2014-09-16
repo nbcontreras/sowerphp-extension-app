@@ -64,6 +64,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
                 'columns' => array(
                     'id' => 'id',
                     'user' => 'usuario',
+                    'name' => 'nombre',
                     'pass' => 'contrasenia',
                     'active' => 'activo',
                     'lastlogin_timestamp' => 'ultimo_ingreso_fecha_hora',
@@ -241,6 +242,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             // campos usuario y contraseña
             $idField = $this->settings['model']['user']['columns']['id'];
             $userField = $this->settings['model']['user']['columns']['user'];
+            $nameField = $this->settings['model']['user']['columns']['name'];
             $passField = $this->settings['model']['user']['columns']['pass'];
             // si el usuario o contraseña es vacio mensaje de error
             if (empty($_POST[$userField]) || empty($_POST[$passField])) {
@@ -295,6 +297,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
                 $this->session =  array(
                     'id' => $$userModel->$idField,
                     'usuario' => $$userModel->$userField,
+                    'nombre' => $$userModel->$nameField,
                     'hash' => $hash,
                 );
                 \sowerphp\core\Model_Datasource_Session::write(
