@@ -18,11 +18,14 @@ a:hover {
 	text-decoration:none;
 	color: #6CC7DC;
 }
+#content ol {
+	margin-bottom: 1em;
+}
 #content ul {
 	list-style-image: url('../../img/list.png');
 	margin-bottom: 1em;
 }
-#content ul > li {
+#content li {
 	margin-left: 20px;
 }
 
