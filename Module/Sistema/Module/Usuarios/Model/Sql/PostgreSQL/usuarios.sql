@@ -98,7 +98,9 @@ INSERT INTO grupo (grupo) VALUES
 	-- desarrolladores no necesitan "ver todo"
 	('appadmin'),
 	-- Grupo para crear/editar/eliminar cuentas de usuario
-	('passwd')
+	('passwd'),
+	-- Grupo para ver documentación
+	('documentacion')
 ;
 
 INSERT INTO auth (grupo, recurso) VALUES
@@ -106,7 +108,9 @@ INSERT INTO auth (grupo, recurso) VALUES
 	((SELECT id FROM grupo WHERE grupo = 'sysadmin'), '*'),
 	((SELECT id FROM grupo WHERE grupo = 'appadmin'), '/sistema*'),
 	((SELECT id FROM grupo WHERE grupo = 'passwd'), 
-		'/sistema/usuarios/usuarios*')
+		'/sistema/usuarios/usuarios*'),
+	((SELECT id FROM grupo WHERE grupo = 'documentacion'), 
+		'/documentacion*')
 ;
 
 INSERT INTO usuario (nombre, usuario, email, contrasenia, hash) VALUES
