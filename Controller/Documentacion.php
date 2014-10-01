@@ -36,14 +36,18 @@ class Controller_Documentacion extends \Controller_App
      * la página de documentación que se haya solicitado
      * @param page Página que se desea renderizar (serán varios argumentos)
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-09-23
+     * @version 2014-10-01
      */
     public function index($page = null)
     {
         if ($page==null) {
+            $archivos = array_merge_recursive(
+                $this->archivos(DIR_WEBSITE.'/View/Documentacion'),
+                $this->archivos(\sowerphp\core\App::layer('sowerphp/app').'/sowerphp/app/View/Documentacion')
+            );
             $this->set([
                 'doxygen' => is_dir(DIR_WEBSITE.'/webroot/doc/html'),
-                'archivos' => $this->archivos(),
+                'archivos' => $archivos,
             ]);
         } else {
             $this->autoRender = false;
@@ -58,17 +62,17 @@ class Controller_Documentacion extends \Controller_App
      * @param dir Directorio donde se está buscando la documentación
      * @return Arreglo con la estructura de directorio y archivos dentro de ellos
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-09-23
+     * @version 2014-10-01
      */
-    private function archivos($dir = '')
+    private function archivos($base, $dir = '')
     {
         $archivos = [];
-        $realdir = DIR_WEBSITE.'/View/Documentacion'.$dir;
+        $realdir = $base.$dir;
         $files = scandir($realdir);
         foreach ($files as &$file) {
-            if ($file[0]=='.' || !is_readable($realdir.'/'.$file)) continue;
+            if ($file[0]=='.' || $file=='index.php' || !is_readable($realdir.'/'.$file)) continue;
             if (is_dir($realdir.'/'.$file)) {
-                $archivos[$file] = $this->archivos($dir.'/'.$file);
+                $archivos[$file] = $this->archivos($base, $dir.'/'.$file);
             } else {
                 $archivos[] = substr($file, 0, strpos($file, '.'));
             }
