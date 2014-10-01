@@ -181,7 +181,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para crear un nuevo usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-24
+     * @version 2014-10-01
      */
     public function crear ()
     {
@@ -217,13 +217,13 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             }
             if ($ok) {
                 if (empty($Usuario->contrasenia)) {
-                    $Usuario->contrasenia = string_random (8);
+                    $Usuario->contrasenia = \sowerphp\core\Utility_String::random(8);
                 }
                 $contrasenia = $Usuario->contrasenia;
                 $Usuario->contrasenia = $this->Auth->hash($Usuario->contrasenia);
                 if (empty($Usuario->hash)) {
                     do {
-                        $Usuario->hash = string_random (32);
+                        $Usuario->hash = \sowerphp\core\Utility_String::random(32);
                     } while ($Usuario->checkIfHashAlreadyExists ());
                 }
                 if($Usuario->save()) {
@@ -369,7 +369,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para mostrar y editar el perfil del usuario que esta autenticado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-05-05
+     * @version 2014-10-01
      */
     public function perfil ()
     {
@@ -399,7 +399,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             }
             if (empty($Usuario->hash)) {
                 do {
-                    $Usuario->hash = string_random (32);
+                    $Usuario->hash = \sowerphp\core\Utility_String::random(32);
                 } while ($Usuario->checkIfHashAlreadyExists ());
             }
             $Usuario->save();
