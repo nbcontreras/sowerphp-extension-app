@@ -102,11 +102,18 @@ class Controller_Maintainer extends \Controller_App
             foreach ($filters as &$filter) {
                 list($var, $val) = explode(':', $filter);
                 $search[$var] = $val;
-                // dependiendo del tipo de datos se ve como filtrar
+                // si es un campo de texto se filtrará con LIKE
                 if (in_array($model::$columnsInfo[$var]['type'], array('char', 'character varying'))) {
                     $where[] = 'LOWER('.$var.') LIKE :'.$var;
                     $vars[':'.$var] = '%'.$val.'%';
-                } else {
+                }
+                // si es un tipo fecha con hora se usará like
+                else if (in_array($model::$columnsInfo[$var]['type'], ['timestamp', 'timestamp without time zone'])) {
+                    $where[] = $var.' LIKE :'.$var;
+                    $vars[':'.$var] = $val.' %';
+                }
+                // si es cualquier otro caso se comparará con una igualdad
+                else {
                     $where[] = $var.' = :'.$var;
                     $vars[':'.$var] = $val;
                 }

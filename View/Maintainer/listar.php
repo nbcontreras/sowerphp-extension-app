@@ -42,6 +42,10 @@ foreach ($columns as $column => &$info) {
         array_unshift($options, array('', 'Seleccione una opción'));
         $row[] = $form->input(array('type'=>'select', 'name'=>$column, 'options' => $options, 'selected' => (isset($search[$column])?$search[$column]:'')));
     }
+    // si es un tipo de dato de fecha o fecha con hora se muestra un input para fecha
+    else if (in_array($info['type'], ['date', 'timestamp', 'timestamp without time zone'])) {
+        $row[] = $form->input(array('type'=>'date', 'name'=>$column, 'value'=>(isset($search[$column])?$search[$column]:'')));
+    }
     // si es cualquier otro tipo de datos
     else {
         $row[] = $form->input(array('name'=>$column, 'value'=>(isset($search[$column])?$search[$column]:'')));
