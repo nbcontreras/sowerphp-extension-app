@@ -27,7 +27,7 @@ namespace sowerphp\app;
  * Clase abstracta para todos los modelos
  * Permite trabajar con varios registros de una tabla
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-04-22
+ * @version 2014-10-02
  */
 abstract class Model_Plural extends \sowerphp\core\Object
 {
@@ -45,6 +45,7 @@ abstract class Model_Plural extends \sowerphp\core\Object
     protected $orderByStatement; ///< Orden de los resultados
     protected $limitStatementRecords; ///< Registros que se seleccionarán
     protected $limitStatementOffset; ///< Desde que fila se seleccionarán
+    protected $queryVars = []; ///< Variables que se utilizarán en la query
 
     /**
      * Constructor de la clase abstracta
@@ -82,6 +83,7 @@ abstract class Model_Plural extends \sowerphp\core\Object
             $this->orderByStatement = null;
             $this->limitStatementRecords = null;
             $this->limitStatementOffset = null;
+            $this->queryVars = [];
         }
         else if ($statement=='select') $this->selectStatement = null;
         else if ($statement=='where') $this->whereStatement = null;
@@ -90,61 +92,67 @@ abstract class Model_Plural extends \sowerphp\core\Object
         else if ($statement=='orderBy') $this->orderByStatement = null;
         else if ($statement=='limitRecords') $this->limitStatementRecords = null;
         else if ($statement=='limitOffset') $this->limitStatementOffset = null;
+        else if ($statement=='queryVars') $this->queryVars = [];
     }
 
     /**
      * Ingresa las columnas que se seleccionarán en el select
-     * @param selectStatement Columna/s que se desea seleccionar de la tabla
+     * @param selectStatement Arreglo con la(s) columna(s) que se desea seleccionar de la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2014-10-02
      */
     public function setSelectStatement ($selectStatement)
     {
-        $this->selectStatement = $selectStatement;
+        $this->selectStatement = implode(',', $selectStatement);
     }
 
     /**
      * Ingresa las condiciones para utilizar en el where de la consulta sql
      * @param whereStatement Condiciones para el where de la consulta sql
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2014-10-02
      */
-    public function setWhereStatement ($whereStatement)
+    public function setWhereStatement($whereStatement, $whereVars)
     {
-        $this->whereStatement = ' WHERE '.$whereStatement;
+        $this->whereStatement = ' WHERE '.implode(' AND ', $whereStatement);
+        $this->queryVars = array_merge($this->queryVars, $whereVars);
     }
 
     /**
      * Ingresa las columnas por las que se agrupara la consulta
-     * @param groupByStatement Columna/s por la que se desea agrupar la tabla
+     * @param groupByStatement Arreglo con la(s) columna(s) por la(s) que se desea agrupar la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2014-10-02
      */
     public function setGroupByStatement ($groupByStatement)
     {
-        $this->groupByStatement = ' GROUP BY '.$this->db->sanitize($groupByStatement);
+        $this->groupByStatement = ' GROUP BY '.implode(', ', $groupByStatement);
     }
 
     /**
      * Ingresa las condiciones para utilizar en el having de la consulta sql
      * @param havingStatement Condiciones para el having de la consulta sql
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2014-10-02
      */
-    public function setHavingStatement ($havingStatement)
+    public function setHavingStatement ($havingStatement, $havingVars)
     {
-        $this->havingStatement = ' HAVING '.$havingStatement;
+        $this->havingStatement = ' HAVING '.implode(' AND ', $havingStatement);
+        $this->queryVars = array_merge($this->queryVars, $havingVars);
     }
 
     /**
      * Ingresa los campos por los que se deberá ordenar
      * @param orderByStatement Columna/s de la tabla por la cual se ordenará
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2014-10-02
      */
     public function setOrderByStatement ($orderByStatement)
     {
-        $this->orderByStatement = ' ORDER BY '.$this->db->sanitize($orderByStatement);
+        $order = [];
+        foreach ($orderByStatement as $c => $o)
+            $order[] = $c.' '.$o;
+        $this->orderByStatement = ' ORDER BY '.implode(', ', $order);
     }
 
     /**
@@ -152,39 +160,14 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * @param records Cantidad de filas a mostrar (mayor que 0)
      * @param offset Desde que registro se seleccionara (default: 0)
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2014-10-02
      */
     public function setLimitStatement ($records, $offset = 0)
     {
-        if ((integer)$records > 0) {
-            $this->limitStatementRecords = $this->db->sanitize($records);
-            $this->limitStatementOffset = $this->db->sanitize($offset);
+        if (+$records > 0) {
+            $this->limitStatementRecords = +$records;
+            $this->limitStatementOffset = +$offset;
         }
-    }
-
-    /**
-     * Wrapper para el método sanitize de la Base de datos
-     * @param string Valor que se desea limpiar
-     * @return String sanitizado
-     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-11-11
-     */
-    public function sanitize ($string)
-    {
-        return $this->db->sanitize($string);
-    }
-
-    /**
-     * Wrapper para el método like de la Base de datos
-     * @param colum Columna por la que se filtrará (se sanitiza)
-     * @param value Valor a buscar mediante like (se sanitiza)
-     * @return String Filtro utilizando like
-     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-11-11
-     */
-    public function like ($column, $value)
-    {
-        return $this->db->like($column, $value);
     }
 
     /**
@@ -208,7 +191,7 @@ abstract class Model_Plural extends \sowerphp\core\Object
             $query = "SELECT COUNT(*) FROM ($query) AS t";
         }
         // entregar resultados
-        return $this->db->getValue($query);
+        return $this->db->getValue($query, $this->queryVars);
     }
 
     /**
@@ -217,13 +200,13 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * @param campo Campo que se consultará
      * @return Numeric Valor máximo del campo
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2014-10-02
      */
     public function getMax ($campo)
     {
-        $query = 'SELECT MAX('.$this->db->sanitize($campo).') FROM '.$this->_table;
+        $query = 'SELECT MAX('.$campo.') FROM '.$this->_table;
         if ($this->whereStatement) $query .= $this->whereStatement;
-        return $this->db->getValue($query);
+        return $this->db->getValue($query, $this->queryVars);
     }
 
     /**
@@ -232,13 +215,13 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * @param campo Campo que se consultará
      * @return Numeric Valor mínimo del campo
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2014-10-02
      */
     public function getMin ($campo)
     {
-        $query = 'SELECT MIN('.$this->db->sanitize($campo).') FROM '.$this->_table;
+        $query = 'SELECT MIN('.$campo.') FROM '.$this->_table;
         if ($this->whereStatement) $query .= $this->whereStatement;
-        return self::$bd->getValue($query);
+        return $this->db->getValue($query, $this->queryVars);
     }
 
     /**
@@ -247,13 +230,13 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * @param campo Campo que se consultará
      * @return Numeric Suma de todos las filas en el campo indicado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2014-10-02
      */
     public function getSum ($campo)
     {
-        $query = 'SELECT SUM('.$this->db->sanitize($campo).') FROM '.$this->_table;
+        $query = 'SELECT SUM('.$campo.') FROM '.$this->_table;
         if ($this->whereStatement) $query .= $this->whereStatement;
-        return $this->db->getValue($query);
+        return $this->db->getValue($query, $this->queryVars);
     }
 
     /**
@@ -262,13 +245,13 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * @param campo Campo que se consultará
      * @return Numeric Valor promedio del campo
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2014-10-02
      */
     public function getAvg ($campo)
     {
-        $query = 'SELECT AVG('.$this->db->sanitize($campo).') FROM '.$this->_table;
+        $query = 'SELECT AVG('.$campo.') FROM '.$this->_table;
         if ($this->whereStatement) $query .= $this->whereStatement;
-        return $this->db->getValue($query);
+        return $this->db->getValue($query, $this->queryVars);
     }
 
     /**
@@ -278,7 +261,7 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * @param solicitado Lo que se está solicitando (objetcs, table, etc)
      * @return Mixed Arreglo o valor según lo solicitado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-03
+     * @version 2014-10-02
      */
     protected function get ($solicitado)
     {
@@ -303,7 +286,7 @@ abstract class Model_Plural extends \sowerphp\core\Object
         );
         // ejecutar
         if ($solicitado=='objects' || $solicitado=='table') {
-            $tabla = $this->db->getTable($query);
+            $tabla = $this->db->getTable($query, $this->queryVars);
             if ($solicitado=='objects') {
                 // procesar tabla y asignar valores al objeto
                 $objetos = array();
@@ -323,9 +306,9 @@ abstract class Model_Plural extends \sowerphp\core\Object
                 return $tabla;
             }
         }
-        else if($solicitado=='row') return $this->db->getRow($query);
-        else if($solicitado=='col') return $this->db->getCol($query);
-        else if($solicitado=='value') return $this->db->getValue($query);
+        else if($solicitado=='row') return $this->db->getRow($query, $this->queryVars);
+        else if($solicitado=='col') return $this->db->getCol($query, $this->queryVars);
+        else if($solicitado=='value') return $this->db->getValue($query, $this->queryVars);
     }
 
     /**

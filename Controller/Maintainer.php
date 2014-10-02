@@ -84,7 +84,7 @@ class Controller_Maintainer extends \Controller_App
     /**
      * Acción para listar los registros de la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-26
+     * @version 2014-10-02
      */
     public function listar ($page = 1, $orderby = null, $order = 'A')
     {
@@ -97,22 +97,25 @@ class Controller_Maintainer extends \Controller_App
         if (!empty($_GET['search'])) {
             $searchUrl = '?search='.$_GET['search'];
             $filters = explode(',', $_GET['search']);
-            $where = array();
+            $where = [];
+            $vars = [];
             foreach ($filters as &$filter) {
                 list($var, $val) = explode(':', $filter);
                 $search[$var] = $val;
                 // dependiendo del tipo de datos se ve como filtrar
-                if (in_array($model::$columnsInfo[$var]['type'], array('char', 'character varying')))
-                    $where[] = $Objs->like($Objs->sanitize($var), $Objs->sanitize('%'.$val.'%'));
-                else
-                    $where[] = $Objs->sanitize($var)." = '".$Objs->sanitize($val)."'";
+                if (in_array($model::$columnsInfo[$var]['type'], array('char', 'character varying'))) {
+                    $where[] = 'LOWER('.$var.') LIKE :'.$var;
+                    $vars[':'.$var] = '%'.$val.'%';
+                } else {
+                    $where[] = $var.' = :'.$var;
+                    $vars[':'.$var] = $val;
+                }
             }
-            // agregar condicion a la busqueda
-            $Objs->setWhereStatement(implode(' AND ', $where));
+            $Objs->setWhereStatement($where, $vars);
         }
         // si se debe ordenar se agrega
-        if ($orderby) {
-            $Objs->setOrderByStatement($orderby.' '.($order=='D'?'DESC':'ASC'));
+        if (isset($model::$columnsInfo[$orderby])) {
+            $Objs->setOrderByStatement([$orderby=>($order=='D'?'DESC':'ASC')]);
         }
         // total de registros
         $registers_total = $Objs->count();
