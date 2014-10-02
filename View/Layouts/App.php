@@ -55,7 +55,7 @@ foreach ($_nav_website as $link=>&$name) {
                 </div>
                 <ul id="navapp">
 <?php if (!$_Auth->logged()) { ?>
-                    <li><a href="<?=$_base?>/usuarios/ingresar" title="Iniciar sesión en la Intranet">Iniciar sesión</a></li>
+                    <li><a href="<?=$_base?>/usuarios/ingresar" title="Iniciar sesión en la aplicación">Iniciar sesión</a></li>
                 </ul>
 <?php
 } else {
