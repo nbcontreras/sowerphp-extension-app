@@ -98,9 +98,7 @@ INSERT INTO grupo (grupo) VALUES
 	-- desarrolladores no necesitan "ver todo"
 	('appadmin'),
 	-- Grupo para crear/editar/eliminar cuentas de usuario
-	('passwd'),
-	-- Grupo para ver documentación
-	('documentacion')
+	('passwd')
 ;
 
 INSERT INTO auth (grupo, recurso) VALUES

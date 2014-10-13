@@ -32,6 +32,17 @@ class Controller_Documentacion extends \Controller_App
 {
 
     /**
+     * Se permite el acceso a la documentación a usuarios con sesión iniciada
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-10-13
+     */
+    public function beforeFilter ()
+    {
+        $this->Auth->allowWithLogin('index');
+        parent::beforeFilter();
+    }
+
+    /**
      * Acción que mostrará el índice de la documentación y además renderizará
      * la página de documentación que se haya solicitado
      * @param page Página que se desea renderizar (serán varios argumentos)

@@ -68,11 +68,9 @@ foreach ($_nav_website as $link=>&$name) {
 ?>
                 </ul>
                 <div id="navapp-icons">
-<?php if ($_Auth->check('/documentacion')) : ?>
                     <a href="<?=$_base?>/documentacion" title="Documentación de la aplicación">
                         <img src="<?=$_base?>/img/icons/16x16/actions/doc.png" alt="" />
                     </a>
-<?php endif; ?>
 <?php if (\sowerphp\core\Module::loaded('Sistema.Enlaces')) : ?>
                     <a href="<?=$_base?>/enlaces" title="Listado de enlaces">
                         <img src="<?=$_base?>/sistema/enlaces/img/icons/16x16/enlaces.png" alt="" />
