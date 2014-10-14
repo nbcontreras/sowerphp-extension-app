@@ -27,7 +27,7 @@
 // Textos de la página
 \sowerphp\core\Configure::write('page.footer', array(
     'left' => '',
-    'right' => 'Página web generada utilizando el framework <a href="http://sowerphp.org">SowerPHP</a>'
+    'right' => ''
 ));
 
 // Menú principal del sitio web

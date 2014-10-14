@@ -4,7 +4,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es">
     <head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-        <meta name="generator" content="SowerPHP"/>
         <title><?=$_header_title?></title>
         <link rel="shortcut icon" href="<?=$_base?>/img/favicon.png" />
         <link type="text/css" href="<?=$_base?>/layouts/<?=$_layout?>/css/screen.css" media="screen" rel="stylesheet" />
