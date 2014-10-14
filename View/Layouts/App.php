@@ -104,6 +104,7 @@ if($message) echo '<div class="session_message">',$message,'</div>';
                         echo $_footer['right'],"\n";
                         if ($_Auth->logged()) {
                             echo ' [stats] time: ',round(microtime(true)-TIME_START, 2),' [s] / ';
+                            echo 'mem: ',round(memory_get_usage()/1024/1024,2),' [MiB] / ';
                             echo 'querys: ',\sowerphp\core\Model_Datasource_Database_Manager::$querysCount,"\n";
                         }
 ?>
