@@ -26,65 +26,49 @@ namespace sowerphp\app;
 /**
  * Componente para proveer de un sistema de autenticación y autorización
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-04-19
+ * @version 2014-10-14
  */
 class Controller_Component_Auth extends \sowerphp\core\Controller_Component
 {
 
-    public $settings = array( ///< Opciones por defecto
-        'session' => array(
+    public $settings = [ ///< Opciones por defecto
+        'hash' => 'sha256',
+        'model' => '\sowerphp\app\Sistema\Usuarios\Model_Usuario',
+        'session' => [
             'key' => 'auth',
-        ),
-        'redirect' => array(
+        ],
+        'redirect' => [
             'login' => '/',
             'logout' => '/',
             'error' => '/',
             'form' => '/usuarios/ingresar',
-        ),
-        'messages' => array(
-            'ok' => array(
+        ],
+        'messages' => [
+            'ok' => [
                 'login' => 'Usuario <em>%s</em> ha iniciado su sesión',
                 'lastlogin' => 'Último ingreso fue el <em>%s</em> desde <em>%s</em>',
                 'logout' => 'Usuario <em>%s</em> ha cerrado su sesión',
-                'logged' => 'Usuario <em>%s</em> tiene su sesión abierta'
-            ),
-            'error' => array(
+            ],
+            'error' => [
                 'nologin' => 'Debe iniciar sesión para tratar de acceder a <em>%s</em>',
                 'auth' => 'No dispone de permisos para acceder a <em>%s</em>',
-                'empty' => 'Debe especificar usuario y clave',
                 'invalid' => 'Usuario o clave inválida',
                 'inactive' => 'Cuenta de usuario no activa',
                 'newlogin' => 'Sesión cerrada, usuario <em>%s</em> tiene una más nueva en otro lugar',
-            ),
-        ),
-        'model' => array(
-            'user' => array(
-                'class' => '\sowerphp\app\Sistema\Usuarios\Model_Usuario',
-                'table' => 'usuario',
-                'columns' => array(
-                    'id' => 'id',
-                    'user' => 'usuario',
-                    'name' => 'nombre',
-                    'pass' => 'contrasenia',
-                    'active' => 'activo',
-                    'lastlogin_timestamp' => 'ultimo_ingreso_fecha_hora',
-                    'lastlogin_from' => 'ultimo_ingreso_desde',
-                    'lastlogin_hash' => 'ultimo_ingreso_hash',
-                ),
-                'hash' => 'sha256',
-            ),
-        )
-    );
-    public $session = null; ///< Información de la sesión del usuario
-    public $allowedActions = array(); ///< Acciones sin login
-    public $allowedActionsWithLogin = array(); ///< Acciones con login
+            ],
+        ],
+    ];
+    private $allowedActions = array(); ///< Acciones sin login
+    private $allowedActionsWithLogin = array(); ///< Acciones con login
+    private $session = null; ///< Información de la sesión del usuario
+    public $User = false; ///< Usuario que se ha identificado en la sesión
 
     /**
      * Método que inicializa el componente y carga la sesión activa
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-03-29
+     * @version 2014-10-14
      */
-    public function __construct(\sowerphp\core\Controller_Component_Collection $Components, $settings = array())
+    public function __construct(\sowerphp\core\Controller_Component_Collection $Components, $settings = [])
     {
         // ejecutar el constructor padre
         parent::__construct($Components, $settings);
@@ -92,6 +76,9 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         $this->session = \sowerphp\core\Model_Datasource_Session::read(
             $this->settings['session']['key']
         );
+        if ($this->session) {
+            $this->User = new $this->settings['model']($this->session['id']);
+        }
     }
 
     /**
@@ -100,7 +87,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-03-29
      */
-    public function beforeFilter($controller)
+    public function beforeFilter()
     {
         if (!$this->isAuthorized()) {
             if (!$this->logged()) {
@@ -108,7 +95,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
                     $this->settings['messages']['error']['nologin'],
                     $this->request->request
                 ));
-                $controller->redirect(
+                $this->controller->redirect(
                     $this->settings['redirect']['form'].'/'.
                     base64_encode($this->request->request)
                 );
@@ -117,7 +104,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
                     $this->settings['messages']['error']['auth'],
                     $this->request->request
                 ));
-                $controller->redirect($this->settings['redirect']['error']);
+                $this->controller->redirect($this->settings['redirect']['error']);
             }
         }
     }
@@ -175,23 +162,19 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Indica si existe una sesión de un usuario creada
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-03-29
+     * @version 2014-10-14
      */
     public function logged ()
     {
-        // si es un arreglo $this->session se verifica el hash de la sesión
-        if (
-            is_array($this->session)
-            && isset($this->session['id'])
-            && isset($this->session['usuario'])
-            && isset($this->session['hash'])
-        ) {
-            $userModel = $this->settings['model']['user']['class'];
-            $$userModel = new $userModel($this->session['id']);
-            if ($$userModel->{$this->settings['model']['user']['columns']['lastlogin_hash']} != $this->session['hash']) {
+        // si se creó el objeto usuario se verifica el hash
+        if ($this->session and $this->User) {
+            if (!$this->User->checkLastLoginHash($this->session['hash'])) {
                 \sowerphp\core\Model_Datasource_Session::destroy();
                 \sowerphp\core\Model_Datasource_Session::message(
-                    sprintf($this->settings['messages']['error']['newlogin'], $this->session['usuario'])
+                    sprintf(
+                        $this->settings['messages']['error']['newlogin'],
+                        $this->User->usuario
+                    )
                 );
                 return false;
             }
@@ -204,142 +187,109 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que revisa si hay o no permisos para determinado recurso
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-03-29
+     * @version 2014-10-14
      */
     public function check ($recurso = null, $usuario = null)
     {
-        // si no se indico el usuario se recupera de la sesión
-        if (!$usuario) $usuario = $this->session[$this->settings['model']['user']['columns']['id']];
-        // si la clase Auth no existe no hay permiso porque no se puede verificar
-        if(!class_exists('\sowerphp\app\Sistema\Usuarios\Model_Auth')) return false;
-        // por que se consultará
-        if(!$recurso) $recurso = str_replace(__BASE, '', $_SERVER['REQUEST_URI']);
-        // verificar permiso
-        return (new \sowerphp\app\Sistema\Usuarios\Model_Auth())->check($usuario, $recurso);
+        if (!$recurso) {
+            $recurso = str_replace(__BASE, '', $_SERVER['REQUEST_URI']);
+        }
+        if ($usuario) {
+            return (new \sowerphp\app\Sistema\Usuarios\Model_Auth())->check(
+                $usuario, $recurso
+            );
+        } else {
+            return (new \sowerphp\app\Sistema\Usuarios\Model_Auth())->check(
+                $this->session['id'], $recurso
+            );
+        }
     }
 
     /**
      * Método que realiza el login del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-19
+     * @version 2014-10-14
      */
-    public function login ($controller)
+    public function login ($usuario, $contrasenia)
     {
-        // si ya está logueado se redirecciona
-        if ($this->logged()) {
-            // mensaje para mostrar
-            \sowerphp\core\Model_Datasource_Session::message(sprintf(
-                $this->settings['messages']['ok']['logged'],
-                $this->session['usuario']
-            ));
-            // redireccionar
-            $controller->redirect(
-                $this->settings['redirect']['login']
+        // crear objeto del usuario con el nombre de usuario entregado
+        $this->User = new $this->settings['model']($usuario);
+        // si la contraseña no es correcta error (también se generará un error
+        // si el usuario noe existe
+        if (!$this->User->checkPassword($this->hash($contrasenia))) {
+            \sowerphp\core\Model_Datasource_Session::message(
+                $this->settings['messages']['error']['invalid']
             );
+            return;
         }
-        // si se envió el formulario se procesa
-        if(isset($_POST['submit'])) {
-            // campos usuario y contraseña
-            $idField = $this->settings['model']['user']['columns']['id'];
-            $userField = $this->settings['model']['user']['columns']['user'];
-            $nameField = $this->settings['model']['user']['columns']['name'];
-            $passField = $this->settings['model']['user']['columns']['pass'];
-            // si el usuario o contraseña es vacio mensaje de error
-            if (empty($_POST[$userField]) || empty($_POST[$passField])) {
-                \sowerphp\core\Model_Datasource_Session::message(
-                    $this->settings['messages']['error']['empty']
-                );
-                return;
-            }
-            // crear objeto del usuario con el nombre de usuario entregado
-            $userModel = $this->settings['model']['user']['class'];
-            $$userModel = new $userModel($_POST[$userField]);
-            // si las contraseñas no son iguales error (si el usuario no existe tambiém habrá error)
-            if ($$userModel->$passField != $this->hash($_POST[$passField])) {
-                \sowerphp\core\Model_Datasource_Session::message(
-                    $this->settings['messages']['error']['invalid']
-                );
-                return;
-            }
-            if (!$$userModel->{$this->settings['model']['user']['columns']['active']}) {
-                \sowerphp\core\Model_Datasource_Session::message(
-                    $this->settings['messages']['error']['inactive']
-                );
-                return;
-            }
-            // si existe, crear sesión
-            else {
-                // hash de la sesión
-                $timestamp = date('Y-m-d H:i:s');
-                $ip = $this->ip (true);
-                $hash = md5 ($ip.$timestamp.$this->hash($_POST[$passField]));
-                // registrar ingreso en la base de datos
-                // se asume que si está seteada una de las columnas lastlogin_* lo estarán todas
-                if (isset($this->settings['model']['user']['columns']['lastlogin_timestamp'][0])) {
-                    if (isset($$userModel->{$this->settings['model']['user']['columns']['lastlogin_timestamp']}[0])) {
-                        $lastlogin = '<br />'.sprintf(
-                            $this->settings['messages']['ok']['lastlogin'],
-                            $$userModel->{$this->settings['model']['user']['columns']['lastlogin_timestamp']},
-                            $$userModel->{$this->settings['model']['user']['columns']['lastlogin_from']}
-                        );
-                    } else {
-                        $lastlogin = '';
-                    }
-                    $$userModel->update ([
-                        $this->settings['model']['user']['columns']['lastlogin_timestamp'] => $timestamp,
-                        $this->settings['model']['user']['columns']['lastlogin_from'] => $ip,
-                        $this->settings['model']['user']['columns']['lastlogin_hash'] => $hash
-                    ]);
-                } else {
-                    $lastlogin = '';
-                }
-                // crear info de la sesión
-                $this->session =  array(
-                    'id' => $$userModel->$idField,
-                    'usuario' => $$userModel->$userField,
-                    'nombre' => $$userModel->$nameField,
-                    'hash' => $hash,
-                );
-                \sowerphp\core\Model_Datasource_Session::write(
-                    $this->settings['session']['key'], $this->session
-                );
-                // mensaje para mostrar
-                \sowerphp\core\Model_Datasource_Session::message(sprintf(
-                    $this->settings['messages']['ok']['login'],
-                    $$userModel->$userField
-                ).$lastlogin);
-                // redireccionar
-                if (isset($_POST['redirect'][0])) $controller->redirect($_POST['redirect']);
-                    else $controller->redirect($this->settings['redirect']['login']);
-            }
+        if (!$this->User->isActive()) {
+            \sowerphp\core\Model_Datasource_Session::message(
+                $this->settings['messages']['error']['inactive']
+            );
+            return;
         }
+        // si el usuario existe y está activo, crear sesión
+        // hash de la sesión
+        $timestamp = date('Y-m-d H:i:s');
+        $ip = $this->ip (true);
+        $hash = md5 ($ip.$timestamp.$this->hash($contrasenia));
+        // registrar ingreso en la base de datos
+        $lastLogin = $this->User->lastLogin();
+        if (isset($lastLogin['fecha_hora'][0])) {
+            $lastlogin = '<br />'.sprintf(
+                $this->settings['messages']['ok']['lastlogin'],
+                $lastLogin['fecha_hora'],
+                $lastLogin['desde']
+            );
+        } else {
+            $lastlogin = '';
+        }
+        $this->User->updateLastLogin($timestamp, $ip, $hash);
+        // crear info de la sesión
+        $this->session =  array(
+            'id' => $this->User->id,
+            'hash' => $hash,
+        );
+        \sowerphp\core\Model_Datasource_Session::write(
+            $this->settings['session']['key'], $this->session
+        );
+        // mensaje para mostrar
+        \sowerphp\core\Model_Datasource_Session::message(sprintf(
+            $this->settings['messages']['ok']['login'],
+            $usuario
+        ).$lastlogin);
+        // redireccionar
+        if (isset($_POST['redirect'][0]))
+            $this->controller->redirect($_POST['redirect']);
+        else
+            $this->controller->redirect($this->settings['redirect']['login']);
     }
 
     /**
      * Método que termina la sesión del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-03-23
+     * @version 2014-10-14
      */
-    public function logout ($controller)
+    public function logout()
     {
         \sowerphp\core\Model_Datasource_Session::destroy();
+        \sowerphp\core\Model_Datasource_Session::start();
         \sowerphp\core\Model_Datasource_Session::message(sprintf(
             $this->settings['messages']['ok']['logout'],
-            $this->session['usuario']
+            $this->User->usuario
         ));
-        $this->session = null;
-        $controller->redirect($this->settings['redirect']['logout']);
+        $this->controller->redirect($this->settings['redirect']['logout']);
     }
 
     /**
      * Método que calcula el hash de la contraseña utilizando el método
      * especificado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-03-23
+     * @version 2014-10-14
      */
     public function hash ($string)
     {
-        return hash($this->settings['model']['user']['hash'], $string);
+        return hash($this->settings['hash'], $string);
     }
 
     /**

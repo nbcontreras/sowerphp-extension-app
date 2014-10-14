@@ -299,7 +299,71 @@ class Model_Usuario extends \Model_App
     }
 
     /**
-     * Método que entrega el listado a los que pertenece el usuario
+     * Método que revisa si la contraseña entregada es igual a al contraseña del
+     * usuario
+     * @return =true si las contraseñas son la misma
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-10-14
+     */
+    public function checkPassword($password)
+    {
+        return $this->contrasenia == $password;
+    }
+
+    /**
+     * Método que revisa si el hash indicado es igual al hash que tiene el
+     * usuario para su último ingreso (o sea si la sesión es aun válida)
+     * @return =true si el hash aun es válido
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-10-14
+     */
+    public function checkLastLoginHash($hash)
+    {
+        return $this->ultimo_ingreso_hash == $hash;
+    }
+
+    /**
+     * Método que indica si el usuario está o no activo
+     * @return =true si el usuario está activo
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-10-14
+     */
+    public function isActive()
+    {
+        return (boolean) $this->activo;
+    }
+
+    /**
+     * Método que entrega un arreglo con los datos del último acceso del usuario
+     * @return Arreglo con índices: fecha_hora, desde, hash
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-10-14
+     */
+    public function lastLogin()
+    {
+        return [
+            'fecha_hora' => $this->ultimo_ingreso_fecha_hora,
+            'desde' => $this->ultimo_ingreso_desde,
+            'hash' => $this->ultimo_ingreso_hash,
+        ];
+    }
+
+    /**
+     * Método que actualiza el último ingreso del usuario
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-10-14
+     */
+    public function updateLastLogin($timestamp, $ip, $hash)
+    {
+        $this->update ([
+            'ultimo_ingreso_fecha_hora' => $timestamp,
+            'ultimo_ingreso_desde' => $ip,
+            'ultimo_ingreso_hash' => $hash
+        ]);
+    }
+
+    /**
+     * Método que entrega el listado de grupos a los que pertenece el usuario
      * @return Arreglo asociativo con el GID como clave y el nombre del grupo como valor
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-05-04

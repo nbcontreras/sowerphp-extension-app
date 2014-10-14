@@ -59,13 +59,36 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * Acción para que un usuario ingrese al sistema (inicie sesión)
      * @param redirect Ruta (en base64) de hacia donde hay que redireccionar una vez se autentica el usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-23
+     * @version 2014-10-14
      */
     public function ingresar ($redirect = null)
     {
-        if ($redirect) $redirect = base64_decode ($redirect);
+        // si ya está logueado se redirecciona
+        if ($this->Auth->logged()) {
+            \sowerphp\core\Model_Datasource_Session::message(sprintf(
+                'Usuario <em>%s</em> tiene su sesión abierta',
+                $this->Auth->Usuario->usuario
+            ));
+            $this->redirect(
+                $this->Auth->settings['redirect']['login']
+            );
+        }
+        // procesar inicio de sesión
+        if ($redirect)
+            $redirect = base64_decode ($redirect);
         $this->set('redirect', $redirect);
-        $this->Auth->login($this);
+        if (isset($_POST['submit'])) {
+            // si el usuario o contraseña es vacio mensaje de error
+            if (empty($_POST['usuario']) || empty($_POST['contrasenia'])) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Debe especificar usuario y clave'
+                );
+            }
+            // autenticar
+            else {
+                $this->Auth->login($_POST['usuario'], $_POST['contrasenia']);
+            }
+        }
     }
 
     /**
@@ -75,7 +98,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      */
     public function salir ()
     {
-        $this->Auth->logout($this);
+        $this->Auth->logout();
     }
 
     /**

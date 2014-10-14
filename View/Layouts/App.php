@@ -76,10 +76,10 @@ foreach ($_nav_website as $link=>&$name) {
                         <img src="<?=$_base?>/sistema/enlaces/img/icons/16x16/enlaces.png" alt="" />
                     </a>
 <?php endif; ?>
-                    <a href="<?=$_base?>/usuarios/perfil" title="Perfil del usuario <?php echo \sowerphp\core\Model_Datasource_Session::read('auth.usuario'); ?>">
+                    <a href="<?=$_base?>/usuarios/perfil" title="Perfil del usuario <?=$_Auth->User->usuario?>">
                         <img src="<?=$_base?>/img/icons/16x16/navapp/profile.png" alt="" />
                     </a>
-                    <a href="<?=$_base?>/usuarios/salir" title="Cerrar sesión del usuario <?php echo \sowerphp\core\Model_Datasource_Session::read('auth.usuario'); ?>">
+                    <a href="<?=$_base?>/usuarios/salir" title="Cerrar sesión del usuario <?=$_Auth->User->usuario?>">
                         <img src="<?=$_base?>/img/icons/16x16/navapp/logout.png" alt="" />
                     </a>
                 </div>
