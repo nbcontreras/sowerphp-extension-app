@@ -392,40 +392,38 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para mostrar y editar el perfil del usuario que esta autenticado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-01
+     * @version 2014-10-14
      */
     public function perfil ()
     {
-        // obtener usuario
-        $Usuario = new Model_Usuario(\sowerphp\core\Model_Datasource_Session::read('auth.id'));
         // procesar datos personales
         if (isset($_POST['datosUsuario'])) {
             // actualizar datos generales
-            $Usuario->set($_POST);
-            if ($Usuario->checkIfUsuarioAlreadyExists ()) {
+            $this->Auth->User->set($_POST);
+            if ($this->Auth->User->checkIfUsuarioAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario '.$_POST['usuario'].' ya está en uso'
                 );
                 $this->redirect('/usuarios/perfil');
             }
-            if ($Usuario->checkIfHashAlreadyExists ()) {
+            if ($this->Auth->User->checkIfHashAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Hash seleccionado ya está en uso'
                 );
                 $this->redirect('/usuarios/perfil');
             }
-            if ($Usuario->checkIfEmailAlreadyExists ()) {
+            if ($this->Auth->User->checkIfEmailAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Email seleccionado ya está en uso'
                 );
                 $this->redirect('/usuarios/perfil');
             }
-            if (empty($Usuario->hash)) {
+            if (empty($this->Auth->User->hash)) {
                 do {
-                    $Usuario->hash = \sowerphp\core\Utility_String::random(32);
-                } while ($Usuario->checkIfHashAlreadyExists ());
+                    $this->Auth->User->hash = \sowerphp\core\Utility_String::random(32);
+                } while ($this->Auth->User->checkIfHashAlreadyExists ());
             }
-            $Usuario->save();
+            $this->Auth->User->save();
             // mensaje de ok y redireccionar
             \sowerphp\core\Model_Datasource_Session::message('Perfil actualizado');
             $this->redirect('/usuarios/perfil');
@@ -433,7 +431,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         // procesar cambio de contraseña
         else if (isset($_POST['cambiarContrasenia'])) {
             if(!empty($_POST['contrasenia1']) && $_POST['contrasenia1']==$_POST['contrasenia2']) {
-                $Usuario->saveContrasenia(
+                $this->Auth->User->saveContrasenia(
                     $_POST['contrasenia1'],
                     $this->Auth->settings['model']['user']['hash']
                 );
@@ -452,8 +450,8 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         // mostrar formulario para edición
         else {
             $this->set(array(
-                'Usuario' => $Usuario,
-                'grupos' => $Usuario->groups(),
+                'Usuario' => $this->Auth->User,
+                'grupos' => $this->Auth->User->groups(),
             ));
         }
     }
