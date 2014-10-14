@@ -1,6 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!-- Design by http://www.oswd.org/design/preview/id/3459 modified by http://delaf.cl -->
-<!-- Tiempo de generación de la página (sin layout): <?=$_loadtime?> [s] -->
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es">
     <head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -98,10 +97,16 @@ if($message) echo '<div class="session_message">',$message,'</div>';
             <div id="footer">
                 <div>
                     <div class="fleft" id="footer_left">
-                        <?php echo $_footer['left']; ?>
+                        <?php echo $_footer['left'],"\n"; ?>
                     </div>
                     <div class="fright" id="footer_right">
-                        <?php echo $_footer['right']; ?>
+<?php
+                        echo $_footer['right'],"\n";
+                        if ($_Auth->logged()) {
+                            echo ' [stats] time: ',round(microtime(true)-TIME_START, 2),' [s] / ';
+                            echo 'querys: ',\sowerphp\core\Model_Datasource_Database_Manager::$querysCount,"\n";
+                        }
+?>
                     </div>
                 </div>
             </div>
