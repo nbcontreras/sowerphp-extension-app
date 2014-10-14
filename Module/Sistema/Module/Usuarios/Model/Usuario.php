@@ -29,7 +29,7 @@ namespace sowerphp\app\Sistema\Usuarios;
  * Comentario de la tabla: Usuarios de la aplicación
  * Esta clase permite trabajar sobre un registro de la tabla usuario
  * @author SowerPHP Code Generator
- * @version 2014-04-24
+ * @version 2014-10-14
  */
 class Model_Usuario extends \Model_App
 {
@@ -170,6 +170,10 @@ class Model_Usuario extends \Model_App
 
     // Comentario de la tabla en la base de datos
     public static $tableComment = 'Usuarios de la aplicación';
+
+    // atributos para caché
+    protected $groups = null; ///< Grupos a los que pertenece el usuario
+    protected $auths = null; ///< Permisos que tiene el usuario
 
     /**
      * Constructor de la clase usuario
@@ -366,16 +370,19 @@ class Model_Usuario extends \Model_App
      * Método que entrega el listado de grupos a los que pertenece el usuario
      * @return Arreglo asociativo con el GID como clave y el nombre del grupo como valor
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-05-04
+     * @version 2014-10-14
      */
-    public function groups ()
+    public function groups()
     {
-        return $this->db->getAssociativeArray('
-            SELECT g.id, g.grupo
-            FROM grupo AS g, usuario_grupo AS ug
-            WHERE ug.usuario = :usuario AND g.id = ug.grupo
-            ORDER BY g.grupo
-        ', [':usuario'=>$this->id]);
+        if ($this->groups===null) {
+            $this->groups = $this->db->getAssociativeArray('
+                SELECT g.id, g.grupo
+                FROM grupo AS g, usuario_grupo AS ug
+                WHERE ug.usuario = :usuario AND g.id = ug.grupo
+                ORDER BY g.grupo
+            ', [':usuario'=>$this->id]);
+        }
+        return $this->groups;
     }
 
     /**
@@ -385,19 +392,17 @@ class Model_Usuario extends \Model_App
      * @param grupos Arreglo con los grupos que se desean revisar
      * @return =true si pertenece a alguno de los grupos que se solicitaron
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-09-14
+     * @version 2014-10-14
      */
     public function inGroup ($grupos = [])
     {
+        $this->groups();
         $grupos[] = 'sysadmin';
-        return (boolean)$this->db->getValue('
-            SELECT COUNT(*)
-            FROM grupo AS g, usuario_grupo AS ug
-            WHERE
-                ug.usuario = :usuario
-                AND g.id = ug.grupo
-                AND g.grupo IN (\''.implode('\', \'', $grupos).'\')
-        ', [':usuario'=>$this->id]);
+        foreach ($grupos as $g) {
+            if (in_array($g, $this->groups()))
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -431,19 +436,65 @@ class Model_Usuario extends \Model_App
     }
 
     /**
-     * Método que busca los grupos a los que pertenece el usuario
-     * @return Arreglo con los grupos del usuario (solo el nombre)
+     * Método que entrega el listado de recursos sobre los que el usuario tiene
+     * permisos para acceder.
+     * @return Arreglo asociativo con el GID como clave y el nombre del grupo como valor
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-05-05
+     * @version 2014-10-14
      */
-    public function grupos ()
+    protected function auths()
     {
-        return $this->db->getCol('
-            SELECT g.grupo
-            FROM grupo AS g, usuario_grupo AS ug
-            WHERE ug.usuario = :usuario AND ug.grupo = g.id
-            ORDER BY g.grupo
-        ', [':usuario' => $this->id]);
+        if ($this->auths===null) {
+            $this->auths = $this->db->getCol('
+                SELECT a.recurso
+                FROM auth AS a, usuario_grupo AS ug
+                WHERE ug.usuario = :usuario AND a.grupo = ug.grupo
+            ', [':usuario'=>$this->id]);
+        }
+        return $this->auths;
+    }
+
+    /**
+     * Método que verifica si el usuario tiene permiso para acceder a cierto
+     * recurso.
+     * @return =true si tiene permiso
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-10-14
+     */
+    public function auth($recurso)
+    {
+        $recurso = is_string($recurso) ? $recurso : $recurso->request;
+        $permisos = $this->auths();
+        // buscar permiso de forma exacta
+        if (in_array($recurso, $permisos))
+            return true;
+        // buscar si el usuario tiene permiso para acceder a todo
+        if (in_array('*', $permisos))
+            return true;
+        // revisar por cada permiso
+        foreach ($permisos as &$permiso) {
+            // buscar si el permiso es del tipo recurso*
+            if ($permiso[strlen($permiso)-1]=='*' and strpos($recurso, substr($permiso, 0, -1))===0) {
+                return true;
+            }
+            // buscar por partes
+            $partes = explode('/', $permiso);
+            array_shift($partes);
+            $aux = '';
+            foreach ($partes as &$parte) {
+                if ($parte=='*') {
+                    if (strpos($recurso, $aux)!==false) {
+                        return true;
+                    }
+                } else {
+                    $aux .= '/'.$parte;
+                    if ($recurso === $aux)
+                        return true;
+                }
+            }
+        }
+        // si no se encontró permiso => false
+        return false;
     }
 
 }

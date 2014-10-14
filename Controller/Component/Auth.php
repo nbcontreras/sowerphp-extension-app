@@ -93,16 +93,16 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             if (!$this->logged()) {
                 \sowerphp\core\Model_Datasource_Session::message(sprintf(
                     $this->settings['messages']['error']['nologin'],
-                    $this->request->request
+                    $this->controller->request->request
                 ));
                 $this->controller->redirect(
                     $this->settings['redirect']['form'].'/'.
-                    base64_encode($this->request->request)
+                    base64_encode($this->controller->request->request)
                 );
             } else {
                 \sowerphp\core\Model_Datasource_Session::message(sprintf(
                     $this->settings['messages']['error']['auth'],
-                    $this->request->request
+                    $this->controller->request->request
                 ));
                 $this->controller->redirect($this->settings['redirect']['error']);
             }
@@ -142,7 +142,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     public function isAuthorized ()
     {
         // Si la acción se encuentra dentro de las permitidas dejar pasar
-        if (in_array($this->request->params['action'], $this->allowedActions))
+        if (in_array($this->controller->request->params['action'], $this->allowedActions))
             return true;
         // si el usuario no existe en la sesión se retorna falso
         if (!$this->logged())
@@ -150,13 +150,13 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         // si la acción se encuentra dentro de las que solo requieren un
         // usuario logueado se acepta
         if (in_array(
-                $this->request->params['action'],
+                $this->controller->request->params['action'],
                 $this->allowedActionsWithLogin
         )) {
             return true;
         }
         // Chequear permisos
-        return $this->check($this->request);
+        return $this->check($this->controller->request);
     }
 
     /**
@@ -185,24 +185,20 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     }
 
     /**
-     * Método que revisa si hay o no permisos para determinado recurso
+     * Método que revisa si hay o no permisos para determinado recurso y cierto
+     * usuario (por defecto la web que se trata de acceder y el usuario
+     * autenticado).
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-10-14
      */
-    public function check ($recurso = null, $usuario = null)
+    public function check($recurso = false, $usuario = false)
     {
-        if (!$recurso) {
+        if (!$recurso)
             $recurso = str_replace(__BASE, '', $_SERVER['REQUEST_URI']);
-        }
-        if ($usuario) {
-            return (new \sowerphp\app\Sistema\Usuarios\Model_Auth())->check(
-                $usuario, $recurso
-            );
-        } else {
-            return (new \sowerphp\app\Sistema\Usuarios\Model_Auth())->check(
-                $this->session['id'], $recurso
-            );
-        }
+        if ($usuario)
+            return (new $this->settings['model']($usuario))->auth($recurso);
+        else
+            return $this->User->auth($recurso);
     }
 
     /**

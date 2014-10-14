@@ -453,7 +453,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         else {
             $this->set(array(
                 'Usuario' => $Usuario,
-                'grupos' => $Usuario->grupos(),
+                'grupos' => $Usuario->groups(),
             ));
         }
     }
