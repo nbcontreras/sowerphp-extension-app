@@ -165,7 +165,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 else {
                     $Usuario->saveContrasenia(
                         $_POST['contrasenia1'],
-                        $this->Auth->settings['model']['user']['hash']
+                        $this->Auth->settings['hash']
                     );
                     \sowerphp\core\Model_Datasource_Session::message (
                         'La contraseña para el usuario '.$usuario.' ha sido cambiada con éxito'
@@ -354,7 +354,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             if(!empty($_POST['contrasenia'])) {
                 $Usuario->saveContrasenia(
                     $_POST['contrasenia'],
-                    $this->Auth->settings['model']['user']['hash']
+                    $this->Auth->settings['hash']
                 );
             }
             $Usuario->saveGrupos($_POST['grupos']);
@@ -433,7 +433,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             if(!empty($_POST['contrasenia1']) && $_POST['contrasenia1']==$_POST['contrasenia2']) {
                 $this->Auth->User->saveContrasenia(
                     $_POST['contrasenia1'],
-                    $this->Auth->settings['model']['user']['hash']
+                    $this->Auth->settings['hash']
                 );
             } else {
                 \sowerphp\core\Model_Datasource_Session::message(
