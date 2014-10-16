@@ -27,7 +27,7 @@ namespace sowerphp\app;
  * Clase abstracta para todos los modelos
  * Permite trabajar con varios registros de una tabla
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-10-02
+ * @version 2014-10-15
  */
 abstract class Model_Plural extends \sowerphp\core\Object
 {
@@ -35,7 +35,11 @@ abstract class Model_Plural extends \sowerphp\core\Object
     // Datos para la conexión a la base de datos
     protected $_database = 'default'; ///< Base de datos del modelo
     protected $_table; ///< Tabla del modelo
+    protected $_class; ///< Clase singular de la clase plural
     protected $db; ///< Conexión a base de datos
+
+    // caché
+    private static $objects = []; ///< caché para objetos singulares
 
     // Atributo con configuración para generar consultas SQL
     protected $selectStatement; ///< Columnas a consultar
@@ -50,7 +54,7 @@ abstract class Model_Plural extends \sowerphp\core\Object
     /**
      * Constructor de la clase abstracta
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2013-06-10
+     * @version 2014-10-15
      */
     public function __construct ()
     {
@@ -58,10 +62,13 @@ abstract class Model_Plural extends \sowerphp\core\Object
         $this->clear();
         // recuperar conexión a la base de datos
         $this->db = \sowerphp\core\Model_Datasource_Database::get($this->_database);
-        // setear nombre de la tabla según la clase que se está usando
+        // setear nombre de la clase y de la tabla según la clase que se está usando
+        if (empty($this->_class)) {
+            $this->_class = \sowerphp\core\Utility_Inflector::singularize(get_class($this));
+        }
         if (empty($this->_table)) {
             $this->_table = \sowerphp\core\Utility_Inflector::underscore (
-                \sowerphp\core\Utility_Inflector::singularize(get_class($this))
+                $this->_class
             );
         }
     }
@@ -261,9 +268,9 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * @param solicitado Lo que se está solicitando (objetcs, table, etc)
      * @return Mixed Arreglo o valor según lo solicitado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-02
+     * @version 2014-10-15
      */
-    protected function get ($solicitado)
+    private function getData($solicitado)
     {
         // preparar consulta inicial
         if ($this->selectStatement)
@@ -317,11 +324,11 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * selectStatement
      * @return Array Arreglo con los objetos
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2014-10-15
      */
     public function getObjects ()
     {
-        return $this->get('objects');
+        return $this->getData('objects');
     }
 
     /**
@@ -330,11 +337,11 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * limitStatement, de orderbyStatement y de selectStatement
      * @return Array Arreglo con filas y columnas de la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2014-10-15
      */
     public function getTable ()
     {
-        return $this->get('table');
+        return $this->getData('table');
     }
 
     /**
@@ -343,11 +350,11 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * orderbyStatement y de selectStatement
      * @return Array Arreglo con columnas de la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2014-10-15
      */
     public function getRow()
     {
-        return $this->get('row');
+        return $this->getData('row');
     }
 
     /**
@@ -356,11 +363,11 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * selectStatement
      * @return Array Arreglo con la columna de la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2014-10-15
      */
     public function getCol()
     {
-        return $this->get('col');
+        return $this->getData('col');
     }
 
     /**
@@ -369,11 +376,34 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * selectStatement
      * @return Mixed Valor solicitado de la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2014-10-15
      */
     public function getValue()
     {
-        return $this->get('value');
+        return $this->getData('value');
+    }
+
+    /**
+     * Método que permite obtener un objeto singular (clase singular). La
+     * ventaja es que se utiliza caché, esto es, si el objeto ya había sido
+     * recuperado no se vuelve a hacer la consulta a la base de datos.
+     * @param pk Clave primaria del objeto (pueden ser varios parámetros)
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-10-15
+     */
+    public function get($pk)
+    {
+        $args = func_get_args();
+        $key = implode('/', $args);
+        if (!isset(self::$objects[$this->_class])) {
+            self::$objects[$this->_class] = [];
+        }
+        if (!isset(self::$objects[$this->_class][$key])) {
+            self::$objects[$this->_class][$key] = (new \ReflectionClass(
+                $this->_class))->newInstanceArgs($args)
+            ;
+        }
+        return self::$objects[$this->_class][$key];
     }
 
     /**
@@ -383,11 +413,11 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * donde id es la PK. Si estos no son, el método deberá ser
      * reescrito en la clase final.
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-05
+     * @version 2014-10-15
      */
     public function getList ()
     {
-        $class = \sowerphp\core\Utility_Inflector::singularize (get_class($this));
+        $class = $this->_class;
         $cols = array_keys($class::$columnsInfo);
         $id = $cols[0];
         $glosa = in_array($this->_table, $cols) ? $this->_table : $cols[1];
