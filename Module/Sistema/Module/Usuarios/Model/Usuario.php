@@ -442,7 +442,7 @@ class Model_Usuario extends \Model_App
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-10-14
      */
-    protected function auths()
+    public function auths()
     {
         if ($this->auths===null) {
             $this->auths = $this->db->getCol('
