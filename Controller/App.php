@@ -33,17 +33,19 @@ class Controller_App extends \sowerphp\core\Controller
 {
 
     public $components = array('Auth');
+    public $Cache;
 
     /**
      * Constructor de la clase
      * @param request Objeto con la solicitud realizada
      * @param response Objeto para la respuesta que se enviará al cliente
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-03-29
+     * @version 2014-10-16
      */
     public function __construct (\sowerphp\core\Network_Request $request, \sowerphp\core\Network_Response $response)
     {
         parent::__construct ($request, $response);
+        $this->Cache = new \sowerphp\core\Cache();
         $this->set('_Auth', $this->Auth);
     }
 

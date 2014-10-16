@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Componente para proveer de un sistema de autenticación y autorización
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-10-14
+ * @version 2014-10-16
  */
 class Controller_Component_Auth extends \sowerphp\core\Controller_Component
 {
@@ -35,7 +35,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         'hash' => 'sha256',
         'model' => '\sowerphp\app\Sistema\Usuarios\Model_Usuario',
         'session' => [
-            'key' => 'auth',
+            'key' => 'session.auth',
         ],
         'redirect' => [
             'login' => '/',
@@ -66,7 +66,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que inicializa el componente y carga la sesión activa
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-14
+     * @version 2014-10-16
      */
     public function __construct(\sowerphp\core\Controller_Component_Collection $Components, $settings = [])
     {
@@ -77,7 +77,14 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             $this->settings['session']['key']
         );
         if ($this->session) {
-            $this->User = new $this->settings['model']($this->session['id']);
+            $Cache = new \sowerphp\core\Cache();
+            $this->User = $Cache->get($this->settings['session']['key'].$this->session['id']);
+            if (!$this->User) {
+                $this->User = new $this->settings['model']($this->session['id']);
+                $this->User->groups();
+                $this->User->auths();
+                $Cache->set($this->settings['session']['key'].$this->session['id'], $this->User);
+            }
         }
     }
 
@@ -264,10 +271,11 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que termina la sesión del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-14
+     * @version 2014-10-16
      */
     public function logout()
     {
+        (new \sowerphp\core\Cache())->delete($this->settings['session']['key'].$this->session['id']);
         \sowerphp\core\Model_Datasource_Session::destroy();
         \sowerphp\core\Model_Datasource_Session::start();
         \sowerphp\core\Model_Datasource_Session::message(sprintf(
