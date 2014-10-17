@@ -59,10 +59,17 @@ foreach ($_nav_website as $link=>&$name) {
 } else {
     foreach ($_nav_app as $link=>&$info) {
         if ($_Auth->check($link)) {
-            if(!is_array($info)) $info = array('name'=>$info);
-                echo "\t\t\t\t\t",'<li><a href="',$_base,$link,'">',$info['name'],'</a></li>',"\n";
-            }
+            if(!is_array($info)) $info = ['name'=>$info];
+            echo "\t\t\t\t\t",'<li><a href="',$_base,$link,'">',$info['name'],'</a></li>',"\n";
+        }
     }
+    /*$_nav_module = \sowerphp\core\Configure::read('nav.module');
+    debug($_Auth->controller->request->params['module']);
+    foreach($_nav_module as $link=>&$info) {
+        if ($_Auth->check($link)) {
+            echo "\t\t\t\t\t",'<li style="margin-left:0.5em;font-size:0.75em"><a href="',$_base,$link,'" title="',$info['name'],'">&raquo; ',$info['name'],'</a></li>',"\n";
+        }
+    }*/
 ?>
                 </ul>
                 <div id="navapp-icons">
@@ -103,9 +110,10 @@ if($message) echo '<div class="session_message">',$message,'</div>';
 <?php
                         echo $_footer['right'],"\n";
                         if ($_Auth->logged()) {
-                            echo ' [stats] time: ',round(microtime(true)-TIME_START, 2),' [s] / ';
-                            echo 'memory: ',round(memory_get_usage()/1024/1024,2),' [MiB] / ';
-                            echo 'querys: ',\sowerphp\core\Model_Datasource_Database_Manager::$querysCount,"\n";
+                            echo ' [stats] time: ',round(microtime(true)-TIME_START, 2),' [s] - ';
+                            echo 'memory: ',round(memory_get_usage()/1024/1024,2),' [MiB] - ';
+                            echo 'querys: ',\sowerphp\core\Model_Datasource_Database_Manager::$querysCount,' - ';
+                            echo 'cache: ',\sowerphp\core\Cache::$setCount,'/',\sowerphp\core\Cache::$getCount,"\n";
                         }
 ?>
                     </div>
