@@ -35,6 +35,7 @@ class Controller_Maintainer extends \Controller_App
     private $models; ///< Atributo con el namespace y clase del modelo plural
     private $module_url; ///< Atributo con la url para acceder el módulo
     protected $deleteRecord = true; ///< Indica si se permite o no borrar registros
+    protected $contraseniaNames = ['contrasenia', 'clave', 'password', 'pass']; ///< Posibles nombres de campo tipo contraseña
 
     /**
      * Constructor del controlador
@@ -175,7 +176,7 @@ class Controller_Maintainer extends \Controller_App
     /**
      * Acción para crear un registro en la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-19
+     * @version 2014-10-20
      */
     public function crear ()
     {
@@ -202,6 +203,7 @@ class Controller_Maintainer extends \Controller_App
             'fkNamespace' => $model::$fkNamespace,
             'accion' => 'Crear',
             'columns' => $model::$columnsInfo,
+            'contraseniaNames' => $this->contraseniaNames,
             'listarUrl' => $this->module_url.$this->request->params['controller'].'/listar'.$filterListar,
         ));
         // renderizar
@@ -213,7 +215,7 @@ class Controller_Maintainer extends \Controller_App
      * Acción para editar un registro de la tabla
      * @param pk Parámetro que representa la PK, pueden ser varios parámetros los pasados
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-19
+     * @version 2014-10-20
      */
     public function editar ($pk)
     {
@@ -229,11 +231,12 @@ class Controller_Maintainer extends \Controller_App
             );
         }
         // si no se ha enviado el formulario se mostrará
+        $model = $this->model;
         if(!isset($_POST['submit'])) {
-            $model = $this->model;
             $this->set(array(
                 'Obj' => $Obj,
                 'columns' => $model::$columnsInfo,
+                'contraseniaNames' => $this->contraseniaNames,
                 'fkNamespace' => $model::$fkNamespace,
                 'accion' => 'Editar',
                 'listarUrl' => $this->module_url.$this->request->params['controller'].'/listar'.$filterListar,
@@ -244,6 +247,11 @@ class Controller_Maintainer extends \Controller_App
         }
         // si se envió el formulario se procesa
         else {
+            foreach ($model::$columnsInfo as $col => &$info) {
+                if (in_array($col, $this->contraseniaNames) and empty($_POST[$col])) {
+                    $_POST[$col] = $Obj->$col;
+                }
+            }
             $Obj->set($_POST);
             foreach($_FILES as $name => &$file) {
                 if (!$file['error']) {

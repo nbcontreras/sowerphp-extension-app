@@ -72,8 +72,8 @@ foreach ($columns as $column => &$info) {
             if (isset($Obj)) $input['selected'] = $Obj->{$column};
             echo $form->input($input);
         }
-        // si el nombre de la columna es contrasenia o clave o password o pass
-        else if (in_array($column, array('contrasenia', 'clave', 'password', 'pass'))) {
+        // si es contraseña
+        else if (in_array($column, $contraseniaNames)) {
             $input['type'] = 'password';
             echo $form->input($input);
         }
