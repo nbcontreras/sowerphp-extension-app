@@ -175,7 +175,7 @@ class Controller_Maintainer extends \Controller_App
     /**
      * Acción para crear un registro en la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-05-04
+     * @version 2014-10-19
      */
     public function crear ()
     {
@@ -184,6 +184,11 @@ class Controller_Maintainer extends \Controller_App
         if (isset($_POST['submit'])) {
             $Obj = new $this->model();
             $Obj->set($_POST);
+            foreach($_FILES as $name => &$file) {
+                if (!$file['error']) {
+                    $Obj->setFile($name, $file);
+                }
+            }
             $msg = $Obj->save() ? 'Registro creado' : 'Registro no creado';
             \sowerphp\core\Model_Datasource_Session::message($msg);
             $this->redirect(
@@ -208,7 +213,7 @@ class Controller_Maintainer extends \Controller_App
      * Acción para editar un registro de la tabla
      * @param pk Parámetro que representa la PK, pueden ser varios parámetros los pasados
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-05-04
+     * @version 2014-10-19
      */
     public function editar ($pk)
     {
@@ -240,6 +245,11 @@ class Controller_Maintainer extends \Controller_App
         // si se envió el formulario se procesa
         else {
             $Obj->set($_POST);
+            foreach($_FILES as $name => &$file) {
+                if (!$file['error']) {
+                    $Obj->setFile($name, $file);
+                }
+            }
             $msg = $Obj->save() ? 'Registro ('.implode(', ', func_get_args()).') editado' : 'Registro ('.implode(', ', func_get_args()).') no editado';
             \sowerphp\core\Model_Datasource_Session::message($msg);
             $this->redirect(
@@ -285,38 +295,40 @@ class Controller_Maintainer extends \Controller_App
     }
 
     /**
-     * Método para subir los archivos de un formulario a la base de datos
-     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-23
-     */
-    protected function u ($pk)
-    {
-/*        ${class} = new Model_{class}({pk_parameter});
-        $files = array({files});
-        foreach($files as &$file) {
-            if(isset($_FILES[$file]) && !$_FILES[$file]['error']) {
-                $archivo = \sowerphp\general\Utility_File::upload($_FILES[$file]);
-                if(is_array($archivo)) {
-                    ${class}->saveFile($file, $archivo);
-                }
-            }
-        }*/
-    }
-
-    /**
      * Método para descargar un archivo desde la base de datos
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-23
+     * @version 2014-10-19
      */
-    public function d ($file, $pk)
+    public function d ($campo, $pk)
     {
-/*        ${class} = new Model_{class}({pk_parameter});
-        $this->response->sendFile(array(
-            'name' => ${class}->{$campo.'_name'},
-            'type' => ${class}->{$campo.'_type'},
-            'size' => ${class}->{$campo.'_size'},
-            'data' => pg_unescape_bytea(${class}->{$campo.'_data'}),
-        ));*/
+        // si el campo que se solicita no existe error
+        $model = $this->model;
+        if (!isset($model::$columnsInfo[$campo.'_data'])) {
+            \sowerphp\core\Model_Datasource_Session::message(
+                'Campo '.$campo.' no exite'
+            );
+            $this->redirect(
+                $this->module_url.$this->request->params['controller'].'/listar'
+            );
+        }
+        $pks = array_slice(func_get_args(),1);
+        $Obj = new $this->model($pks);
+        // si el registro que se quiere eliminar no existe error
+        if(!$Obj->exists()) {
+            \sowerphp\core\Model_Datasource_Session::message(
+                'Registro ('.implode(', ', $pks).') no existe. No se puede obtener '.$campo
+            );
+            $this->redirect(
+                $this->module_url.$this->request->params['controller'].'/listar'
+            );
+        }
+        // entregar archivo
+        $this->response->sendFile([
+            'name' => $Obj->{$campo.'_name'},
+            'type' => $Obj->{$campo.'_type'},
+            'size' => $Obj->{$campo.'_size'},
+            'data' => $Obj->{$campo.'_data'},
+        ]);
     }
 
 }

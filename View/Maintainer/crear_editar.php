@@ -25,12 +25,20 @@ foreach ($columns as $column => &$info) {
             'check' => (!$info['null']?['notempty']:[])
         );
         // si es un archivo
-        if ($info['type']=='file') {
-            $input['type'] = 'file';
-            echo $form->input($input);
+        $end = substr($column, -5);
+        if (in_array($end, ['_data', '_name', '_type', '_size'])) {
+            $col = substr($column, 0, -5);
+            if (isset($columns[$col.'_data']) and isset($columns[$col.'_name']) and isset($columns[$col.'_type']) and isset($columns[$col.'_size'])) {
+                if ($end=='_name') {
+                    $input['name'] = $col;
+                    $input['type'] = 'file';
+                    echo $form->input($input);
+                }
+                continue;
+            }
         }
         // si es de tipo text se muestra un textarea
-        else if (substr($info['type'], -4)=='text') {
+        if (substr($info['type'], -4)=='text') {
             $input['type'] = 'textarea';
             if (isset($Obj)) $input['value'] = $Obj->{$column};
             echo $form->input($input);
