@@ -48,5 +48,8 @@
     'Sistema.Usuarios' => array('autoLoad' => true),
 ));
 
+// Si es ambiente de desarrollo se carga módulo de desarrollo
+if (defined('ENVIRONMENT_DEV')) \sowerphp\core\Module::uses('Dev');
+
 // Registros por página
 \sowerphp\core\Configure::write('app.registers_per_page', 20);
