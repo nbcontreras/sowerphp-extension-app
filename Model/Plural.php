@@ -117,9 +117,9 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * Ingresa las condiciones para utilizar en el where de la consulta sql
      * @param whereStatement Condiciones para el where de la consulta sql
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-02
+     * @version 2014-10-20
      */
-    public function setWhereStatement($whereStatement, $whereVars)
+    public function setWhereStatement($whereStatement, $whereVars = [])
     {
         $this->whereStatement = ' WHERE '.implode(' AND ', $whereStatement);
         $this->queryVars = array_merge($this->queryVars, $whereVars);
@@ -142,7 +142,7 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-10-02
      */
-    public function setHavingStatement ($havingStatement, $havingVars)
+    public function setHavingStatement ($havingStatement, $havingVars = [])
     {
         $this->havingStatement = ' HAVING '.implode(' AND ', $havingStatement);
         $this->queryVars = array_merge($this->queryVars, $havingVars);
