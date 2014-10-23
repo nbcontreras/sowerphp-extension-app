@@ -85,7 +85,7 @@ class Controller_Maintainer extends \Controller_App
     /**
      * Acción para listar los registros de la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-02
+     * @version 2014-10-22
      */
     public function listar ($page = 1, $orderby = null, $order = 'A')
     {
@@ -104,9 +104,9 @@ class Controller_Maintainer extends \Controller_App
                 list($var, $val) = explode(':', $filter);
                 $search[$var] = $val;
                 // si es un campo de texto se filtrará con LIKE
-                if (in_array($model::$columnsInfo[$var]['type'], array('char', 'character varying'))) {
+                if (in_array($model::$columnsInfo[$var]['type'], ['char', 'character varying', 'varchar'])) {
                     $where[] = 'LOWER('.$var.') LIKE :'.$var;
-                    $vars[':'.$var] = '%'.$val.'%';
+                    $vars[':'.$var] = '%'.strtolower($val).'%';
                 }
                 // si es un tipo fecha con hora se usará like
                 else if (in_array($model::$columnsInfo[$var]['type'], ['timestamp', 'timestamp without time zone'])) {
