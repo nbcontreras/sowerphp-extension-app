@@ -177,27 +177,38 @@ class Model_Usuario extends \Model_App
 
     /**
      * Constructor de la clase usuario
-     * Permite crear el objeto usuario ya sea recibiendo el id del usuario
-     * o el nombre de usuario (en cuyo caso se rescata el id).
+     * Permite crear el objeto usuario ya sea recibiendo el id del usuario, el
+     * email, el nombre de usuario o el hash de usuario.
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-24
+     * @version 2014-10-23
      */
     public function __construct ($id = null)
     {
         if (!is_array($id) && !is_numeric($id)) {
             $this->db = \sowerphp\core\Model_Datasource_Database::get ($this->_database);
+            // se crea usuario a través de su correo electrónico
             if (strpos($id, '@')) {
                 $id = $this->db->getValue('
                     SELECT id
                     FROM usuario
                     WHERE email = :email
                 ', [':email'=>$id]);
-            } else {
+            }
+            // se crea usuario a través de su nombre de usuario
+            else if (!isset($id[31])) {
                 $id = $this->db->getValue('
                     SELECT id
                     FROM usuario
                     WHERE usuario = :usuario
                 ', [':usuario'=>$id]);
+            }
+            //
+            else {
+                $id = $this->db->getValue('
+                    SELECT id
+                    FROM usuario
+                    WHERE hash = :hash
+                ', [':hash'=>$id]);
             }
         }
         parent::__construct ($id);
