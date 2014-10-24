@@ -99,9 +99,7 @@ INSERT INTO auth (grupo, recurso) VALUES
 	((SELECT id FROM grupo WHERE grupo = 'sysadmin'), '*'),
 	((SELECT id FROM grupo WHERE grupo = 'appadmin'), '/sistema*'),
 	((SELECT id FROM grupo WHERE grupo = 'passwd'), 
-		'/sistema/usuarios/usuarios*'),
-	((SELECT id FROM grupo WHERE grupo = 'documentacion'), 
-		'/documentacion*')
+		'/sistema/usuarios/usuarios*')
 ;
 
 INSERT INTO usuario (nombre, usuario, email, contrasenia, hash) VALUES
