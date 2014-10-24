@@ -222,7 +222,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que realiza el login del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-14
+     * @version 2014-10-23
      */
     public function login ($usuario, $contrasenia)
     {
@@ -270,7 +270,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         // mensaje para mostrar
         \sowerphp\core\Model_Datasource_Session::message(sprintf(
             $this->settings['messages']['ok']['login'],
-            $usuario
+            $this->User->usuario
         ).$lastlogin);
         // redireccionar
         if (isset($_POST['redirect'][0]))
