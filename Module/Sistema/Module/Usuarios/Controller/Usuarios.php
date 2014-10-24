@@ -424,6 +424,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 } while ($this->Auth->User->checkIfHashAlreadyExists ());
             }
             $this->Auth->User->save();
+            $this->Auth->saveCache();
             // mensaje de ok y redireccionar
             \sowerphp\core\Model_Datasource_Session::message('Perfil actualizado');
             $this->redirect('/usuarios/perfil');
@@ -435,6 +436,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     $_POST['contrasenia1'],
                     $this->Auth->settings['hash']
                 );
+                $this->Auth->saveCache();
             } else {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Contraseñas no coinciden'

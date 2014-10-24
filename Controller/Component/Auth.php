@@ -62,11 +62,12 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     private $allowedActionsWithLogin = array(); ///< Acciones con login
     private $session = null; ///< Información de la sesión del usuario
     public $User = false; ///< Usuario que se ha identificado en la sesión
+    private $Cache; ///< Objeto para el caché
 
     /**
      * Método que inicializa el componente y carga la sesión activa
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-16
+     * @version 2014-10-23
      */
     public function __construct(\sowerphp\core\Controller_Component_Collection $Components, $settings = [])
     {
@@ -77,15 +78,25 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             $this->settings['session']['key']
         );
         if ($this->session) {
-            $Cache = new \sowerphp\core\Cache();
-            $this->User = $Cache->get($this->settings['session']['key'].$this->session['id']);
+            $this->Cache = new \sowerphp\core\Cache();
+            $this->User = $this->Cache->get($this->settings['session']['key'].$this->session['id']);
             if (!$this->User) {
                 $this->User = new $this->settings['model']($this->session['id']);
                 $this->User->groups();
                 $this->User->auths();
-                $Cache->set($this->settings['session']['key'].$this->session['id'], $this->User);
+                $this->Cache->set($this->settings['session']['key'].$this->session['id'], $this->User);
             }
         }
+    }
+
+    /**
+     * Método que actualiza el usuario autenticado en la caché
+     *@ author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-10-23
+     */
+    public function saveCache()
+    {
+        $this->Cache->set($this->settings['session']['key'].$this->session['id'], $this->User);
     }
 
     /**
