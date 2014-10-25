@@ -73,12 +73,13 @@ class Controller_Documentacion extends \Controller_App
      * @param dir Directorio donde se está buscando la documentación
      * @return Arreglo con la estructura de directorio y archivos dentro de ellos
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-01
+     * @version 2014-10-25
      */
     private function archivos($base, $dir = '')
     {
         $archivos = [];
         $realdir = $base.$dir;
+        if (!is_dir($realdir)) return [];
         $files = scandir($realdir);
         foreach ($files as &$file) {
             if ($file[0]=='.' || $file=='index.php' || !is_readable($realdir.'/'.$file)) continue;
