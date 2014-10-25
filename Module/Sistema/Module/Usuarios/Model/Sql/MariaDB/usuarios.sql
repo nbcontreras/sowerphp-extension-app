@@ -19,8 +19,12 @@ CREATE TABLE usuario (
 		COMMENT 'Correo electrónico del usuario',
 	contrasenia CHAR(64) NOT NULL
 		COMMENT 'Contraseña del usuario',
+	contrasenia_intentos SMALLINT NOT NULL DEFAULT 3
+		COMMENT 'Intentos de inicio de sesión antes de bloquear cuenta',
 	hash CHAR(32) NOT NULL
 		COMMENT 'Hash único del usuario (32 caracteres)',
+	token CHAR(64)
+		COMMENT 'Token para servicio secundario de autorización',
 	activo BOOLEAN NOT NULL DEFAULT true
 		COMMENT 'Indica si el usuario está o no activo',
 	ultimo_ingreso_fecha_hora TIMESTAMP
@@ -87,7 +91,7 @@ SET FOREIGN_KEY_CHECKS=1;
 INSERT INTO grupo (grupo) VALUES
 	-- Grupo para quienes desarrollan la aplicación
 	('sysadmin'),
-	-- Grupo para aquellos que administran la aplicación y al no ser 
+	-- Grupo para aquellos que administran la aplicación y al no ser
 	-- desarrolladores no necesitan "ver todo"
 	('appadmin'),
 	-- Grupo para crear/editar/eliminar cuentas de usuario
@@ -98,15 +102,15 @@ INSERT INTO auth (grupo, recurso) VALUES
 	-- grupo sysadmin tiene acceso a todos los recursos de la aplicación
 	((SELECT id FROM grupo WHERE grupo = 'sysadmin'), '*'),
 	((SELECT id FROM grupo WHERE grupo = 'appadmin'), '/sistema*'),
-	((SELECT id FROM grupo WHERE grupo = 'passwd'), 
+	((SELECT id FROM grupo WHERE grupo = 'passwd'),
 		'/sistema/usuarios/usuarios*')
 ;
 
 INSERT INTO usuario (nombre, usuario, email, contrasenia, hash) VALUES
-	-- usuario por defecto admin con clave admin, el hash único DEBE ser 
+	-- usuario por defecto admin con clave admin, el hash único DEBE ser
 	-- cambiado, ¡¡¡ES UN RIESGO DEJAR EL MISMO!!!
-	('Administrador', 'admin', 'admin@example.com', 
-	'8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 
+	('Administrador', 'admin', 'admin@example.com',
+	'8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
 	't7dr5B1ujphds043WMMEFWwFLeyWYqMU')
 ;
 

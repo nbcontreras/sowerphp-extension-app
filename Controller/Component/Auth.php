@@ -26,12 +26,13 @@ namespace sowerphp\app;
 /**
  * Componente para proveer de un sistema de autenticación y autorización
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-10-16
+ * @version 2014-10-25
  */
 class Controller_Component_Auth extends \sowerphp\core\Controller_Component
 {
 
     public $settings = [ ///< Opciones por defecto
+        'maxLoginAttempts' => 3,
         'hash' => 'sha256',
         'model' => '\sowerphp\app\Sistema\Usuarios\Model_Usuario',
         'session' => [
@@ -55,6 +56,8 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
                 'invalid' => 'Usuario o clave inválida',
                 'inactive' => 'Cuenta de usuario no activa',
                 'newlogin' => 'Sesión cerrada, usuario <em>%s</em> tiene una más nueva en otro lugar',
+                'login_attempts_exceeded' => 'Número de intentos de sesión excedidos.<br />Cuenta bloqueada, debe <a href="contrasenia/recuperar">recuperar su contraseña.</a>',
+                'token' => 'Token se encuentra bloqueado',
             ],
         ],
     ];
@@ -73,6 +76,8 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     {
         // ejecutar el constructor padre
         parent::__construct($Components, $settings);
+        // cargar opciones para autorización secundaria
+        $this->settings['auth2'] = \sowerphp\core\Configure::read('auth2');
         // Recuperar sesión
         $this->session = \sowerphp\core\Model_Datasource_Session::read(
             $this->settings['session']['key']
@@ -222,28 +227,56 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que realiza el login del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-23
+     * @version 2014-10-25
      */
     public function login ($usuario, $contrasenia)
     {
         // crear objeto del usuario con el nombre de usuario entregado
         $this->User = new $this->settings['model']($usuario);
-        // si la contraseña no es correcta error (también se generará un error
-        // si el usuario noe existe
-        if (!$this->User->checkPassword($this->hash($contrasenia))) {
+        // si el usuario no existe -> error
+        if (!$this->User->exists()) {
             \sowerphp\core\Model_Datasource_Session::message(
                 $this->settings['messages']['error']['invalid']
             );
             return;
         }
+        // si la cuenta ya no tienen intentos de login -> error
+        if (!$this->User->contrasenia_intentos) {
+            \sowerphp\core\Model_Datasource_Session::message(
+                $this->settings['messages']['error']['login_attempts_exceeded']
+            );
+            return;
+        }
+        // si la contraseña no es correcta error (también se generará un error
+        // si el usuario noe existe
+        if (!$this->User->checkPassword($this->hash($contrasenia))) {
+            $this->User->setContraseniaIntentos($this->User->contrasenia_intentos-1);
+            if ($this->User->contrasenia_intentos) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    $this->settings['messages']['error']['invalid']
+                );
+            } else {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    $this->settings['messages']['error']['login_attempts_exceeded']
+                );
+            }
+            return;
+        }
+        // si el usuario no está activo -> error
         if (!$this->User->isActive()) {
             \sowerphp\core\Model_Datasource_Session::message(
                 $this->settings['messages']['error']['inactive']
             );
             return;
         }
-        // si el usuario existe y está activo, crear sesión
-        // hash de la sesión
+        // verificar token en sistema secundario de autorización
+        if ($this->settings['auth2'] !== null and !$this->User->checkToken()) {
+            \sowerphp\core\Model_Datasource_Session::message(
+                $this->settings['messages']['error']['token']
+            );
+            return;
+        }
+        // si se pasaron toda las validaciones anteriores -> crear sesión
         $timestamp = date('Y-m-d H:i:s');
         $ip = $this->ip (true);
         $hash = md5 ($ip.$timestamp.$this->hash($contrasenia));
@@ -259,6 +292,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             $lastlogin = '';
         }
         $this->User->updateLastLogin($timestamp, $ip, $hash);
+        $this->User->setContraseniaIntentos($this->settings['maxLoginAttempts']);
         // crear info de la sesión
         $this->session =  array(
             'id' => $this->User->id,

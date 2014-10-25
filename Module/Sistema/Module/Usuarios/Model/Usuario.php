@@ -29,7 +29,7 @@ namespace sowerphp\app\Sistema\Usuarios;
  * Comentario de la tabla: Usuarios de la aplicación
  * Esta clase permite trabajar sobre un registro de la tabla usuario
  * @author SowerPHP Code Generator
- * @version 2014-10-14
+ * @version 2014-10-25
  */
 class Model_Usuario extends \Model_App
 {
@@ -46,7 +46,9 @@ class Model_Usuario extends \Model_App
     public $usuario; ///< Nombre de usuario: character varying(20) NOT NULL DEFAULT ''
     public $email; ///< Correo electrónico del usuario: character varying(20) NOT NULL DEFAULT ''
     public $contrasenia; ///< Contraseña del usuario: character(64) NOT NULL DEFAULT ''
+    public $contrasenia_intentos; ///< Intentos de inicio de sesión antes de bloquear cuenta: SMALLINT(6) NOT NULL DEFAULT '3'
     public $hash; ///< Hash único del usuario (32 caracteres): character(32) NOT NULL DEFAULT ''
+    public $token; ///< Token para servicio secundario de autorización: character(64) NULL DEFAULT ''
     public $activo; ///< Indica si el usuario está o no activo en la aplicación: boolean() NOT NULL DEFAULT 'true'
     public $ultimo_ingreso_fecha_hora; ///< Fecha y hora del último ingreso del usuario: timestamp without time zone() NULL DEFAULT ''
     public $ultimo_ingreso_desde; ///< Dirección IP del último ingreso del usuario: character varying(45) NULL DEFAULT ''
@@ -110,12 +112,34 @@ class Model_Usuario extends \Model_App
             'pk'        => false,
             'fk'        => null
         ),
+        'contrasenia_intentos' => array(
+            'name'      => 'Contraseña Intentos',
+            'comment'   => 'Intentos de inicio de sesión antes de bloquear cuenta',
+            'type'      => 'smallint',
+            'length'    => 6,
+            'null'      => false,
+            'default'   => "3",
+            'auto'      => false,
+            'pk'        => false,
+            'fk'        => null
+        ),
         'hash' => array(
             'name'      => 'Hash',
             'comment'   => 'Hash único del usuario (32 caracteres)',
             'type'      => 'character',
             'length'    => 32,
             'null'      => false,
+            'default'   => "",
+            'auto'      => false,
+            'pk'        => false,
+            'fk'        => null
+        ),
+        'token' => array(
+            'name'      => 'Token',
+            'comment'   => 'Token para servicio secundario de autorización',
+            'type'      => 'character',
+            'length'    => 64,
+            'null'      => true,
             'default'   => "",
             'auto'      => false,
             'pk'        => false,
@@ -216,9 +240,11 @@ class Model_Usuario extends \Model_App
 
     /**
      * Método que hace un UPDATE del usuario en la BD
-     * Actualiza todos los campos, excepto la contraseña, ya que esta debe cambiarse con $this->saveContrasenia()
+     * Actualiza todos los campos, excepto: contrasenia, contrasenia_internos y
+     * token, lo anterior ya que hay métodos especiales para actualizar dichas
+     * columnas.
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-19
+     * @version 2014-10-25
      */
     public function update ($columns = null)
     {
@@ -506,6 +532,79 @@ class Model_Usuario extends \Model_App
         }
         // si no se encontró permiso => false
         return false;
+    }
+
+    /**
+     * Método que asigna los intentos de contraseña
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-10-25
+     */
+    public function setContraseniaIntentos($intentos)
+    {
+        $this->contrasenia_intentos = $intentos;
+        $this->db->query(
+            'UPDATE usuario SET contrasenia_intentos = :intentos WHERE id = :id'
+        , [':id' => $this->id, ':intentos' => $intentos]);
+    }
+
+    /**
+     * Método que crea el token para el usuario
+     * @param codigo Código que se usará para crear el token
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-10-25
+     */
+    public function createToken($codigo)
+    {
+        $config = \sowerphp\core\Configure::read('auth2');
+        if ($config===null) return false;
+        $class = '\sowerphp\app\Model_Auth2_'.$config['name'];
+        $Auth2 = new $class($config);
+        $token = $Auth2->createToken($codigo);
+        if ($token) {
+            $this->token = $token;
+            $this->db->query(
+                'UPDATE usuario SET token = :token WHERE id = :id'
+            , [':id' => $this->id, ':token' => $token]);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Método que destruye el token en la autorización secundaria
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-10-25
+     */
+    public function destroyToken()
+    {
+        $config = \sowerphp\core\Configure::read('auth2');
+        if ($config===null) return true;
+        $class = '\sowerphp\app\Model_Auth2_'.$config['name'];
+        $Auth2 = new $class($config);
+        if ($Auth2->destroyToken($this->token)) {
+            $this->token = null;
+            $this->db->query(
+                'UPDATE usuario SET token = NULL WHERE id = :id'
+            , [':id' => $this->id]);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Método que valida el estado del token con la autorización secundaria
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-10-25
+     */
+    public function checkToken()
+    {
+        $config = \sowerphp\core\Configure::read('auth2');
+        if ($config===null or !isset($this->token[0])) return true;
+        $class = '\sowerphp\app\Model_Auth2_'.$config['name'];
+        $Auth2 = new $class($config);
+        return $Auth2->checkToken($this->token);
     }
 
 }

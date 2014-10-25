@@ -19,7 +19,9 @@ CREATE TABLE usuario (
     usuario CHARACTER VARYING (30) NOT NULL,
     email CHARACTER VARYING (50) NOT NULL,
     contrasenia CHAR(64) NOT NULL,
+    contrasenia_intentos SMALLINT NOT NULL DEFAULT 3,
     hash CHAR(32) NOT NULL,
+    token CHAR(64),
     activo BOOLEAN NOT NULL DEFAULT true,
     ultimo_ingreso_fecha_hora TIMESTAMP WITHOUT TIME ZONE,
     ultimo_ingreso_desde CHARACTER VARYING (45),
@@ -34,7 +36,11 @@ COMMENT ON COLUMN usuario.nombre IS 'Nombre real del usuario';
 COMMENT ON COLUMN usuario.usuario IS 'Nombre de usuario';
 COMMENT ON COLUMN usuario.email IS 'Correo electrónico del usuario';
 COMMENT ON COLUMN usuario.contrasenia IS 'Contraseña del usuario';
+COMMENT ON COLUMN usuario.contrasenia_intentos IS
+	'Intentos de inicio de sesión antes de bloquear cuenta',
 COMMENT ON COLUMN usuario.hash IS 'Hash único del usuario (32 caracteres)';
+COMMENT ON COLUMN usuario.token IS
+	'Token para servicio secundario de autorización',
 COMMENT ON COLUMN usuario.activo IS 'Indica si el usuario está o no activo en la aplicación';
 COMMENT ON COLUMN usuario.ultimo_ingreso_fecha_hora IS 'Fecha y hora del último ingreso del usuario';
 COMMENT ON COLUMN usuario.ultimo_ingreso_desde IS 'Dirección IP del último ingreso del usuario';
@@ -94,7 +100,7 @@ COMMENT ON COLUMN auth.recurso IS 'Recurso al que el grupo tiene acceso';
 INSERT INTO grupo (grupo) VALUES
 	-- Grupo para quienes desarrollan la aplicación
 	('sysadmin'),
-	-- Grupo para aquellos que administran la aplicación y al no ser 
+	-- Grupo para aquellos que administran la aplicación y al no ser
 	-- desarrolladores no necesitan "ver todo"
 	('appadmin'),
 	-- Grupo para crear/editar/eliminar cuentas de usuario
@@ -105,15 +111,15 @@ INSERT INTO auth (grupo, recurso) VALUES
 	-- grupo sysadmin tiene acceso a todos los recursos de la aplicación
 	((SELECT id FROM grupo WHERE grupo = 'sysadmin'), '*'),
 	((SELECT id FROM grupo WHERE grupo = 'appadmin'), '/sistema*'),
-	((SELECT id FROM grupo WHERE grupo = 'passwd'), 
+	((SELECT id FROM grupo WHERE grupo = 'passwd'),
 		'/sistema/usuarios/usuarios*')
 ;
 
 INSERT INTO usuario (nombre, usuario, email, contrasenia, hash) VALUES
-	-- usuario por defecto admin con clave admin, el hash único DEBE ser 
+	-- usuario por defecto admin con clave admin, el hash único DEBE ser
 	-- cambiado, ¡¡¡ES UN RIESGO DEJAR EL MISMO!!!
-	('Administrador', 'admin', 'admin@example.com', 
-	'8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 
+	('Administrador', 'admin', 'admin@example.com',
+	'8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
 	't7dr5B1ujphds043WMMEFWwFLeyWYqMU')
 ;
 

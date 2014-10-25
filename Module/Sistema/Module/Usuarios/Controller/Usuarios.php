@@ -167,6 +167,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                         $_POST['contrasenia1'],
                         $this->Auth->settings['hash']
                     );
+                    $Usuario->setContraseniaIntentos($this->Auth->settings['maxLoginAttempts']);
                     \sowerphp\core\Model_Datasource_Session::message (
                         'La contraseña para el usuario '.$usuario.' ha sido cambiada con éxito'
                     );
@@ -392,7 +393,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para mostrar y editar el perfil del usuario que esta autenticado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-14
+     * @version 2014-10-25
      */
     public function perfil ()
     {
@@ -449,12 +450,40 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             );
             $this->redirect('/usuarios/perfil');
         }
+        // procesar creación del token
+        else if (isset($_POST['crearToken']) and $this->Auth->settings['auth2'] !== null) {
+            if ($this->Auth->User->createToken($_POST['codigo'])) {
+                $this->Auth->saveCache();
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Token creado, ahora tiene el control usando '.$this->Auth->settings['auth2']['name']
+                );
+            } else {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'No fue posible crear el token'
+                );
+            }
+            $this->redirect('/usuarios/perfil');
+        }
+        // procesar destrucción del token
+        else if (isset($_POST['destruirToken']) and $this->Auth->settings['auth2'] !== null) {
+            if ($this->Auth->User->destroyToken()) {
+                $this->Auth->saveCache();
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Token destruído'
+                );
+            } else {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'No fue posible destruir el token'
+                );
+            }
+            $this->redirect('/usuarios/perfil');
+        }
         // mostrar formulario para edición
         else {
-            $this->set(array(
-                'Usuario' => $this->Auth->User,
-                'grupos' => $this->Auth->User->groups(),
-            ));
+            $this->set([
+                'qrcode' => base64_encode($this->Auth->User->hash),
+                'auth2' => $this->Auth->settings['auth2'],
+            ]);
         }
     }
 
