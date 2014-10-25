@@ -28,6 +28,12 @@ a:hover {
 #content li {
 	margin-left: 20px;
 }
+#content pre {
+	border: 1px solid gray;
+	background: #eee;
+	padding: 0.5em;
+	margin-bottom: 1em;
+}
 
 /* Structure */
 #wrapper {
