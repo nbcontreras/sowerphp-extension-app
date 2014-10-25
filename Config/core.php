@@ -53,3 +53,11 @@ if (defined('ENVIRONMENT_DEV')) \sowerphp\core\Module::uses('Dev');
 
 // Registros por página
 \sowerphp\core\Configure::write('app.registers_per_page', 20);
+
+// Configuración para autorización secundaria
+/*\sowerphp\core\Configure::write('auth2', [
+    'name' => 'Latch',
+    'url' => 'https://latch.elevenpaths.com',
+    'app_id' => '',
+    'app_key' => '',
+]);*/
