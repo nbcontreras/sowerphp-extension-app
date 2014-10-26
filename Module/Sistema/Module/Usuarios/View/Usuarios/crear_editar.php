@@ -15,6 +15,8 @@ $optionsBoolean = array(
 
 // agregar campos del formulario
 foreach ($columns as $column => &$info) {
+    if (in_array($column, ['contrasenia_intentos', 'hash', 'token']))
+        continue;
     // se genera campo de input solo si no es una columna automática
     if (!$info['auto']) {
         // configuración base para campo
@@ -84,7 +86,6 @@ echo $form->input([
     'type'=>'tablecheck',
     'name'=>'grupos',
     'label'=>'Grupos',
-    'mastercheck'=>false,
     'titles'=>['GID', 'Grupo'],
     'table'=>$grupos,
     'checked'=>$grupos_asignados,
