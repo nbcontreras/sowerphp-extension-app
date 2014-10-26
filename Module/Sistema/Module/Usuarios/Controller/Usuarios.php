@@ -370,14 +370,14 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * Método que asigna los grupos que el usuario logueado puede asignar al
      * crear o editar un usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-05-04
+     * @version 2014-10-26
      */
     private function setGruposAsignables ()
     {
         $grupos = (new Model_Grupos())->getList();
         // si el usuario no pertenece al grupo sysadmin quitar los grupos
         // sysadmin y appadmin del listado para evitar que los asignen
-        if (!(new Model_Usuario (\sowerphp\core\Model_Datasource_Session::read('auth.id')))->inGroup()) {
+        if (!$this->Auth->User->inGroup()) {
             $aux = $grupos;
             $grupos = [];
             foreach ($aux as $key => &$grupo) {
