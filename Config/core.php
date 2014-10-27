@@ -60,4 +60,5 @@ if (defined('ENVIRONMENT_DEV')) \sowerphp\core\Module::uses('Dev');
     'url' => 'https://latch.elevenpaths.com',
     'app_id' => '',
     'app_key' => '',
+    'default' => false,
 ]);*/

@@ -87,11 +87,11 @@ class Model_Auth2_Latch
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-10-27
      */
-    public function checkToken($token, $default = true)
+    public function checkToken($token)
     {
         $Response = $this->Latch->status($token);
         if ($Response->error || $Response->data===null)
-            return $default;
+            return $this->config['default'];
         $status = $Response->data->operations->{$this->config['app_id']}->status;
         return $status == 'on' ? true : false;
     }
