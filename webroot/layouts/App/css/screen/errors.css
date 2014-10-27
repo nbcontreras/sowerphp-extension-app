@@ -1,14 +1,14 @@
-.exception_message, .exception_trace {
+#content pre.exception_message, pre.exception_trace {
 	border: 1px dashed gray;
 	padding: 1em;
 	margin-bottom: 1em;
 }
 
-.exception_message {
+#content pre.exception_message {
 	background: #F6CECE;
 	font-weight: bold;
 }
 
-.exception_trace {
+#content pre.exception_trace {
 	background: #BCF5A9;
-} 
+}
