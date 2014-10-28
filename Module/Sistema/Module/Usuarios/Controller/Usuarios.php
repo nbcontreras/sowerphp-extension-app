@@ -91,7 +91,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     \sowerphp\core\App::import('Vendor/google/recaptcha/recaptchalib');
                 }
                 $this->Auth->login($_POST['usuario'], $_POST['contrasenia']);
-                if ($this->Auth->User->contrasenia_intentos) {
+                if ($this->Auth->User->contrasenia_intentos and $this->Auth->User->contrasenia_intentos<$this->Auth->settings['maxLoginAttempts']) {
                     $this->set('public_key', $public_key);
                 }
             }
