@@ -55,9 +55,11 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
                 'auth' => 'No dispone de permisos para acceder a <em>%s</em>',
                 'invalid' => 'Usuario o clave inválida',
                 'inactive' => 'Cuenta de usuario no activa',
-                'newlogin' => 'Sesión cerrada, usuario <em>%s</em> tiene una más nueva en otro lugar',
+                'newlogin' => 'Sesión cerrada. Usuario <em>%s</em> tiene una más nueva en otro lugar',
                 'login_attempts_exceeded' => 'Número de intentos de sesión excedidos.<br />Cuenta bloqueada, debe <a href="contrasenia/recuperar">recuperar su contraseña.</a>',
                 'token' => 'Token se encuentra bloqueado',
+                'recaptcha_required' => 'Se detectaron intentos previos fallidos. Se requiere Captcha',
+                'recaptcha_invalid' => 'Captcha incorrecto',
             ],
         ],
     ];
@@ -227,7 +229,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que realiza el login del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-25
+     * @version 2014-10-28
      */
     public function login ($usuario, $contrasenia)
     {
@@ -240,6 +242,13 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             );
             return;
         }
+        // si el usuario no está activo -> error
+        if (!$this->User->isActive()) {
+            \sowerphp\core\Model_Datasource_Session::message(
+                $this->settings['messages']['error']['inactive']
+            );
+            return;
+        }
         // si la cuenta ya no tienen intentos de login -> error
         if (!$this->User->contrasenia_intentos) {
             \sowerphp\core\Model_Datasource_Session::message(
@@ -247,8 +256,29 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             );
             return;
         }
-        // si la contraseña no es correcta error (también se generará un error
-        // si el usuario noe existe
+        // si ya hubo un intento de login fallido entonces se pedirá captcha
+        $private_key = \sowerphp\core\Configure::read('recaptcha.private_key');
+        if ($this->User->contrasenia_intentos<$this->settings['maxLoginAttempts'] and $private_key!==null) {
+            if (!isset($_POST['recaptcha_challenge_field']) or !isset($_POST['recaptcha_response_field'])) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    $this->settings['messages']['error']['recaptcha_required']
+                );
+                return;
+            }
+            $resp = recaptcha_check_answer(
+                $private_key,
+                $_SERVER['REMOTE_ADDR'],
+                $_POST['recaptcha_challenge_field'],
+                $_POST['recaptcha_response_field']
+            );
+            if (!$resp->is_valid) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    $this->settings['messages']['error']['recaptcha_invalid']
+                );
+                return;
+            }
+        }
+        // si la contraseña no es correcta -> error
         if (!$this->User->checkPassword($this->hash($contrasenia))) {
             $this->User->setContraseniaIntentos($this->User->contrasenia_intentos-1);
             if ($this->User->contrasenia_intentos) {
@@ -260,13 +290,6 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
                     $this->settings['messages']['error']['login_attempts_exceeded']
                 );
             }
-            return;
-        }
-        // si el usuario no está activo -> error
-        if (!$this->User->isActive()) {
-            \sowerphp\core\Model_Datasource_Session::message(
-                $this->settings['messages']['error']['inactive']
-            );
             return;
         }
         // verificar token en sistema secundario de autorización

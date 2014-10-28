@@ -2,22 +2,30 @@
 <?php
 $form = new sowerphp\general\View_Helper_Form();
 echo $form->begin(array('focus'=>'usuario', 'onsubmit'=>'Form.check()'));
-echo $form->input(array(
-	'name'=>'usuario',
-	'label'=>'Usuario',
-	'check'=>'notempty',
-));
-echo $form->input(array(
-	'type'=>'password',
-	'name'=>'contrasenia',
-	'label'=>'Contraseña',
-	'check'=>'notempty'
-));
-echo $form->input(array(
-	'type'=>'hidden',
-	'name'=>'redirect',
-	'value'=>$redirect,
-));
+echo $form->input([
+    'name'=>'usuario',
+    'label'=>'Usuario',
+    'check'=>'notempty',
+]);
+echo $form->input([
+    'type'=>'password',
+    'name'=>'contrasenia',
+    'label'=>'Contraseña',
+    'check'=>'notempty'
+]);
+echo $form->input([
+    'type'=>'hidden',
+    'name'=>'redirect',
+    'value'=>$redirect,
+]);
+if (!empty($public_key)) {
+    echo $form->input([
+        'type'=>'div',
+        'label'=>'Captcha',
+        'value'=>recaptcha_get_html($public_key, null, true),
+        'check'=>'notempty',
+    ]);
+}
 echo $form->end('Ingresar');
 ?>
 <p>¿No recuerda su usuario o contraseña?, <a href="<?php echo $_base;

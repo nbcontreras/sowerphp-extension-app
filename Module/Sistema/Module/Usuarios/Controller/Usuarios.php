@@ -59,7 +59,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * Acción para que un usuario ingrese al sistema (inicie sesión)
      * @param redirect Ruta (en base64) de hacia donde hay que redireccionar una vez se autentica el usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-14
+     * @version 2014-10-28
      */
     public function ingresar ($redirect = null)
     {
@@ -84,9 +84,16 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     'Debe especificar usuario y clave'
                 );
             }
-            // autenticar
+            // realizar proceso de validación de datos
             else {
+                $public_key = \sowerphp\core\Configure::read('recaptcha.public_key');
+                if ($public_key) {
+                    \sowerphp\core\App::import('Vendor/google/recaptcha/recaptchalib');
+                }
                 $this->Auth->login($_POST['usuario'], $_POST['contrasenia']);
+                if ($this->Auth->User->contrasenia_intentos) {
+                    $this->set('public_key', $public_key);
+                }
             }
         }
     }

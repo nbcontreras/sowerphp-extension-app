@@ -62,3 +62,9 @@ if (defined('ENVIRONMENT_DEV')) \sowerphp\core\Module::uses('Dev');
     'app_key' => '',
     'default' => false,
 ]);*/
+
+// Configuración para reCAPTCHA
+/*\sowerphp\core\Configure::write('recaptcha', [
+    'public_key' => '',
+    'private_key' => '',
+]);*/
