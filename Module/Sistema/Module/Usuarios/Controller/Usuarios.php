@@ -488,7 +488,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         // mostrar formulario para edición
         else {
             $this->set([
-                'qrcode' => base64_encode($this->Auth->User->hash),
+                'qrcode' => base64_encode($this->request->url.';'.$this->Auth->User->hash),
                 'auth2' => $this->Auth->settings['auth2'],
             ]);
         }
