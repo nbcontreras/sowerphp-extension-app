@@ -187,13 +187,14 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Indica si existe una sesión de un usuario creada
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-14
+     * @version 2014-11-01
      */
     public function logged ()
     {
         // si se creó el objeto usuario se verifica el hash
         if ($this->session and $this->User) {
             if (!$this->User->checkLastLoginHash($this->session['hash'])) {
+                (new \sowerphp\core\Cache())->delete($this->settings['session']['key'].$this->session['id']);
                 \sowerphp\core\Model_Datasource_Session::destroy();
                 \sowerphp\core\Model_Datasource_Session::message(
                     sprintf(
