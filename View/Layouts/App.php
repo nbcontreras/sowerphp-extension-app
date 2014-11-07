@@ -94,7 +94,7 @@ foreach ($_nav_website as $link=>&$name) {
             <div id="content">
 <?php
 $message = \sowerphp\core\Model_Datasource_Session::message();
-if($message) echo '<div class="session_message">',$message,'</div>';
+if($message) echo '<div class="session_message session_message_',$message['type'],'">',$message['text'],'</div>';
 ?>
                 <a href="javascript:print()" title="Imprimir página" class="fright" id="printIcon">
                     <img src="<?=$_base?>/img/icons/16x16/actions/print.png" alt="Imprimir página" />

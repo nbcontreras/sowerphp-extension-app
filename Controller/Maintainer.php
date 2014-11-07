@@ -191,7 +191,7 @@ class Controller_Maintainer extends \Controller_App
                 }
             }
             $msg = $Obj->save() ? 'Registro creado' : 'Registro no creado';
-            \sowerphp\core\Model_Datasource_Session::message($msg);
+            \sowerphp\core\Model_Datasource_Session::message($msg, 'ok');
             $this->redirect(
                 $this->module_url.$this->request->params['controller'].'/listar'.$filterListar
             );
@@ -224,7 +224,8 @@ class Controller_Maintainer extends \Controller_App
         // si el registro que se quiere editar no existe error
         if(!$Obj->exists()) {
             \sowerphp\core\Model_Datasource_Session::message(
-                'Registro ('.implode(', ', func_get_args()).') no existe, no se puede editar'
+                'Registro ('.implode(', ', func_get_args()).') no existe, no se puede editar',
+                'error'
             );
             $this->redirect(
                 $this->module_url.$this->request->params['controller'].'/listar'.$filterListar
@@ -259,7 +260,7 @@ class Controller_Maintainer extends \Controller_App
                 }
             }
             $msg = $Obj->save() ? 'Registro ('.implode(', ', func_get_args()).') editado' : 'Registro ('.implode(', ', func_get_args()).') no editado';
-            \sowerphp\core\Model_Datasource_Session::message($msg);
+            \sowerphp\core\Model_Datasource_Session::message($msg, 'ok');
             $this->redirect(
                 $this->module_url.$this->request->params['controller'].'/listar'.$filterListar
             );
@@ -276,7 +277,7 @@ class Controller_Maintainer extends \Controller_App
     {
         if (!$this->deleteRecord) {
             \sowerphp\core\Model_Datasource_Session::message(
-                'No se permite el borrado de registros'
+                'No se permite el borrado de registros', 'error'
             );
             $this->redirect(
                 $this->module_url.$this->request->params['controller'].'/listar'.$filterListar
@@ -287,7 +288,8 @@ class Controller_Maintainer extends \Controller_App
         // si el registro que se quiere eliminar no existe error
         if(!$Obj->exists()) {
             \sowerphp\core\Model_Datasource_Session::message(
-                'Registro ('.implode(', ', func_get_args()).') no existe, no se puede eliminar'
+                'Registro ('.implode(', ', func_get_args()).') no existe, no se puede eliminar',
+                'error'
             );
             $this->redirect(
                 $this->module_url.$this->request->params['controller'].'/listar'.$filterListar
@@ -295,7 +297,7 @@ class Controller_Maintainer extends \Controller_App
         }
         $Obj->delete();
         \sowerphp\core\Model_Datasource_Session::message(
-            'Registro ('.implode(', ', func_get_args()).') eliminado'
+            'Registro ('.implode(', ', func_get_args()).') eliminado', 'ok'
         );
         $this->redirect(
             $this->module_url.$this->request->params['controller'].'/listar'.$filterListar
@@ -313,7 +315,7 @@ class Controller_Maintainer extends \Controller_App
         $model = $this->model;
         if (!isset($model::$columnsInfo[$campo.'_data'])) {
             \sowerphp\core\Model_Datasource_Session::message(
-                'Campo '.$campo.' no exite'
+                'Campo '.$campo.' no exite', 'error'
             );
             $this->redirect(
                 $this->module_url.$this->request->params['controller'].'/listar'
@@ -324,7 +326,8 @@ class Controller_Maintainer extends \Controller_App
         // si el registro que se quiere eliminar no existe error
         if(!$Obj->exists()) {
             \sowerphp\core\Model_Datasource_Session::message(
-                'Registro ('.implode(', ', $pks).') no existe. No se puede obtener '.$campo
+                'Registro ('.implode(', ', $pks).') no existe. No se puede obtener '.$campo,
+                'error'
             );
             $this->redirect(
                 $this->module_url.$this->request->params['controller'].'/listar'

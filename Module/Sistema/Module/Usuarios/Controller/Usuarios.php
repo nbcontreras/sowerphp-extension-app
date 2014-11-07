@@ -81,7 +81,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             // si el usuario o contraseña es vacio mensaje de error
             if (empty($_POST['usuario']) || empty($_POST['contrasenia'])) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Debe especificar usuario y clave'
+                    'Debe especificar usuario y clave', 'warning'
                 );
             }
             // realizar proceso de validación de datos
@@ -125,7 +125,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 $Usuario = new Model_Usuario ($_POST['id']);
                 if (!$Usuario->exists()) {
                     \sowerphp\core\Model_Datasource_Session::message (
-                        'Usuario o email inválido'
+                        'Usuario o email inválido', 'error'
                     );
                     $this->render ('Usuarios/contrasenia_recuperar_step1');
                 } else {
@@ -136,7 +136,8 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                         $this->Auth->hash($Usuario->contrasenia)
                     );
                     \sowerphp\core\Model_Datasource_Session::message (
-                        'Se ha enviado un email con las instrucciones para recuperar su contraseña'
+                        'Se ha enviado un email con las instrucciones para recuperar su contraseña',
+                        'ok'
                     );
                     $this->redirect('/usuarios/ingresar');
                 }
@@ -147,7 +148,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             $Usuario = new Model_Usuario ($usuario);
             if (!$Usuario->exists()) {
                 \sowerphp\core\Model_Datasource_Session::message (
-                    'Usuario inválido'
+                    'Usuario inválido', 'error'
                 );
                 $this->redirect ('/usuarios/contrasenia/recuperar');
             }
@@ -157,14 +158,14 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             } else {
                 if ($this->Auth->hash($Usuario->contrasenia)!=$_POST['codigo']) {
                     \sowerphp\core\Model_Datasource_Session::message (
-                        'Código ingresado no es válido para el usuario'
+                        'Código ingresado no es válido para el usuario', 'error'
                     );
                     $this->set('usuario', $usuario);
                     $this->render ('Usuarios/contrasenia_recuperar_step2');
                 }
                 else if (empty ($_POST['contrasenia1']) || empty ($_POST['contrasenia2']) || $_POST['contrasenia1']!=$_POST['contrasenia2']) {
                     \sowerphp\core\Model_Datasource_Session::message (
-                        'Contraseña nueva inválida (en blanco o no coinciden)'
+                        'Contraseña nueva inválida (en blanco o no coinciden)', 'warning'
                     );
                     $this->set('usuario', $usuario);
                     $this->render ('Usuarios/contrasenia_recuperar_step2');
@@ -176,7 +177,8 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     );
                     $Usuario->setContraseniaIntentos($this->Auth->settings['maxLoginAttempts']);
                     \sowerphp\core\Model_Datasource_Session::message (
-                        'La contraseña para el usuario '.$usuario.' ha sido cambiada con éxito'
+                        'La contraseña para el usuario '.$usuario.' ha sido cambiada con éxito',
+                        'ok'
                     );
                     $this->redirect('/usuarios/ingresar');
                 }
@@ -230,19 +232,20 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             $ok = true;
             if ($Usuario->checkIfUsuarioAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Nombre de usuario '.$_POST['usuario'].' ya está en uso'
+                    'Nombre de usuario '.$_POST['usuario'].' ya está en uso',
+                    'warning'
                 );
                 $ok = false;
             }
             if ($ok and $Usuario->checkIfHashAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Hash seleccionado ya está en uso'
+                    'Hash seleccionado ya está en uso', 'warning'
                 );
                 $ok = false;
             }
             if ($ok and $Usuario->checkIfEmailAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Email seleccionado ya está en uso'
+                    'Email seleccionado ya está en uso', 'warning'
                 );
                 $ok = false;
             }
@@ -275,14 +278,20 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                         $email->to($Usuario->email);
                         $email->subject('Cuenta de usuario creada');
                         $email->send($msg);
-                        $msg = 'Registro creado (se envió email a '.$Usuario->email.' con los datos de acceso)';
+                        \sowerphp\core\Model_Datasource_Session::message(
+                            'Registro creado (se envió email a '.$Usuario->email.' con los datos de acceso)',
+                            'ok'
+                        );
                     } else {
-                        $msg = 'Registro creado (no se envió correo)';
+                        \sowerphp\core\Model_Datasource_Session::message(
+                            'Registro creado (no se envió correo)', 'warning'
+                        );
                     }
                 } else {
-                    $msg = 'Registro no creado (hubo algún error)';
+                    \sowerphp\core\Model_Datasource_Session::message(
+                        'Registro no creado (hubo algún error)', 'error'
+                    );
                 }
-                \sowerphp\core\Model_Datasource_Session::message($msg);
                 $this->redirect('/sistema/usuarios/usuarios/listar'.$filterListar);
             }
         }
@@ -318,7 +327,8 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         // si el registro que se quiere editar no existe error
         if(!$Usuario->exists()) {
             \sowerphp\core\Model_Datasource_Session::message(
-                'Registro ('.implode(', ', func_get_args()).') no existe, no se puede editar'
+                'Registro ('.implode(', ', func_get_args()).') no existe, no se puede editar',
+                'error'
             );
             $this->redirect('/sistema/usuarios/usuarios/listar'.$filterListar);
         }
@@ -342,19 +352,20 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             $Usuario->set($_POST);
             if ($Usuario->checkIfUsuarioAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Nombre de usuario '.$_POST['usuario'].' ya está en uso'
+                    'Nombre de usuario '.$_POST['usuario'].' ya está en uso',
+                    'warning'
                 );
                 $this->redirect('/sistema/usuarios/usuarios/editar/'.$id.$filterListarUrl);
             }
             if ($Usuario->checkIfHashAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Hash seleccionado ya está en uso'
+                    'Hash seleccionado ya está en uso', 'warning'
                 );
                 $this->redirect('/sistema/usuarios/usuarios/editar/'.$id.$filterListarUrl);
             }
             if ($Usuario->checkIfEmailAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Email seleccionado ya está en uso'
+                    'Email seleccionado ya está en uso', 'warning'
                 );
                 $this->redirect('/sistema/usuarios/usuarios/editar/'.$id.$filterListarUrl);
             }
@@ -367,7 +378,8 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             }
             $Usuario->saveGrupos($_POST['grupos']);
             \sowerphp\core\Model_Datasource_Session::message(
-                'Registro Usuario('.implode(', ', func_get_args()).') editado'
+                'Registro Usuario('.implode(', ', func_get_args()).') editado',
+                'ok'
             );
             $this->redirect('/sistema/usuarios/usuarios/listar'.$filterListar);
         }
@@ -410,19 +422,20 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             $this->Auth->User->set($_POST);
             if ($this->Auth->User->checkIfUsuarioAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Nombre de usuario '.$_POST['usuario'].' ya está en uso'
+                    'Nombre de usuario '.$_POST['usuario'].' ya está en uso',
+                    'warning'
                 );
                 $this->redirect('/usuarios/perfil');
             }
             if ($this->Auth->User->checkIfHashAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Hash seleccionado ya está en uso'
+                    'Hash seleccionado ya está en uso', 'warning'
                 );
                 $this->redirect('/usuarios/perfil');
             }
             if ($this->Auth->User->checkIfEmailAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Email seleccionado ya está en uso'
+                    'Email seleccionado ya está en uso', 'warning'
                 );
                 $this->redirect('/usuarios/perfil');
             }
@@ -434,7 +447,9 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             $this->Auth->User->save();
             $this->Auth->saveCache();
             // mensaje de ok y redireccionar
-            \sowerphp\core\Model_Datasource_Session::message('Perfil actualizado');
+            \sowerphp\core\Model_Datasource_Session::message(
+                'Perfil actualizado', 'ok'
+            );
             $this->redirect('/usuarios/perfil');
         }
         // procesar cambio de contraseña
@@ -447,13 +462,13 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 $this->Auth->saveCache();
             } else {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Contraseñas no coinciden'
+                    'Contraseñas no coinciden', 'warning'
                 );
                 $this->redirect('/usuarios/perfil');
             }
             // mensaje de ok y redireccionar
             \sowerphp\core\Model_Datasource_Session::message(
-                'Contraseña actualizada'
+                'Contraseña actualizada', 'ok'
             );
             $this->redirect('/usuarios/perfil');
         }
@@ -462,11 +477,12 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             if ($this->Auth->User->createToken($_POST['codigo'])) {
                 $this->Auth->saveCache();
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Token creado, ahora tiene el control usando '.$this->Auth->settings['auth2']['name']
+                    'Token creado, ahora tiene el control usando '.$this->Auth->settings['auth2']['name'],
+                    'ok'
                 );
             } else {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'No fue posible crear el token'
+                    'No fue posible crear el token', 'error'
                 );
             }
             $this->redirect('/usuarios/perfil');
@@ -476,11 +492,11 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             if ($this->Auth->User->destroyToken()) {
                 $this->Auth->saveCache();
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Token destruído'
+                    'Token destruído', 'ok'
                 );
             } else {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'No fue posible destruir el token'
+                    'No fue posible destruir el token', 'error'
                 );
             }
             $this->redirect('/usuarios/perfil');
