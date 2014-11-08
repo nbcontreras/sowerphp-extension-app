@@ -37,10 +37,10 @@ COMMENT ON COLUMN usuario.usuario IS 'Nombre de usuario';
 COMMENT ON COLUMN usuario.email IS 'Correo electrónico del usuario';
 COMMENT ON COLUMN usuario.contrasenia IS 'Contraseña del usuario';
 COMMENT ON COLUMN usuario.contrasenia_intentos IS
-	'Intentos de inicio de sesión antes de bloquear cuenta',
+	'Intentos de inicio de sesión antes de bloquear cuenta';
 COMMENT ON COLUMN usuario.hash IS 'Hash único del usuario (32 caracteres)';
 COMMENT ON COLUMN usuario.token IS
-	'Token para servicio secundario de autorización',
+	'Token para servicio secundario de autorización';
 COMMENT ON COLUMN usuario.activo IS 'Indica si el usuario está o no activo en la aplicación';
 COMMENT ON COLUMN usuario.ultimo_ingreso_fecha_hora IS 'Fecha y hora del último ingreso del usuario';
 COMMENT ON COLUMN usuario.ultimo_ingreso_desde IS 'Dirección IP del último ingreso del usuario';
