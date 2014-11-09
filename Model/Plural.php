@@ -152,14 +152,18 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * Ingresa los campos por los que se deberá ordenar
      * @param orderByStatement Columna/s de la tabla por la cual se ordenará
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-02
+     * @version 2014-11-08
      */
     public function setOrderByStatement ($orderByStatement)
     {
-        $order = [];
-        foreach ($orderByStatement as $c => $o)
-            $order[] = $c.' '.$o;
-        $this->orderByStatement = ' ORDER BY '.implode(', ', $order);
+        if (is_array($orderByStatement)) {
+            $order = [];
+            foreach ($orderByStatement as $c => $o)
+                $order[] = $c.' '.$o;
+            $this->orderByStatement = ' ORDER BY '.implode(', ', $order);
+        } else {
+            $this->orderByStatement = ' ORDER BY '.$orderByStatement;
+        }
     }
 
     /**
