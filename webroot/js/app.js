@@ -20,13 +20,23 @@
  */
 
 /**
+ * Función ajustar el div wrapper según tamaño del contenedor del header fijo
+ * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+ * @version 2014-11-14
+ */
+function header_fix_adjust_wrapper() {
+    var height = document.getElementById('header_fix_container').clientHeight;
+    document.getElementById('wrapper').style.marginTop = (height+3)+'px';
+}
+
+/**
  * Función para autocompletar un input de un formulario
  * @param id Identificador del input
  * @param url URL donde están los posibles valores para el input
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
  * @version 2014-03-16
  */
-function autocomplete (id, url) {
+function autocomplete(id, url) {
     var field = id+'Field';
     $(function(){ $('#'+field).keyup(function(){
         if($('#'+field).val()!='' && $('#'+field).val().length > 2) {
