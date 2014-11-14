@@ -307,7 +307,7 @@ class Controller_Maintainer extends \Controller_App
     /**
      * Método para descargar un archivo desde la base de datos
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-19
+     * @version 2014-11-14
      */
     public function d ($campo, $pk)
     {
@@ -327,6 +327,15 @@ class Controller_Maintainer extends \Controller_App
         if(!$Obj->exists()) {
             \sowerphp\core\Model_Datasource_Session::message(
                 'Registro ('.implode(', ', $pks).') no existe. No se puede obtener '.$campo,
+                'error'
+            );
+            $this->redirect(
+                $this->module_url.$this->request->params['controller'].'/listar'
+            );
+        }
+        if ($Obj->{$campo.'_size'}==0) {
+            \sowerphp\core\Model_Datasource_Session::message(
+                'No hay datos para el campo '.$campo.' en el registro ('.implode(', ', $pks).')',
                 'error'
             );
             $this->redirect(
