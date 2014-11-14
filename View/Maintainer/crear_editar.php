@@ -44,7 +44,7 @@ foreach ($columns as $column => &$info) {
             echo $form->input($input);
         }
         // si es de tipo boolean se muestra lista desplegable
-        else if ($info['type']=='boolean' || $info['type']=='tinyint(1)') {
+        else if ($info['type']=='boolean' || $info['type']=='tinyint') {
             $input['type'] = 'select';
             $input['options'] = $optionsBoolean;
             if (isset($Obj)) $input['selected'] = $Obj->{$column};

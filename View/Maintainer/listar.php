@@ -26,7 +26,7 @@ foreach ($columns as $column => &$info) {
         $row[] = '';
     }
     // si es de tipo boolean se muestra lista desplegable
-    else if ($info['type']=='boolean' || $info['type']=='tinyint(1)') {
+    else if ($info['type']=='boolean' || $info['type']=='tinyint') {
         $row[] = $form->input(array('type'=>'select', 'name'=>$column, 'options' => $optionsBoolean, 'selected' => (isset($search[$column])?$search[$column]:'')));
     }
     // si es llave foránea
@@ -66,7 +66,7 @@ foreach ($Objs as &$obj) {
                 $row[] = '';
         }
         // si es boolean se usa Si o No según corresponda
-        else if ($info['type']=='boolean' || $info['type']=='tinyint(1)') {
+        else if ($info['type']=='boolean' || $info['type']=='tinyint') {
             $row[] = $obj->{$column}=='t' || $obj->{$column}=='1' ? 'Si' : 'No';
         }
         // si es llave foránea
