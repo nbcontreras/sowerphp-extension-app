@@ -25,8 +25,15 @@
  * @version 2014-11-14
  */
 function header_fix_adjust_wrapper() {
-    var height = document.getElementById('header_fix_container').clientHeight;
-    document.getElementById('wrapper').style.marginTop = (height+3)+'px';
+    var height;
+    if (document.getElementById('header_fix_container')) {
+        height = document.getElementById('header_fix_container').clientHeight;
+        document.getElementById('wrapper').style.marginTop = (height+3)+'px';
+    }
+    if (document.getElementById('footer_fix_container')) {
+        height = document.getElementById('footer_fix_container').clientHeight;
+        document.getElementById('wrapper').style.marginBottom = (height+15)+'px';
+    }
 }
 
 /**

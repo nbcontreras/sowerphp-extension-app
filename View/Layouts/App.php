@@ -124,6 +124,17 @@ if($message) echo '<div class="session_message session_message_',$message['type'
                     </div>
                 </div>
             </div>
+<?php
+$footer_fix = \sowerphp\core\Configure::read('page.footer.fix');
+if ($footer_fix and $_Auth->logged()) {
+?>
+            <div id="footer_fix_container">
+                <div id="footer_fix_message">
+                    <?=$footer_fix."\n"?>
+                </div>
+            </div>
+<?php } ?>
+            <script type="text/javascript">header_fix_adjust_wrapper()</script>
         </div>
     </body>
 </html>

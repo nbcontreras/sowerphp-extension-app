@@ -170,17 +170,23 @@ h1, h2, h3, h4, h5, h6 {
 /* tamaño de tabs en jquery.ui */
 .ui-tabs .ui-tabs-nav li a {font-size:10pt !important;}
 
-/* header fijo */
-#header_fix_container {
+/* header y footer fijos */
+#header_fix_container, #footer_fix_container {
 	background:#ffde4c;
 	left:0;
 	position:fixed;
 	width:100%;
-	top:0;
-	border-bottom:3px solid #ffb516;
 	padding:5px;
 }
-#header_fix_message {
+#header_fix_container {
+	top:0;
+	border-bottom:3px solid #ffb516;
+}
+#footer_fix_container {
+	bottom:0;
+	border-top:3px solid #ffb516;
+}
+#header_fix_message, #footer_fix_container {
 	font-weight:bold;
 	text-align:center;
 	font-size:20px;
