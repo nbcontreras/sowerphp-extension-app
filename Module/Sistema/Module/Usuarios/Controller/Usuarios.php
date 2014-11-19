@@ -46,11 +46,11 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * Permitir ciertas acciones y luego ejecutar verificar permisos con
      * parent::beforeFilter()
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-23
+     * @version 2014-11-18
      */
     public function beforeFilter ()
     {
-        $this->Auth->allow('ingresar', 'salir', 'contrasenia_recuperar');
+        $this->Auth->allow('ingresar', 'salir', 'contrasenia_recuperar', 'registrar');
         $this->Auth->allowWithLogin('perfil');
         parent::beforeFilter();
     }
@@ -59,7 +59,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * Acción para que un usuario ingrese al sistema (inicie sesión)
      * @param redirect Ruta (en base64) de hacia donde hay que redireccionar una vez se autentica el usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-28
+     * @version 2014-11-19
      */
     public function ingresar ($redirect = null)
     {
@@ -67,16 +67,18 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         if ($this->Auth->logged()) {
             \sowerphp\core\Model_Datasource_Session::message(sprintf(
                 'Usuario <em>%s</em> tiene su sesión abierta',
-                $this->Auth->Usuario->usuario
+                $this->Auth->User->usuario
             ));
             $this->redirect(
                 $this->Auth->settings['redirect']['login']
             );
         }
+        // asignar variables para la vista
+        $this->set([
+            'redirect' => $redirect ? base64_decode ($redirect) : null,
+            'self_register' => (boolean)\sowerphp\core\Configure::read('app.self_register'),
+        ]);
         // procesar inicio de sesión
-        if ($redirect)
-            $redirect = base64_decode ($redirect);
-        $this->set('redirect', $redirect);
         if (isset($_POST['submit'])) {
             // si el usuario o contraseña es vacio mensaje de error
             if (empty($_POST['usuario']) || empty($_POST['contrasenia'])) {
@@ -507,6 +509,132 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 'qrcode' => base64_encode($this->request->url.';'.$this->Auth->User->hash),
                 'auth2' => $this->Auth->settings['auth2'],
             ]);
+        }
+    }
+
+    /**
+     * Acción que permite registrar un nuevo usuario en la aplicación
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-11-19
+     */
+    public function registrar()
+    {
+        // si ya está logueado se redirecciona
+        if ($this->Auth->logged()) {
+            \sowerphp\core\Model_Datasource_Session::message(sprintf(
+                'Usuario <em>%s</em> tiene su sesión abierta',
+                $this->Auth->User->usuario
+            ));
+            $this->redirect(
+                $this->Auth->settings['redirect']['login']
+            );
+        }
+        // si no se permite el registro se redirecciona
+        $config = \sowerphp\core\Configure::read('app.self_register');
+        if (!$config) {
+            \sowerphp\core\Model_Datasource_Session::message(
+                'Registro de usuarios deshabilitado', 'error'
+            );
+            $this->redirect(
+                $this->Auth->settings['redirect']['login']
+            );
+        }
+        // colocar variable para captcha (si está configurado
+        $public_key = \sowerphp\core\Configure::read('recaptcha.public_key');
+        if ($public_key) {
+            \sowerphp\core\App::import('Vendor/google/recaptcha/recaptchalib');
+            $this->set('public_key', $public_key);
+        }
+        // si se envió formulario se procesa
+        if (isset($_POST['submit'])) {
+            // verificar que campos no sean vacios
+            if (empty($_POST['nombre']) or empty($_POST['usuario']) or empty($_POST['email'])) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Debe completar todos los campos del formulario', 'warning'
+                );
+                return;
+            }
+            // validar que el usuario y/o correo no exista previamente
+            $Usuario = new Model_Usuario();
+            $Usuario->set($_POST);
+            if ($Usuario->checkIfUsuarioAlreadyExists()) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Nombre de usuario '.$_POST['usuario'].' ya está en uso',
+                    'warning'
+                );
+                return;
+            }
+            if ($Usuario->checkIfEmailAlreadyExists()) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Email seleccionado ya está en uso', 'warning'
+                );
+                return;
+            }
+            // si existe la configuración para recaptcha se debe validar
+            $private_key = \sowerphp\core\Configure::read('recaptcha.private_key');
+            if ($private_key) {
+                if (empty($_POST['recaptcha_challenge_field']) or empty($_POST['recaptcha_response_field'])) {
+                    \sowerphp\core\Model_Datasource_Session::message(
+                        'Se requiere Captcha para poder registrar un nuevo usuario',
+                        'warning'
+                    );
+                    return;
+                }
+                $resp = recaptcha_check_answer(
+                    $private_key,
+                    $_SERVER['REMOTE_ADDR'],
+                    $_POST['recaptcha_challenge_field'],
+                    $_POST['recaptcha_response_field']
+                );
+                if (!$resp->is_valid) {
+                    \sowerphp\core\Model_Datasource_Session::message(
+                        'Captcha incorrecto', 'error'
+                    );
+                    return;
+                }
+            }
+            // asignar contraseña al usuario
+            $contrasenia = \sowerphp\core\Utility_String::random(8);
+            $Usuario->contrasenia = $this->Auth->hash($contrasenia);
+            // asignar hash al usuario
+            do {
+                $Usuario->hash = \sowerphp\core\Utility_String::random(32);
+            } while ($Usuario->checkIfHashAlreadyExists ());
+            if ($Usuario->save()) {
+                // asignar grupos por defecto al usuario
+                if (is_array($config) and !empty($config['groups']))
+                    $Usuario->saveGrupos($config['groups']);
+                // enviar correo
+                $emailConfig = \sowerphp\core\Configure::read('email.default');
+                if (!empty($emailConfig['type']) && !empty($emailConfig['type']) && !empty($emailConfig['pass'])) {
+                    $layout = $this->layout;
+                    $this->layout = null;
+                    $this->set([
+                        'nombre'=>$Usuario->nombre,
+                        'usuario'=>$Usuario->usuario,
+                        'contrasenia'=>$contrasenia,
+                    ]);
+                    $msg = $this->render('Usuarios/crear_email')->body();
+                    $this->layout = $layout;
+                    $email = new \sowerphp\core\Network_Email();
+                    $email->to($Usuario->email);
+                    $email->subject('Cuenta de usuario creada');
+                    $email->send($msg);
+                    \sowerphp\core\Model_Datasource_Session::message(
+                        'Registro creado, se envió contraseña a '.$Usuario->email,
+                        'ok'
+                    );
+                } else {
+                    \sowerphp\core\Model_Datasource_Session::message(
+                        'Registro creado, su contraseña es <em>'.$contrasenia.'</em>', 'warning'
+                    );
+                }
+            } else {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Registro de usuario falló por algún motivo', 'error'
+                );
+            }
+            $this->redirect('/usuarios/ingresar');
         }
     }
 

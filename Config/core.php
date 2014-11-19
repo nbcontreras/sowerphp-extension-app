@@ -68,3 +68,8 @@ if (defined('ENVIRONMENT_DEV')) \sowerphp\core\Module::uses('Dev');
     'public_key' => '',
     'private_key' => '',
 ]);*/
+
+// Configuración para auto registro de usuarios
+/*\sowerphp\core\Configure::write('app.self_register', [
+    'groups' => [],
+]);*/

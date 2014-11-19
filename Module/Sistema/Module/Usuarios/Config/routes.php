@@ -56,3 +56,9 @@
     'controller' => 'usuarios',
     'action' => 'contrasenia_recuperar',
 ));
+
+\sowerphp\core\Routing_Router::connect('/usuarios/registrar', array(
+    'module' => 'Sistema.Usuarios',
+    'controller' => 'usuarios',
+    'action' => 'registrar',
+));
