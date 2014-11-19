@@ -102,12 +102,13 @@ if ($auth2) {
         ]);
     }
 }
-?>
 
-<h2>Grupos a los que pertenezco</h2>
-<ul>
-<?php
-foreach ($_Auth->User->groups() as &$grupo)
-    echo '<li>',$grupo,'</li>';
-?>
-</ul>
+// mostrar grupos si el usuario pertenece a alguno
+$grupos = $_Auth->User->groups();
+if ($grupos) {
+    echo '<h2>Grupos a los que pertenezco</h2>',"\n";
+    echo '<ul>',"\n";
+    foreach ($grupos as &$grupo)
+        echo '<li>',$grupo,'</li>';
+    echo '</ul>',"\n";
+}
