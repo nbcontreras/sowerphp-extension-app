@@ -230,7 +230,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que realiza el login del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-28
+     * @version 2014-11-19
      */
     public function login ($usuario, $contrasenia)
     {
@@ -261,7 +261,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         // si ya hubo un intento de login fallido entonces se pedirá captcha
         $private_key = \sowerphp\core\Configure::read('recaptcha.private_key');
         if ($this->User->contrasenia_intentos<$this->settings['maxLoginAttempts'] and $private_key!==null) {
-            if (!isset($_POST['recaptcha_challenge_field']) or !isset($_POST['recaptcha_response_field'])) {
+            if (empty($_POST['recaptcha_challenge_field']) or empty($_POST['recaptcha_response_field'])) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     $this->settings['messages']['error']['recaptcha_required'],
                     'warning'
