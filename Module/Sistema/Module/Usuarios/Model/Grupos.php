@@ -38,4 +38,25 @@ class Model_Grupos extends \Model_Plural_App
     protected $_database = 'default'; ///< Base de datos del modelo
     protected $_table = 'grupo'; ///< Tabla del modelo
 
+    /**
+     * Método que entrega los IDs de un listado de nombres de grupos
+     * @param grupos Arreglo con los grupos que se quiere saber sus IDs
+     * @return Arreglo asociativo con grupo => id
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-11-19
+     */
+    public function getIDs($grupos)
+    {
+        $ids = [];
+        foreach ($grupos as &$grupo) {
+            $id = $this->db->getValue(
+                'SELECT id FROM grupo WHERE grupo = :grupo',
+                [':grupo'=>$grupo]
+            );
+            if ($id)
+                $ids[$grupo] = $id;
+        }
+        return $ids;
+    }
+
 }

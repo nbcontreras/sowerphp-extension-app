@@ -447,10 +447,14 @@ class Model_Usuario extends \Model_App
      * en el listado
      * @param grupos Arreglo con los GIDs de los grupos que se deben asignar/mantener
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-05-05
+     * @version 2014-11-19
      */
     public function saveGrupos ($grupos)
     {
+        if (!$grupos) return false;
+        if (!is_numeric($grupos[0])) {
+            $grupos = (new Model_Grupos())->getIDs($grupos);
+        }
         $grupos = array_map('intval', $grupos);
         $this->db->beginTransaction();
         if ($grupos) {
