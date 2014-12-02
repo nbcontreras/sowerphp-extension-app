@@ -56,7 +56,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
                 'invalid' => 'Usuario o clave inválida',
                 'inactive' => 'Cuenta de usuario no activa',
                 'newlogin' => 'Sesión cerrada. Usuario <em>%s</em> tiene una más nueva en otro lugar',
-                'login_attempts_exceeded' => 'Número de intentos de sesión excedidos.<br />Cuenta bloqueada, debe <a href="contrasenia/recuperar">recuperar su contraseña.</a>',
+                'login_attempts_exceeded' => 'Número de intentos de sesión excedidos. Cuenta bloqueada, debe recuperar su contraseña.',
                 'token' => 'Token se encuentra bloqueado',
                 'recaptcha_required' => 'Se detectaron intentos previos fallidos. Se requiere Captcha',
                 'recaptcha_invalid' => 'Captcha incorrecto',
