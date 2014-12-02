@@ -26,3 +26,12 @@
     'controller' => 'documentacion',
     'action' => 'index',
 ]);
+
+// rutas para servicios web
+\sowerphp\core\Routing_Router::connect('/api/:controller/*', [
+    'action' => 'api',
+]);
+\sowerphp\core\Routing_Router::connect('/api/sistema/usuarios/:controller/*', [
+    'module' => 'Sistema.Usuarios',
+    'action' => 'api',
+]);

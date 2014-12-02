@@ -27,13 +27,13 @@ namespace sowerphp\app;
  * Clase que sirve para extender la clase Controller, este archivo
  * deberá ser sobreescrito en cada una de las aplicaciones
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-03-29
+ * @version 2014-12-01
  */
 class Controller_App extends \sowerphp\core\Controller
 {
 
-    public $components = array('Auth');
-    public $Cache;
+    public $components = ['Auth', 'Api']; ///< Componentes usados por el controlador
+    public $Cache; ///< Objeto para usar el caché
 
     /**
      * Constructor de la clase
@@ -47,6 +47,29 @@ class Controller_App extends \sowerphp\core\Controller
         parent::__construct ($request, $response);
         $this->Cache = new \sowerphp\core\Cache();
         $this->set('_Auth', $this->Auth);
+    }
+
+    /**
+     * Método para permitir el acceso a las posibles funcionalidades de la API
+     * del controlador que se está ejecutando. Aquí no se validan permisos para
+     * la funcionalidad, estos deberán ser validados en cada función
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-12-01
+     */
+    public function beforeFilter()
+    {
+        $this->Auth->allow('api');
+        parent::beforeFilter();
+    }
+
+    /**
+     * Método que lanza el servicio web que se ha solicitado
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-12-02
+     */
+    public function api($resource, $args = null)
+    {
+        call_user_func_array([$this->Api, 'run'], func_get_args());
     }
 
 }
