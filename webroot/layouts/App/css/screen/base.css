@@ -33,6 +33,8 @@ a:hover {
 	background: #eee;
 	padding: 0.5em;
 	margin-bottom: 1em;
+	font-family: monospace;
+	white-space: pre;
 }
 
 /* Structure */
