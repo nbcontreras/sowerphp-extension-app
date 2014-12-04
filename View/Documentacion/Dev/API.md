@@ -1,9 +1,9 @@
-API REST
-========
+API
+===
 
 La aplicación web provee una [API](https://es.wikipedia.org/wiki/API)
-[REST](https://es.wikipedia.org/wiki/REST) con diferentes funcionalidades
-implementadas a través de los controladores de la aplicación.
+con diferentes funcionalidades implementadas a través de los controladores de la
+aplicación.
 
 La API utiliza las URLs como recursos utilizando las características del
 protocolo HTTP, como la
