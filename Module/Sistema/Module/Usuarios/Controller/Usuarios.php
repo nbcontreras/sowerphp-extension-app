@@ -539,7 +539,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 $this->Auth->settings['redirect']['login']
             );
         }
-        // colocar variable para captcha (si está configurado
+        // colocar variable para captcha (si está configurado)
         $public_key = \sowerphp\core\Configure::read('recaptcha.public_key');
         if ($public_key) {
             \sowerphp\core\App::import('Vendor/google/recaptcha/recaptchalib');

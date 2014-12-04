@@ -230,7 +230,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que realiza el login del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-11-19
+     * @version 2014-12-04
      */
     public function login ($usuario, $contrasenia)
     {
@@ -260,7 +260,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         }
         // si ya hubo un intento de login fallido entonces se pedirá captcha
         $private_key = \sowerphp\core\Configure::read('recaptcha.private_key');
-        if ($this->User->contrasenia_intentos<$this->settings['maxLoginAttempts'] and $private_key!==null) {
+        if ($this->settings['maxLoginAttempts'] and $this->User->contrasenia_intentos<$this->settings['maxLoginAttempts'] and $private_key!==null) {
             if (empty($_POST['recaptcha_challenge_field']) or empty($_POST['recaptcha_response_field'])) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     $this->settings['messages']['error']['recaptcha_required'],
@@ -283,8 +283,10 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             }
         }
         // si la contraseña no es correcta -> error
-        if (!$this->User->checkPassword($this->hash($contrasenia))) {
-            $this->User->setContraseniaIntentos($this->User->contrasenia_intentos-1);
+        if (!$this->User->checkPassword($contrasenia, $this->settings['hash'])) {
+            if ($this->settings['maxLoginAttempts']) {
+                $this->User->setContraseniaIntentos($this->User->contrasenia_intentos-1);
+            }
             if ($this->User->contrasenia_intentos) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     $this->settings['messages']['error']['invalid'], 'error'
@@ -320,7 +322,9 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             $lastlogin = '';
         }
         $this->User->updateLastLogin($timestamp, $ip, $hash);
-        $this->User->setContraseniaIntentos($this->settings['maxLoginAttempts']);
+        if ($this->settings['maxLoginAttempts']) {
+            $this->User->setContraseniaIntentos($this->settings['maxLoginAttempts']);
+        }
         // crear info de la sesión
         $this->session =  array(
             'id' => $this->User->id,

@@ -344,11 +344,11 @@ class Model_Usuario extends \Model_App
      * usuario
      * @return =true si las contraseñas son la misma
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-14
+     * @version 2014-12-04
      */
-    public function checkPassword($password)
+    public function checkPassword($password, $hash = 'sha256')
     {
-        return $this->contrasenia == $password;
+        return $this->contrasenia == hash($hash, $password);
     }
 
     /**
