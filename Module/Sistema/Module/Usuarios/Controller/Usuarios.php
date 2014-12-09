@@ -31,7 +31,7 @@ namespace sowerphp\app\Sistema\Usuarios;
  * Esta clase permite controlar las acciones entre el modelo y vista para la
  * tabla usuario
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-09-15
+ * @version 2014-12-09
  */
 class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
 {
@@ -41,6 +41,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         'listar'=>['id', 'nombre', 'usuario', 'activo', 'ultimo_ingreso_fecha_hora']
     ]; ///< Columnas que se deben mostrar en las vistas
     protected $deleteRecord = false; ///< Indica si se permite o no borrar registros
+    protected $changeUsername = true; ///< Indica si se permite que se cambie el nombre de usuario
 
     /**
      * Permitir ciertas acciones y luego ejecutar verificar permisos con
@@ -314,7 +315,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para editar un nuevo usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-24
+     * @version 2014-12-09
      */
     public function editar ($id)
     {
@@ -351,6 +352,13 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         }
         // si se envió el formulario se procesa
         else {
+            if (!$this->changeUsername and $Usuario->usuario!=$_POST['usuario']) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Nombre de usuario no puede ser cambiado',
+                    'warning'
+                );
+                $this->redirect('/sistema/usuarios/usuarios/editar/'.$id.$filterListarUrl);
+            }
             $Usuario->set($_POST);
             if ($Usuario->checkIfUsuarioAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
@@ -414,13 +422,20 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para mostrar y editar el perfil del usuario que esta autenticado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-25
+     * @version 2014-12-09
      */
     public function perfil ()
     {
         // procesar datos personales
         if (isset($_POST['datosUsuario'])) {
             // actualizar datos generales
+            if (!$this->changeUsername and $this->Auth->User->usuario!=$_POST['usuario']) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Nombre de usuario no puede ser cambiado',
+                    'warning'
+                );
+                $this->redirect('/usuarios/perfil');
+            }
             $this->Auth->User->set($_POST);
             if ($this->Auth->User->checkIfUsuarioAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
@@ -506,6 +521,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         // mostrar formulario para edición
         else {
             $this->set([
+                'changeUsername' => $this->changeUsername,
                 'qrcode' => base64_encode($this->request->url.';'.$this->Auth->User->hash),
                 'auth2' => $this->Auth->settings['auth2'],
             ]);

@@ -16,14 +16,16 @@ echo $form->input(array(
     'check' => 'notempty',
     'attr' => 'style="width:350px"',
 ));
-echo $form->input(array(
-    'name' => 'usuario',
-    'label' => 'Usuario',
-    'value' => $_Auth->User->usuario,
-    'help' => 'Nombre de usuario',
-    'check' => 'notempty',
-    'attr' => 'style="width:350px"',
-));
+if ($changeUsername) {
+    echo $form->input(array(
+        'name' => 'usuario',
+        'label' => 'Usuario',
+        'value' => $_Auth->User->usuario,
+        'help' => 'Nombre de usuario',
+        'check' => 'notempty',
+        'attr' => 'style="width:350px"',
+    ));
+}
 echo $form->input(array(
     'name' => 'email',
     'label' => 'Email',
