@@ -69,7 +69,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             \sowerphp\core\Model_Datasource_Session::message(sprintf(
                 'Usuario <em>%s</em> tiene su sesión abierta',
                 $this->Auth->User->usuario
-            ));
+            ), 'info');
             $this->redirect(
                 $this->Auth->settings['redirect']['login']
             );
@@ -108,7 +108,15 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      */
     public function salir ()
     {
-        $this->Auth->logout();
+        if ($this->Auth->logged()) {
+            $this->Auth->logout();
+        } else {
+            \sowerphp\core\Model_Datasource_Session::message(
+                'No existe sesión de usuario abierta',
+                'warning'
+            );
+            $this->redirect('/');
+        }
     }
 
     /**

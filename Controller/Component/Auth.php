@@ -230,7 +230,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que realiza el login del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-04
+     * @version 2014-12-09
      */
     public function login ($usuario, $contrasenia)
     {
@@ -337,7 +337,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         \sowerphp\core\Model_Datasource_Session::message(sprintf(
             $this->settings['messages']['ok']['login'],
             $this->User->usuario
-        ).$lastlogin);
+        ).$lastlogin, 'ok');
         // redireccionar
         if (isset($_POST['redirect'][0]))
             $this->controller->redirect($_POST['redirect']);
@@ -348,7 +348,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que termina la sesión del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-16
+     * @version 2014-12-09
      */
     public function logout()
     {
@@ -358,7 +358,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         \sowerphp\core\Model_Datasource_Session::message(sprintf(
             $this->settings['messages']['ok']['logout'],
             $this->User->usuario
-        ));
+        ), 'ok');
         $this->controller->redirect($this->settings['redirect']['logout']);
     }
 
