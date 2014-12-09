@@ -17,6 +17,9 @@
         "irc": "irc://irc.freenode.org/#sowerphp",
         "source": "https://github.com/sowerphp/extension-app"
     },
+    "config": {
+        "vendor-dir": "Vendor"
+    },
     "require": {
         "php": "~5.5"
     }
