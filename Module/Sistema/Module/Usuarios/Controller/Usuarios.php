@@ -360,7 +360,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         }
         // si se envió el formulario se procesa
         else {
-            if (!$this->changeUsername and $Usuario->usuario!=$_POST['usuario']) {
+            if (isset($_POST['usuario']) and !$this->changeUsername and $Usuario->usuario!=$_POST['usuario']) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario no puede ser cambiado',
                     'warning'
@@ -437,7 +437,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         // procesar datos personales
         if (isset($_POST['datosUsuario'])) {
             // actualizar datos generales
-            if (!$this->changeUsername and $this->Auth->User->usuario!=$_POST['usuario']) {
+            if (isset($_POST['usuario']) and !$this->changeUsername and $this->Auth->User->usuario!=$_POST['usuario']) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario no puede ser cambiado',
                     'warning'
