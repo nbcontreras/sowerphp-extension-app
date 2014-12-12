@@ -21,25 +21,8 @@
  * En caso contrario, consulte <http://www.gnu.org/licenses/gpl.html>.
  */
 
-// Tema de la página (diseño)
-\sowerphp\core\Configure::write('page.layout', 'App');
-
-// Textos de la página
-\sowerphp\core\Configure::write('page.footer', array(
-    'left' => '',
-    'right' => ''
-));
-
-// Menú principal del sitio web
-\sowerphp\core\Configure::write('nav.website', array(
-    '/inicio'=>'Inicio',
-    '/contacto'=>'Contacto'
-));
-
-// Menú principal de la aplicación
-\sowerphp\core\Configure::write('nav.app', array(
-    '/sistema'=>'Sistema'
-));
+// Si es ambiente de desarrollo se carga módulo de desarrollo
+if (defined('ENVIRONMENT_DEV')) \sowerphp\core\Module::uses('Dev');
 
 // Módulos que usará esta aplicación
 \sowerphp\core\Module::uses(array(
@@ -48,28 +31,5 @@
     'Sistema.Usuarios' => array('autoLoad' => true),
 ));
 
-// Si es ambiente de desarrollo se carga módulo de desarrollo
-if (defined('ENVIRONMENT_DEV')) \sowerphp\core\Module::uses('Dev');
-
 // Registros por página
 \sowerphp\core\Configure::write('app.registers_per_page', 20);
-
-// Configuración para autorización secundaria
-/*\sowerphp\core\Configure::write('auth2', [
-    'name' => 'Latch',
-    'url' => 'https://latch.elevenpaths.com',
-    'app_id' => '',
-    'app_key' => '',
-    'default' => false,
-]);*/
-
-// Configuración para reCAPTCHA
-/*\sowerphp\core\Configure::write('recaptcha', [
-    'public_key' => '',
-    'private_key' => '',
-]);*/
-
-// Configuración para auto registro de usuarios
-/*\sowerphp\core\Configure::write('app.self_register', [
-    'groups' => [],
-]);*/
