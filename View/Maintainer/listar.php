@@ -4,21 +4,24 @@
 <?php
 
 // preparar títulos de columnas (con link para ordenar por dicho campo)
-$titles = array();
+$titles = [];
+$colsWidth = [];
 foreach ($columns as $column => &$info) {
-    $titles[] = $info['name'].'<br />'.
-        '<a href="'.$_base.$module_url.$controller.'/listar/'.$page.'/'.$column.'/D'.$searchUrl.'" title="Ordenar descendentemente por '.$info['name'].'"><img src="'.$_base.'/img/icons/16x16/actions/down.png" alt="" /></a>'.
-        '<a href="'.$_base.$module_url.$controller.'/listar/'.$page.'/'.$column.'/A'.$searchUrl.'" title="Ordenar ascendentemente por '.$info['name'].'"><img src="'.$_base.'/img/icons/16x16/actions/up.png" alt="" /></a>'
+    $titles[] = $info['name'].' '.
+        '<div class="pull-right"><a href="'.$_base.$module_url.$controller.'/listar/'.$page.'/'.$column.'/A'.$searchUrl.'" title="Ordenar ascendentemente por '.$info['name'].'"><span class="glyphicon glyphicon-sort-by-alphabet" aria-hidden="true"></span></a>'.
+        ' <a href="'.$_base.$module_url.$controller.'/listar/'.$page.'/'.$column.'/D'.$searchUrl.'" title="Ordenar descendentemente por '.$info['name'].'"><span class="glyphicon glyphicon-sort-by-alphabet-alt" aria-hidden="true"></span></a></div>'
     ;
+    $colsWidth[] = null;
 }
 $titles[] = 'Acciones';
+$colsWidth[] = 100;
 
 // crear arreglo para la tabla y agregar títulos de columnas
 $data = array($titles);
 
 // agregar fila para búsqueda mediante formulario
 $row = array();
-$form = new \sowerphp\general\View_Helper_Form ('normal');
+$form = new \sowerphp\general\View_Helper_Form(false);
 $optionsBoolean = array(array('', 'Seleccione una opción'), array('1', 'Si'), array('0', 'No'));
 foreach ($columns as $column => &$info) {
     // si es un archivo
@@ -51,7 +54,7 @@ foreach ($columns as $column => &$info) {
         $row[] = $form->input(array('name'=>$column, 'value'=>(isset($search[$column])?$search[$column]:'')));
     }
 }
-$row[] = '<input type="image" src="'.$_base.'/img/icons/16x16/actions/search.png" alt="Buscar" title="Buscar" />';
+$row[] = '<button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>';
 $data[] = $row;
 
 // crear filas de la tabla
@@ -61,7 +64,7 @@ foreach ($Objs as &$obj) {
         // si es un archivo
         if ($info['type']=='file') {
             if ($obj->{$column.'_size'})
-                $row[] = '<a href="'.$_base.$module_url.$controller.'/d/'.$column.'/'.urlencode($obj->id).'"><img src="'.$_base.'/img/icons/16x16/actions/download.png" alt="" /></a>';
+                $row[] = '<a href="'.$_base.$module_url.$controller.'/d/'.$column.'/'.urlencode($obj->id).'" style="font-size:16px"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a>';
             else
                 $row[] = '';
         }
@@ -86,9 +89,9 @@ foreach ($Objs as &$obj) {
     }
     $pkValues = $obj->getPkValues();
     $pkURL = implode('/', array_map('urlencode', $pkValues));
-    $actions = '<a href="'.$_base.$module_url.$controller.'/editar/'.$pkURL.$listarFilterUrl.'" title="Editar"><img src="'.$_base.'/img/icons/16x16/actions/edit.png" alt="" /></a>';
+    $actions = '<a href="'.$_base.$module_url.$controller.'/editar/'.$pkURL.$listarFilterUrl.'" title="Editar" style="font-size:16px"><span class="glyphicon glyphicon-edit btn btn-default" aria-hidden="true"></span></a>';
     if ($deleteRecord) {
-        $actions .= ' <a href="'.$_base.$module_url.$controller.'/eliminar/'.$pkURL.$listarFilterUrl.'" title="Eliminar" onclick="return eliminar(\''.$model.'\', \''.implode(', ', $pkValues).'\')"><img src="'.$_base.'/img/icons/16x16/actions/delete.png" alt="" /></a>';
+        $actions .= ' <a href="'.$_base.$module_url.$controller.'/eliminar/'.$pkURL.$listarFilterUrl.'" title="Eliminar" onclick="return eliminar(\''.$model.'\', \''.implode(', ', $pkValues).'\')" style="font-size:16px"><span class="glyphicon glyphicon-remove-circle btn btn-default" aria-hidden="true"></span></a>';
     }
     $row[] = $actions;
     $data[] = $row;
@@ -101,4 +104,5 @@ $maintainer = new \sowerphp\app\View_Helper_Maintainer ([
     'listarFilterUrl' => $listarFilterUrl
 ]);
 $maintainer->setId($model);
+$maintainer->setColsWidth($colsWidth);
 echo $maintainer->listar ($data, $pages, $page);

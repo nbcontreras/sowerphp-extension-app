@@ -1,7 +1,25 @@
+<script type="text/javascript">
+$(function() {
+    var url = document.location.toString();
+    if (url.match('#')) {
+        $('.nav-tabs a[href=#'+url.split('#')[1]+']').tab('show') ;
+    }
+});
+</script>
+
 <h1>Mi perfil de usuario (<?=$_Auth->User->usuario?>)</h1>
 
-<h2>Mis datos personales</h2>
-<img src="<?=$_base?>/exportar/qrcode/<?=$qrcode?>" alt="hash" class="fright" style="width:100px" title="Código QR para autenticación en la aplicación"/>
+<div role="tabpanel">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#datos" aria-controls="datos" role="tab" data-toggle="tab">Datos personales</a></li>
+        <li role="presentation"><a href="#contrasenia" aria-controls="contrasenia" role="tab" data-toggle="tab">Contraseña</a></li>
+        <li role="presentation"><a href="#grupos" aria-controls="grupos" role="tab" data-toggle="tab">Grupos</a></li>
+        <li role="presentation"><a href="#auth2" aria-controls="auth2" role="tab" data-toggle="tab">Auth2</a></li>
+        <li role="presentation"><a href="#qr" aria-controls="qr" role="tab" data-toggle="tab">QR</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="datos">
+            <p>Aquí puede modificar los datos de su usuario.</p>
 <?php
 $form = new \sowerphp\general\View_Helper_Form();
 echo $form->begin(array(
@@ -46,8 +64,9 @@ echo $form->end(array(
     'value' => 'Guardar cambios',
 ));
 ?>
-
-<h2>Cambiar mi contraseña</h2>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="contrasenia">
+            <p>A través del siguiente formulario puede cambiar su contraseña.</p>
 <?php
 echo $form->begin(array(
     'id' => 'cambiarContrasenia',
@@ -72,11 +91,25 @@ echo $form->end(array(
     'value'=>'Cambiar contraseña',
 ));
 ?>
-
+        </div>
+        <div role="tabpanel" class="tab-pane" id="grupos">
+<?php
+$grupos = $_Auth->User->groups();
+if ($grupos) {
+    echo '<p>Los siguientes son los grupos a los que usted pertenece.</p>',"\n";
+    echo '<ul>',"\n";
+    foreach ($grupos as &$grupo)
+        echo '<li>',$grupo,'</li>';
+    echo '</ul>',"\n";
+} else {
+    echo '<p>No pertenece a ningún grupo.</p>',"\n";
+}
+?>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="auth2">
 <?php
 if ($auth2) {
     if (!isset($_Auth->User->token[0])) {
-        echo '<h2>Crear token</h2>',"\n";
         echo '<p>Aquí podrá crear su token para autorizar el ingreso a la aplicación con el sistema secundario <a href="',$auth2['url'],'" target="_blank">',$auth2['name'],'</a>.</p>',"\n";
         echo $form->begin([
             'id' => 'crearToken',
@@ -93,7 +126,6 @@ if ($auth2) {
             'value' => 'Crear token',
         ]);
     } else {
-        echo '<h2>Destruir token</h2>',"\n";
         echo '<p>Aquí podrá eliminar su token de <a href="',$auth2['url'],'" target="_blank">',$auth2['name'],'</a>.</p>',"\n";
         echo $form->begin([
             'onsubmit' => 'Form.checkSend(\'¿Está seguro de querer destruir su token?\')'
@@ -104,13 +136,13 @@ if ($auth2) {
         ]);
     }
 }
-
-// mostrar grupos si el usuario pertenece a alguno
-$grupos = $_Auth->User->groups();
-if ($grupos) {
-    echo '<h2>Grupos a los que pertenezco</h2>',"\n";
-    echo '<ul>',"\n";
-    foreach ($grupos as &$grupo)
-        echo '<li>',$grupo,'</li>';
-    echo '</ul>',"\n";
-}
+?>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="qr">
+            <p>El siguiente código QR provee la dirección de la aplicación junto con su <em>hash</em> de usuario para autenticación.</p>
+            <div style="text-align:center">
+                <img src="<?=$_base?>/exportar/qrcode/<?=$qrcode?>" alt="hash" />
+            </div>
+        </div>
+  </div>
+</div>
