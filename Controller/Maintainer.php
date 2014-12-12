@@ -85,7 +85,7 @@ class Controller_Maintainer extends \Controller_App
     /**
      * Acción para listar los registros de la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-08
+     * @version 2014-12-11
      */
     public function listar ($page = 1, $orderby = null, $order = 'A')
     {
@@ -165,7 +165,6 @@ class Controller_Maintainer extends \Controller_App
             'linkEnd' => ($orderby ? '/'.$orderby.'/'.$order : '').$searchUrl,
             'fkNamespace' => $model::$fkNamespace,
             'comment' => $model::$tableComment,
-            '_header_extra' => ['js'=>['/js/mantenedor.js']],
             'listarFilterUrl' => '?listar='.base64_encode('/'.$page.($orderby ? '/'.$orderby.'/'.$order : '').$searchUrl),
             'deleteRecord' => $this->deleteRecord,
         ));
