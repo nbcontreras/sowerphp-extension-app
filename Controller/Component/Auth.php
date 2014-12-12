@@ -313,7 +313,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         // registrar ingreso en la base de datos
         $lastLogin = $this->User->lastLogin();
         if (isset($lastLogin['fecha_hora'][0])) {
-            $lastlogin = '<br />'.sprintf(
+            $lastlogin = '. '.sprintf(
                 $this->settings['messages']['ok']['lastlogin'],
                 $lastLogin['fecha_hora'],
                 $lastLogin['desde']
