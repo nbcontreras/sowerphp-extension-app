@@ -272,7 +272,7 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * @param solicitado Lo que se está solicitando (objetcs, table, etc)
      * @return Mixed Arreglo o valor según lo solicitado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-15
+     * @version 2014-12-17
      */
     private function getData($solicitado)
     {
@@ -301,10 +301,10 @@ abstract class Model_Plural extends \sowerphp\core\Object
             if ($solicitado=='objects') {
                 // procesar tabla y asignar valores al objeto
                 $objetos = array();
-                // determinar nombre de la clase
-                $class = '\Model_'.\sowerphp\core\Utility_Inflector::camelize($this->_table);
-                if(!class_exists($class))
-                    $class = \sowerphp\core\Utility_Inflector::singularize(get_class($this));
+                // determinar nombre de la clase singular (se busca en el mismo namespace que la clase plural)
+                $classs = \sowerphp\core\Utility_Inflector::singularize(get_class($this));
+                $namespace = substr($classs, 0, strrpos($classs, '\\'));
+                $class = $namespace.'\Model_'.\sowerphp\core\Utility_Inflector::camelize($this->_table);
                 // iterar creando objetos
                 foreach ($tabla as &$fila) {
                     $obj = new $class();

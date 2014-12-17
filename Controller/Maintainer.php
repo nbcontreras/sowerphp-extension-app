@@ -26,13 +26,13 @@ namespace sowerphp\app;
 /**
  * Clase que implementa los métodos básicos de un mantenedor, métodos CRUD.
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-09-15
+ * @version 2014-12-17
  */
 class Controller_Maintainer extends \Controller_App
 {
 
-    private $model; ///< Atributo con el namespace y clase del modelo singular
-    private $models; ///< Atributo con el namespace y clase del modelo plural
+    protected $model = false; ///< Atributo con el namespace y clase del modelo singular
+    protected $models = false; ///< Atributo con el namespace y clase del modelo plural
     private $module_url; ///< Atributo con la url para acceder el módulo
     protected $deleteRecord = true; ///< Indica si se permite o no borrar registros
     protected $contraseniaNames = ['contrasenia', 'clave', 'password', 'pass']; ///< Posibles nombres de campo tipo contraseña
@@ -53,12 +53,14 @@ class Controller_Maintainer extends \Controller_App
      * Método que asigna los namespaces y nombres de los modelos tanto singular
      * como plural usados por este controlador
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-22
+     * @version 2014-12-17
      */
     private function setModelName ()
     {
-        $this->models = \sowerphp\core\Utility_Inflector::camelize($this->request->params['controller']);
-        $this->model = \sowerphp\core\Utility_Inflector::singularize($this->models);
+        if (!$this->models)
+            $this->models = \sowerphp\core\Utility_Inflector::camelize($this->request->params['controller']);
+        if (!$this->model)
+            $this->model = \sowerphp\core\Utility_Inflector::singularize($this->models);
         $this->set('models', $this->models);
         $this->set('model', $this->model);
         $this->model = '\\'.$this->namespace.'\Model_'.$this->model;
