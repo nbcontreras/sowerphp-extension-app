@@ -16,8 +16,7 @@ echo $f->input([
     'label'=>'Consulta SQL',
     'check'=>'notempty',
     'help'=>'Consulta SQL que se desea ejecutar en la base de datos seleccionada',
-    'rows'=>20,
-    'attr'=>'style="width:500px"',
+    'rows'=>10,
 ]);
 echo $f->end('Ejecutar consulta SQL');
 
