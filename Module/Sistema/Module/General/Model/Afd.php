@@ -79,6 +79,18 @@ class Model_Afd extends \Model_App
     public $transiciones = [];
 
     /**
+     * Contructor para el modelo AFD
+     * @param codigo Código del AFD en la BD
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-12-20
+     */
+    public function __construct($codigo = null)
+    {
+        parent::__construct($codigo);
+        $this->afd = &$this->nombre;
+    }
+
+    /**
      * Método que guarda el AFD
      * @param estados Arreglo con arreglo de codigos y nombres de estados
      * @param transiciones Arreglo con arreglo de desdes, valor y hastas de las transiciones
