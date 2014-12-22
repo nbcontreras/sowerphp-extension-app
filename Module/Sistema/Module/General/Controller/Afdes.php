@@ -38,7 +38,7 @@ class Controller_Afdes extends \Controller_Maintainer
 
     protected $namespace = __NAMESPACE__; ///< Namespace del controlador y modelos asociados
 
-    public function beforeRender()
+    public function beforeFilter()
     {
         $this->Auth->allowWithLogin('grafo');
         parent::beforeRender();
