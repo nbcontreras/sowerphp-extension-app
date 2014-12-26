@@ -18,7 +18,7 @@ CREATE TABLE usuario (
     nombre CHARACTER VARYING (50) NOT NULL,
     usuario CHARACTER VARYING (30) NOT NULL,
     email CHARACTER VARYING (50) NOT NULL,
-    contrasenia CHAR(64) NOT NULL,
+    contrasenia VARCHAR(255) NOT NULL,
     contrasenia_intentos SMALLINT NOT NULL DEFAULT 3,
     hash CHAR(32) NOT NULL,
     token CHAR(64),

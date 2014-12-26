@@ -123,7 +123,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * Acción para recuperar la contraseña
      * @param usuario Usuario al que se desea recuperar su contraseña
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-23
+     * @version 2014-12-26
      */
     public function contrasenia_recuperar ($usuario = null)
     {
@@ -144,7 +144,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                         $Usuario->email,
                         $Usuario->nombre,
                         $Usuario->usuario,
-                        $this->Auth->hash($Usuario->contrasenia)
+                        md5(hash('sha256', $Usuario->contrasenia))
                     );
                     \sowerphp\core\Model_Datasource_Session::message (
                         'Se ha enviado un email con las instrucciones para recuperar su contraseña',
@@ -167,7 +167,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 $this->set('usuario', $usuario);
                 $this->render ('Usuarios/contrasenia_recuperar_step2');
             } else {
-                if ($this->Auth->hash($Usuario->contrasenia)!=$_POST['codigo']) {
+                if ($_POST['codigo']!=md5(hash('sha256', $Usuario->contrasenia))) {
                     \sowerphp\core\Model_Datasource_Session::message (
                         'Código ingresado no es válido para el usuario', 'error'
                     );
@@ -182,11 +182,8 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     $this->render ('Usuarios/contrasenia_recuperar_step2');
                 }
                 else {
-                    $Usuario->saveContrasenia(
-                        $_POST['contrasenia1'],
-                        $this->Auth->settings['hash']
-                    );
-                    $Usuario->setContraseniaIntentos($this->Auth->settings['maxLoginAttempts']);
+                    $Usuario->savePassword($_POST['contrasenia1']);
+                    $Usuario->savePasswordRetry($this->Auth->settings['maxLoginAttempts']);
                     \sowerphp\core\Model_Datasource_Session::message (
                         'La contraseña para el usuario '.$usuario.' ha sido cambiada con éxito',
                         'ok'
@@ -241,7 +238,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             $Usuario = new Model_Usuario();
             $Usuario->set($_POST);
             $ok = true;
-            if ($Usuario->checkIfUsuarioAlreadyExists ()) {
+            if ($Usuario->checkIfUserAlreadyExists()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario '.$_POST['usuario'].' ya está en uso',
                     'warning'
@@ -272,7 +269,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     } while ($Usuario->checkIfHashAlreadyExists ());
                 }
                 if($Usuario->save()) {
-                    $Usuario->saveGrupos($_POST['grupos']);
+                    $Usuario->saveGroups($_POST['grupos']);
                     // enviar correo
                     $emailConfig = \sowerphp\core\Configure::read('email.default');
                     if (!empty($emailConfig['type']) && !empty($emailConfig['type']) && !empty($emailConfig['pass'])) {
@@ -368,7 +365,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 $this->redirect('/sistema/usuarios/usuarios/editar/'.$id.$filterListarUrl);
             }
             $Usuario->set($_POST);
-            if ($Usuario->checkIfUsuarioAlreadyExists ()) {
+            if ($Usuario->checkIfUserAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario '.$_POST['usuario'].' ya está en uso',
                     'warning'
@@ -389,12 +386,9 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             }
             $Usuario->save();
             if(!empty($_POST['contrasenia'])) {
-                $Usuario->saveContrasenia(
-                    $_POST['contrasenia'],
-                    $this->Auth->settings['hash']
-                );
+                $Usuario->savePassword($_POST['contrasenia']);
             }
-            $Usuario->saveGrupos($_POST['grupos']);
+            $Usuario->saveGroups($_POST['grupos']);
             \sowerphp\core\Model_Datasource_Session::message(
                 'Registro Usuario('.implode(', ', func_get_args()).') editado',
                 'ok'
@@ -445,7 +439,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 $this->redirect('/usuarios/perfil');
             }
             $this->Auth->User->set($_POST);
-            if ($this->Auth->User->checkIfUsuarioAlreadyExists ()) {
+            if ($this->Auth->User->checkIfUserAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario '.$_POST['usuario'].' ya está en uso',
                     'warning'
@@ -480,10 +474,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         // procesar cambio de contraseña
         else if (isset($_POST['cambiarContrasenia'])) {
             if(!empty($_POST['contrasenia1']) && $_POST['contrasenia1']==$_POST['contrasenia2']) {
-                $this->Auth->User->saveContrasenia(
-                    $_POST['contrasenia1'],
-                    $this->Auth->settings['hash']
-                );
+                $this->Auth->User->savePassword($_POST['contrasenia1']);
                 $this->Auth->saveCache();
             } else {
                 \sowerphp\core\Model_Datasource_Session::message(
@@ -581,7 +572,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             // validar que el usuario y/o correo no exista previamente
             $Usuario = new Model_Usuario();
             $Usuario->set($_POST);
-            if ($Usuario->checkIfUsuarioAlreadyExists()) {
+            if ($Usuario->checkIfUserAlreadyExists()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario '.$_POST['usuario'].' ya está en uso',
                     'warning'
@@ -627,7 +618,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             if ($Usuario->save()) {
                 // asignar grupos por defecto al usuario
                 if (is_array($config) and !empty($config['groups']))
-                    $Usuario->saveGrupos($config['groups']);
+                    $Usuario->saveGroups($config['groups']);
                 // enviar correo
                 $emailConfig = \sowerphp\core\Configure::read('email.default');
                 if (!empty($emailConfig['type']) && !empty($emailConfig['type']) && !empty($emailConfig['pass'])) {

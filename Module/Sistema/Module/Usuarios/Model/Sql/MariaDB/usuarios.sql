@@ -17,7 +17,7 @@ CREATE TABLE usuario (
 		COMMENT 'Nombre de usuario',
 	email CHARACTER VARYING (50) NOT NULL
 		COMMENT 'Correo electrónico del usuario',
-	contrasenia CHAR(64) NOT NULL
+	contrasenia VARCHAR(255) NOT NULL
 		COMMENT 'Contraseña del usuario',
 	contrasenia_intentos SMALLINT NOT NULL DEFAULT 3
 		COMMENT 'Intentos de inicio de sesión antes de bloquear cuenta',

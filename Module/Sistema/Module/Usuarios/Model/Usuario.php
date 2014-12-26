@@ -265,24 +265,12 @@ class Model_Usuario extends \Model_App
     }
 
     /**
-     * Método que guarda la contraseña de un usuario
-     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-19
-     */
-    public function saveContrasenia ($password, $hash = 'sha256')
-    {
-        $this->db->query('
-            UPDATE usuario SET contrasenia = :contrasenia WHERE id = :id
-        ', [':contrasenia'=>hash($hash, $password), ':id'=>$this->id]);
-    }
-
-    /**
      * Método que revisa si el nombre de usuario ya existe en la base de datos
      * @return =true si el nombre de usuario ya existe
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-19
+     * @version 2014-12-27
      */
-    public function checkIfUsuarioAlreadyExists ()
+    public function checkIfUserAlreadyExists ()
     {
         if (empty($this->id)) {
             return (boolean)$this->db->getValue('
@@ -340,15 +328,47 @@ class Model_Usuario extends \Model_App
     }
 
     /**
-     * Método que revisa si la contraseña entregada es igual a al contraseña del
-     * usuario
-     * @return =true si las contraseñas son la misma
+     * Método que guarda la contraseña de un usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-04
+     * @version 2014-12-27
      */
-    public function checkPassword($password, $hash = 'sha256')
+    public function savePassword($password)
     {
-        return $this->contrasenia == hash($hash, $password);
+        $this->contrasenia = $this->hashPassword($password);
+        $this->db->query('
+            UPDATE usuario SET contrasenia = :contrasenia WHERE id = :id
+        ', [':contrasenia'=>$this->contrasenia, ':id'=>$this->id]);
+    }
+
+    /**
+     * Método que calcula el hash para la contraseña según el algoritmo más
+     * fuerte disponible en PHP y usando un salt automático.
+     * @param password Contraseña que se desea encriptar
+     * @return Contraseña encriptada (su hash)
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-12-26
+     */
+    public function hashPassword($password)
+    {
+        return password_hash($password, \PASSWORD_DEFAULT, ['cost' => 9]);
+    }
+
+    /**
+     * Método que revisa si la contraseña entregada es igual a la contraseña del
+     * usuario almacenada en la base de datos
+     * @param password Contrasela que se desea verificar
+     * @return =true si la contraseña coincide con la de la base de datos
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-12-26
+     */
+    public function checkPassword($password)
+    {
+        if (isset($this->contrasenia[63])) {
+            $status = $this->contrasenia == hash('sha256', $password);
+            if ($status) $this->savePassword($password);
+            return $status;
+        }
+        return password_verify($password, $this->contrasenia);
     }
 
     /**
@@ -392,15 +412,18 @@ class Model_Usuario extends \Model_App
     /**
      * Método que actualiza el último ingreso del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-14
+     * @version 2014-12-26
      */
-    public function updateLastLogin($timestamp, $ip, $hash)
+    public function updateLastLogin($ip)
     {
+        $timestamp = date('Y-m-d H:i:s');
+        $hash = md5($ip.$timestamp.$this->contrasenia);
         $this->update ([
             'ultimo_ingreso_fecha_hora' => $timestamp,
             'ultimo_ingreso_desde' => $ip,
             'ultimo_ingreso_hash' => $hash
         ]);
+        return $hash;
     }
 
     /**
@@ -447,9 +470,9 @@ class Model_Usuario extends \Model_App
      * en el listado
      * @param grupos Arreglo con los GIDs de los grupos que se deben asignar/mantener
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-11-19
+     * @version 2014-12-27
      */
-    public function saveGrupos ($grupos)
+    public function saveGroups($grupos)
     {
         if (!$grupos) return false;
         if (!is_numeric($grupos[0])) {
@@ -541,9 +564,9 @@ class Model_Usuario extends \Model_App
     /**
      * Método que asigna los intentos de contraseña
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-25
+     * @version 2014-12-27
      */
-    public function setContraseniaIntentos($intentos)
+    public function savePasswordRetry($intentos)
     {
         $this->contrasenia_intentos = $intentos;
         $this->db->query(

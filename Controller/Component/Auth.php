@@ -26,14 +26,13 @@ namespace sowerphp\app;
 /**
  * Componente para proveer de un sistema de autenticación y autorización
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-10-25
+ * @version 2014-12-26
  */
 class Controller_Component_Auth extends \sowerphp\core\Controller_Component
 {
 
     public $settings = [ ///< Opciones por defecto
         'maxLoginAttempts' => 3,
-        'hash' => 'sha256',
         'model' => '\sowerphp\app\Sistema\Usuarios\Model_Usuario',
         'session' => [
             'key' => 'session.auth',
@@ -230,7 +229,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que realiza el login del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-09
+     * @version 2014-12-26
      */
     public function login ($usuario, $contrasenia)
     {
@@ -283,9 +282,9 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             }
         }
         // si la contraseña no es correcta -> error
-        if (!$this->User->checkPassword($contrasenia, $this->settings['hash'])) {
+        if (!$this->User->checkPassword($contrasenia)) {
             if ($this->settings['maxLoginAttempts']) {
-                $this->User->setContraseniaIntentos($this->User->contrasenia_intentos-1);
+                $this->User->savePasswordRetry($this->User->contrasenia_intentos-1);
             }
             if ($this->User->contrasenia_intentos) {
                 \sowerphp\core\Model_Datasource_Session::message(
@@ -307,9 +306,6 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             return;
         }
         // si se pasaron toda las validaciones anteriores -> crear sesión
-        $timestamp = date('Y-m-d H:i:s');
-        $ip = $this->ip (true);
-        $hash = md5 ($ip.$timestamp.$this->hash($contrasenia));
         // registrar ingreso en la base de datos
         $lastLogin = $this->User->lastLogin();
         if (isset($lastLogin['fecha_hora'][0])) {
@@ -321,9 +317,9 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         } else {
             $lastlogin = '';
         }
-        $this->User->updateLastLogin($timestamp, $ip, $hash);
+        $hash = $this->User->updateLastLogin($this->ip(true));
         if ($this->settings['maxLoginAttempts']) {
-            $this->User->setContraseniaIntentos($this->settings['maxLoginAttempts']);
+            $this->User->savePasswordRetry($this->settings['maxLoginAttempts']);
         }
         // crear info de la sesión
         $this->session =  array(
@@ -360,17 +356,6 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             $this->User->usuario
         ), 'ok');
         $this->controller->redirect($this->settings['redirect']['logout']);
-    }
-
-    /**
-     * Método que calcula el hash de la contraseña utilizando el método
-     * especificado
-     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-14
-     */
-    public function hash ($string)
-    {
-        return hash($this->settings['hash'], $string);
     }
 
     /**
