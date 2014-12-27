@@ -359,11 +359,11 @@ class Model_Usuario extends \Model_App
      * @param password Contrasela que se desea verificar
      * @return =true si la contraseña coincide con la de la base de datos
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-26
+     * @version 2014-12-27
      */
     public function checkPassword($password)
     {
-        if (isset($this->contrasenia[63])) {
+        if ($this->contrasenia[0]!='$') {
             $status = $this->contrasenia == hash('sha256', $password);
             if ($status) $this->savePassword($password);
             return $status;

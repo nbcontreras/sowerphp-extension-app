@@ -262,7 +262,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     $Usuario->contrasenia = \sowerphp\core\Utility_String::random(8);
                 }
                 $contrasenia = $Usuario->contrasenia;
-                $Usuario->contrasenia = $this->Auth->hash($Usuario->contrasenia);
+                $Usuario->contrasenia = $Usuario->hashPassword($Usuario->contrasenia);
                 if (empty($Usuario->hash)) {
                     do {
                         $Usuario->hash = \sowerphp\core\Utility_String::random(32);
@@ -610,7 +610,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             }
             // asignar contraseña al usuario
             $contrasenia = \sowerphp\core\Utility_String::random(8);
-            $Usuario->contrasenia = $this->Auth->hash($contrasenia);
+            $Usuario->contrasenia = $Usuario->hashPassword($contrasenia);
             // asignar hash al usuario
             do {
                 $Usuario->hash = \sowerphp\core\Utility_String::random(32);
