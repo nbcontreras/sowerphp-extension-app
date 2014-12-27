@@ -6,16 +6,19 @@ echo $form->input([
     'name'=>'nombre',
     'label'=>'Nombre',
     'check'=>'notempty',
+    'attr'=>'maxlength="50"',
 ]);
 echo $form->input([
     'name'=>'usuario',
     'label'=>'Usuario',
     'check'=>'notempty',
+    'attr'=>'maxlength="30"',
 ]);
 echo $form->input([
     'name'=>'email',
     'label'=>'Email',
     'check'=>'notempty email',
+    'attr'=>'maxlength="50"',
 ]);
 echo $form->input([
     'type'=>'div',
