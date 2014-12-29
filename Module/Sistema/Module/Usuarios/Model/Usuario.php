@@ -623,13 +623,13 @@ class Model_Usuario extends \Model_App
     /**
      * Método que valida el estado del token con la autorización secundaria
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-25
+     * @version 2014-12-29
      */
     public function checkToken()
     {
         $config = \sowerphp\core\Configure::read('auth2');
         if ($config===null or !isset($this->token[0])) return true;
-        $class = '\sowerphp\app\Model_Auth2_'.$config['name'];
+        $class = '\sowerphp\app\Model_Datasource_Auth2_'.$config['name'];
         $Auth2 = new $class($config);
         return $Auth2->checkToken($this->token);
     }

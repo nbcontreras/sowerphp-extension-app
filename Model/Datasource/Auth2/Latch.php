@@ -33,9 +33,9 @@ namespace sowerphp\app;
  * Wrapper para la autorización secundaria usando Latch
  * Requiere (en Debian GNU/Linux) paquete: php5-curl
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-10-25
+ * @version 2014-12-29
  */
-class Model_Auth2_Latch
+class Model_Datasource_Auth2_Latch
 {
 
     private $Latch; ///< API de Latch
