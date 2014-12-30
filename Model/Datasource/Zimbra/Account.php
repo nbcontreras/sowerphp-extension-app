@@ -50,7 +50,13 @@ class Model_Datasource_Zimbra_Account extends Model_Datasource_Ldap_Person
     protected $Zimbra; ///< Objeto que representa la conexión al servidor Zimbra
     protected $Ldap; ///< Objeto que representa la conexión al servidor LDAP
 
-
+    /**
+     * Constructor de la clase
+     * @param uid UID de la cuenta del usuario
+     * @param Zimbra Objeto de conexión a Zimbra
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-12-30
+     */
     public function __construct($uid, $Zimbra)
     {
         $this->Zimbra = $Zimbra;
@@ -131,6 +137,12 @@ class Model_Datasource_Zimbra_Account extends Model_Datasource_Ldap_Person
         return $url.'?account='.$this->zimbraMailDeliveryAddress.'&amp;admin=1&amp;by=name&amp;timestamp='.$timestamp.'&amp;expires=0&amp;preauth='.$preAuthToken;
     }
 
+    /**
+     * Método que obtiene el token de autorización para la cuenta de usuario
+     * @return Token de autorización
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-12-30
+     */
     public function getUserAuthToken()
     {
         $url = 'https://'.$this->zimbraMailHost.'/service/preauth';
@@ -143,11 +155,20 @@ class Model_Datasource_Zimbra_Account extends Model_Datasource_Ldap_Person
             'timestamp' => $timestamp,
             'expires' => 0,
             'preauth' => $preAuthToken,
-        ], [], false, false);
+        ], [], $this->Zimbra->config['sslv3'], $this->Zimbra->config['sslcheck']);
         if ($response['status']['code']!=302) return false;
         return substr($response['header']['Set-Cookie'], 14, 213);
     }
 
+    /**
+     * Método que entrega un arreglo con los mensajes sin leer
+     * @param folder Carpeta del servidor de correo
+     * @param length Cantidad de correos sin leer que se quieren sin recuperar (o false para todos)
+     * @param offset Desde donde obtener los correos (partiendo por 0)
+     * @return Arreglo con los mensajes no leídos de la carpeta
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-12-30
+     */
     public function getUnreadMessages($folder = 'inbox', $length = false, $offset = 0)
     {
         $Rest = new \sowerphp\core\Network_Http_Rest();
@@ -156,7 +177,7 @@ class Model_Datasource_Zimbra_Account extends Model_Datasource_Ldap_Person
             'zauthtoken' => $this->getUserAuthToken(),
             'fmt' => 'json',
             'query' => 'is:unread',
-        ], [], false, false);
+        ], [], $this->Zimbra->config['sslv3'], $this->Zimbra->config['sslcheck']);
         if ($response['status']['code']!=200) return false;
         if (!isset($response['body']['m'])) return [];
         if (!$length) return $response['body']['m'];

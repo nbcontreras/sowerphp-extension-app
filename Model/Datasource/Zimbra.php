@@ -33,13 +33,15 @@ namespace sowerphp\app;
  *   $ ldapsearch -x -H ldaps://localhost -D uid=zimbra,cn=admins,cn=zimbra -W '(objectclass=*)'
  *
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-12-29
+ * @version 2014-12-30
  */
 class Model_Datasource_Zimbra extends \sowerphp\core\Model_Datasource
 {
 
-    protected $config = [
+    public $config = [
         'ldap' => 'default',
+        'sslv3' => false,
+        'sslcheck' => true,
     ]; ///< Configuración de la fuente de datos
     public $Ldap; ///< Fuente de datos Ldap para el servidor Zimbra
 
