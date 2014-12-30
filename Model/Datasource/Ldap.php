@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Modelo para trabajar con LDAP
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-12-29
+ * @version 2014-12-30
  */
 class Model_Datasource_Ldap extends \sowerphp\core\Model_Datasource
 {
@@ -34,6 +34,8 @@ class Model_Datasource_Ldap extends \sowerphp\core\Model_Datasource
         'host' => 'ldaps://localhost',
         'port' => 636,
         'user' => 'uid=zimbra,cn=admins,cn=zimbra',
+        'version' => 3,
+        'timeout' => 3,
     ]; ///< Configuración de la fuente de datos
     protected $link; ///< Conexión al servidor LDAP
 
@@ -73,7 +75,7 @@ class Model_Datasource_Ldap extends \sowerphp\core\Model_Datasource
      * Método que realiza la conexión con el servidor LDAP
      * @return =true si se pudo realizar la conexión
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-11-12
+     * @version 2014-12-30
      */
     private function connect()
     {
@@ -83,13 +85,31 @@ class Model_Datasource_Ldap extends \sowerphp\core\Model_Datasource
         if (!$this->link) {
             return false;
         }
-        if (!ldap_set_option($this->link, LDAP_OPT_PROTOCOL_VERSION, 3)) {
+        if (!ldap_set_option($this->link, LDAP_OPT_PROTOCOL_VERSION, $this->config['version'])) {
+            return false;
+        }
+        if (!ldap_set_option($this->link, LDAP_OPT_NETWORK_TIMEOUT, $this->config['timeout'])) {
             return false;
         }
         $status = @ldap_bind(
             $this->link, $this->config['user'], $this->config['pass']
         );
         return !$status ? false : true;
+    }
+
+    /**
+     * Método para obtener el valor de una opción del servidor LDAP
+     * @param option Opción que se desea consultar (una de http://php.net/manual/en/ldap.constants.php)
+     * @return Valor de la opción o null si no se pudo determinar
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-12-30
+     */
+    public function getOption($option)
+    {
+        $val = null;
+        if (!ldap_get_option($this->link, $option, $val))
+            return null;
+        return $val;
     }
 
     /**
