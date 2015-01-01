@@ -29,7 +29,7 @@ namespace sowerphp\app\Sistema\Usuarios;
  * Comentario de la tabla: Usuarios de la aplicación
  * Esta clase permite trabajar sobre un registro de la tabla usuario
  * @author SowerPHP Code Generator
- * @version 2014-10-25
+ * @version 2015-01-01
  */
 class Model_Usuario extends \Model_App
 {
@@ -198,6 +198,7 @@ class Model_Usuario extends \Model_App
     // atributos para caché
     protected $groups = null; ///< Grupos a los que pertenece el usuario
     protected $auths = null; ///< Permisos que tiene el usuario
+    protected $LdapPerson = null; ///< Caché para objeto Model_Datasource_Ldap_Person (y para Model_Datasource_Zimbra_Account)
 
     /**
      * Constructor de la clase usuario
@@ -577,6 +578,7 @@ class Model_Usuario extends \Model_App
     /**
      * Método que crea el token para el usuario
      * @param codigo Código que se usará para crear el token
+     * @return =true si el token pudo ser creado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-10-25
      */
@@ -600,6 +602,7 @@ class Model_Usuario extends \Model_App
 
     /**
      * Método que destruye el token en la autorización secundaria
+     * @return =true si el token pudo ser destruído
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-10-25
      */
@@ -622,6 +625,7 @@ class Model_Usuario extends \Model_App
 
     /**
      * Método que valida el estado del token con la autorización secundaria
+     * @return =true si el token está liberado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-12-29
      */
@@ -632,6 +636,50 @@ class Model_Usuario extends \Model_App
         $class = '\sowerphp\app\Model_Datasource_Auth2_'.$config['name'];
         $Auth2 = new $class($config);
         return $Auth2->checkToken($this->token);
+    }
+
+    /**
+     * Método que recupera la persona LDAP asociada al usuario
+     * @return Model_Datasource_Ldap_Person o Model_Datasource_Zimbra_Account
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-01-01
+     */
+    public function getLdapPerson()
+    {
+        if ($this->getEmailAccount()!==null)
+            return $this->LdapPerson;
+        if ($this->LdapPerson===null and \sowerphp\core\Configure::read('ldap.default')) {
+            try {
+                $this->LdapPerson = \sowerphp\app\Model_Datasource_Ldap::get()->getPerson($this->usuario);
+                if (!$this->LdapPerson->exists())
+                    $this->LdapPerson = false;
+            } catch (\Exception $e) {
+                $this->LdapPerson = false;
+            }
+        }
+        return $this->LdapPerson;
+    }
+
+    /**
+     * Método que recupera la cuenta Zimbra asociada al usuario
+     * @return Model_Datasource_Zimbra_Account
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-01-01
+     */
+    public function getEmailAccount()
+    {
+        if ($this->LdapPerson!==null and get_class($this->LdapPerson)!='sowerphp\app\Model_Datasource_Zimbra_Account')
+            return false;
+        if ($this->LdapPerson===null and \sowerphp\core\Configure::read('zimbra.default')) {
+            try {
+                $this->LdapPerson = \sowerphp\app\Model_Datasource_Zimbra::get()->getAccount($this->usuario);
+                if (!$this->LdapPerson->exists())
+                    $this->LdapPerson = false;
+            } catch (\Exception $e) {
+                $this->LdapPerson = false;
+            }
+        }
+        return $this->LdapPerson;
     }
 
 }
