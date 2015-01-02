@@ -76,15 +76,16 @@ class Model_Datasource_Ldap_Person extends Model_Datasource_Ldap_Entry
 
     /**
      * Método que cambia la contraseña del usuario
-     * @param pass Contraseña en texto plano que se desea asignar
+     * @param new Contraseña nueva en texto plano
+     * @param old Contraseña actual en texto plano
      * @return =true si la contraseña pudo ser cambiada
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-28
+     * @version 2015-01-02
      */
-    public function savePassword($pass)
+    public function savePassword($new, $old = null)
     {
         $entry = [
-            'userPassword' => [$this->hashPassword($pass)]
+            'userPassword' => [$this->hashPassword($new)]
         ];
         $status = $this->Ldap->modify($this->dn, $entry);
         if ($status) {

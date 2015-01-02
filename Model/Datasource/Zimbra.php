@@ -92,6 +92,30 @@ class Model_Datasource_Zimbra extends \sowerphp\core\Model_Datasource
     }
 
     /**
+     * Método que ejecuta un comando SOAP en el servicio web de Zimbra
+     * @param cmd Comando que se desea ejecutar
+     * @param args Arreglo con los argumentos del comando
+     * @return Resultado de la ejecución del comando
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-01-02
+     */
+    public function soap($cmd, $args = [])
+    {
+        $soap = new \SoapClient(
+            'https://'.$this->config['host'].'/service/wsdl/ZimbraService.wsdl',
+            [
+                'stream_context' => stream_context_create([
+                    'ssl' => [
+                        'verify_peer' => $this->config['sslcheck'],
+                        'allow_self_signed' => !$this->config['sslcheck'],
+                    ]
+                ])
+            ]
+        );
+        return (array)$soap->$cmd($args);
+    }
+
+    /**
      * Método que obtiene un objeto de tipo Account de Zimbra
      * @param uid Identificador de la cuenta (nombre de usuario)
      * @return Model_Datasource_Zimbra_Account

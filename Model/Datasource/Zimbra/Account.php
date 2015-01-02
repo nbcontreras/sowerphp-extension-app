@@ -35,7 +35,6 @@ class Model_Datasource_Zimbra_Account extends Model_Datasource_Ldap_Person
     public $zimbraAccountStatus;
     public $zimbraIsAdminAccount;
     public $zimbraMailStatus;
-    public $zimbraMailHost;
     public $zimbraMailDeliveryAddress;
     public $zimbraMailAlias;
     public $zimbraMailForwardingAddress;
@@ -87,23 +86,43 @@ class Model_Datasource_Zimbra_Account extends Model_Datasource_Ldap_Person
 
     /**
      * Método que cambia la contraseña del usuario
-     * @param pass Contraseña en texto plano que se desea asignar
+     * @param new Contraseña nueva en texto plano
+     * @param old Contraseña actual en texto plano
      * @return =true si la contraseña pudo ser cambiada
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-27
+     * @version 2015-01-02
      */
-    public function savePassword($pass)
+    public function savePassword($new, $old = null)
     {
-        $entry = [
-            'userPassword' => [$this->hashPassword($pass)],
-            'zimbraPasswordModifiedTime' => [gmdate('YmdHis').'Z'],
-        ];
-        $status = $this->Ldap->modify($this->dn, $entry);
-        if ($status) {
-            $this->userPassword = $entry['userPassword'][0];
-            $this->zimbraPasswordModifiedTime = $entry['zimbraPasswordModifiedTime'][0];
-            return true;
-        } else return false;
+        // realizar la actualización utilizando el servicio web SOAP de Zimbra
+        if ($old!==null) {
+            try {
+                $this->Zimbra->soap(
+                    'changePasswordRequest',
+                    [
+                        'account' => $this->zimbraMailDeliveryAddress,
+                        'oldPassword' => $old,
+                        'password' => $new,
+                    ]
+                );
+                return true;
+            } catch (\Exception $e) {
+                return false;
+            }
+        }
+        // modificar directamente en LDAP, esto demora unos 15 min en actualizar
+        // en Zimbra
+        else {
+            $entry = [
+                'userPassword' => [$this->hashPassword($new)],
+                'zimbraPasswordModifiedTime' => [gmdate('YmdHis').'Z'],
+            ];
+            if ($this->Ldap->modify($this->dn, $entry)) {
+                $this->userPassword = $entry['userPassword'][0];
+                $this->zimbraPasswordModifiedTime = $entry['zimbraPasswordModifiedTime'][0];
+                return true;
+            } else return false;
+        }
     }
 
     /**
@@ -115,7 +134,7 @@ class Model_Datasource_Zimbra_Account extends Model_Datasource_Ldap_Person
      */
     public function getUserUrl($redirect = '/mail')
     {
-        $url = 'https://'.$this->zimbraMailHost.'/service/preauth';
+        $url = 'https://'.$this->Zimbra->config['host'].'/service/preauth';
         $timestamp = time() * 1000;
         $preAuthToken = hash_hmac('sha1', $this->zimbraMailDeliveryAddress.'|name|0|'.$timestamp, $this->Zimbra->getPreAuthKey());
         return $url.'?account='.$this->zimbraMailDeliveryAddress.'&amp;by=name&amp;timestamp='.$timestamp.'&amp;expires=0&amp;preauth='.$preAuthToken.'&amp;redirectURL='.$redirect;
@@ -131,7 +150,7 @@ class Model_Datasource_Zimbra_Account extends Model_Datasource_Ldap_Person
     public function getAdminUrl()
     {
         if (!$this->isAdmin()) return false;
-        $url = 'https://'.$this->zimbraMailHost.':7071/service/preauth';
+        $url = 'https://'.$this->Zimbra->config['host'].':7071/service/preauth';
         $timestamp = time() * 1000;
         $preAuthToken = hash_hmac('sha1', $this->zimbraMailDeliveryAddress.'|1|name|0|'.$timestamp, $this->Zimbra->getPreAuthKey());
         return $url.'?account='.$this->zimbraMailDeliveryAddress.'&amp;admin=1&amp;by=name&amp;timestamp='.$timestamp.'&amp;expires=0&amp;preauth='.$preAuthToken;
@@ -145,7 +164,7 @@ class Model_Datasource_Zimbra_Account extends Model_Datasource_Ldap_Person
      */
     public function getUserAuthToken()
     {
-        $url = 'https://'.$this->zimbraMailHost.'/service/preauth';
+        $url = 'https://'.$this->Zimbra->config['host'].'/service/preauth';
         $timestamp = time() * 1000;
         $preAuthToken = hash_hmac('sha1', $this->zimbraMailDeliveryAddress.'|name|0|'.$timestamp, $this->Zimbra->getPreAuthKey());
         $Rest = new \sowerphp\core\Network_Http_Rest();
@@ -172,7 +191,7 @@ class Model_Datasource_Zimbra_Account extends Model_Datasource_Ldap_Person
     public function getUnreadMessages($folder = 'inbox', $length = false, $offset = 0)
     {
         $Rest = new \sowerphp\core\Network_Http_Rest();
-        $response = $Rest->get('https://'.$this->zimbraMailHost.'/service/home/'.$this->uid.'/'.$folder, [
+        $response = $Rest->get('https://'.$this->Zimbra->config['host'].'/service/home/'.$this->uid.'/'.$folder, [
             'auth' => 'qp',
             'zauthtoken' => $this->getUserAuthToken(),
             'fmt' => 'json',
