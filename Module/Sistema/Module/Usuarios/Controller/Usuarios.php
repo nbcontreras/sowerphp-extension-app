@@ -222,9 +222,9 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para crear un nuevo usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-01
+     * @version 2015-01-03
      */
-    public function crear ()
+    public function crear()
     {
         if (!empty($_GET['listar'])) {
             $filterListarUrl = '?listar='.$_GET['listar'];
@@ -268,8 +268,16 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                         $Usuario->hash = \sowerphp\core\Utility_String::random(32);
                     } while ($Usuario->checkIfHashAlreadyExists ());
                 }
-                if($Usuario->save()) {
+                if ($Usuario->save()) {
                     $Usuario->saveGroups($_POST['grupos']);
+                    if (empty($_POST['contrasenia'])) {
+                        if ($Usuario->getEmailAccount())
+                            $contrasenia = 'actual contraseña de correo '.$Usuario->getEmailAccount()->getEmail();
+                        else if ($Usuario->getLdapPerson())
+                            $contrasenia = 'actual contraseña de cuenta '.$Usuario->getLdapPerson()->uid.' en LDAP';
+                    } else {
+                        $Usuario->savePassword($contrasenia);
+                    }
                     // enviar correo
                     $emailConfig = \sowerphp\core\Configure::read('email.default');
                     if (!empty($emailConfig['type']) && !empty($emailConfig['type']) && !empty($emailConfig['pass'])) {
@@ -310,7 +318,8 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             'accion' => 'Crear',
             'columns' => Model_Usuario::$columnsInfo,
             'grupos_asignados' => (isset($_POST['grupos'])?$_POST['grupos']:[]),
-            'listarUrl'=>'/sistema/usuarios/usuarios/listar'.$filterListar
+            'listarUrl'=>'/sistema/usuarios/usuarios/listar'.$filterListar,
+            'ldap' => \sowerphp\core\Configure::read('ldap.default'),
         ));
         $this->setGruposAsignables();
         $this->autoRender = false;
@@ -320,9 +329,9 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para editar un nuevo usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-09
+     * @version 2015-01-02
      */
-    public function editar ($id)
+    public function editar($id)
     {
         if (!empty($_GET['listar'])) {
             $filterListarUrl = '?listar='.$_GET['listar'];
@@ -350,7 +359,8 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 'Obj' => $Usuario,
                 'columns' => Model_Usuario::$columnsInfo,
                 'grupos_asignados' => array_keys($grupos_asignados),
-                'listarUrl'=>'/sistema/usuarios/usuarios/listar'.$filterListar
+                'listarUrl'=>'/sistema/usuarios/usuarios/listar'.$filterListar,
+                'ldap' => \sowerphp\core\Configure::read('ldap.default'),
             ));
             $this->autoRender = false;
             $this->render ('Usuarios/crear_editar');
@@ -385,7 +395,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 $this->redirect('/sistema/usuarios/usuarios/editar/'.$id.$filterListarUrl);
             }
             $Usuario->save();
-            if(!empty($_POST['contrasenia'])) {
+            if (!empty($_POST['contrasenia'])) {
                 $Usuario->savePassword($_POST['contrasenia']);
             }
             $Usuario->saveGroups($_POST['grupos']);
@@ -424,9 +434,9 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para mostrar y editar el perfil del usuario que esta autenticado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-09
+     * @version 2015-01-02
      */
-    public function perfil ()
+    public function perfil()
     {
         // procesar datos personales
         if (isset($_POST['datosUsuario'])) {
@@ -473,19 +483,38 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         }
         // procesar cambio de contraseña
         else if (isset($_POST['cambiarContrasenia'])) {
-            if(!empty($_POST['contrasenia1']) && $_POST['contrasenia1']==$_POST['contrasenia2']) {
-                $this->Auth->User->savePassword($_POST['contrasenia1']);
-                $this->Auth->saveCache();
-            } else {
+            // verificar que las contraseñas no sean vacías
+            if (empty($_POST['contrasenia']) or empty(trim($_POST['contrasenia1'])) or empty($_POST['contrasenia2'])) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Contraseñas no coinciden', 'warning'
+                    'Debe especificar su contraseña actual y escribir dos veces su nueva contraseña', 'error'
                 );
                 $this->redirect('/usuarios/perfil');
             }
-            // mensaje de ok y redireccionar
-            \sowerphp\core\Model_Datasource_Session::message(
-                'Contraseña actualizada', 'ok'
-            );
+            // verificar que la contraseña actual sea correcta
+            if (!$this->Auth->User->checkPassword($_POST['contrasenia'])) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Contraseña actual es incorrecta', 'error'
+                );
+                $this->redirect('/usuarios/perfil');
+            }
+            // verificar que la contraseña nueva se haya escrito 2 veces de forma correcta
+            if ($_POST['contrasenia1']!=$_POST['contrasenia2']) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Contraseñas no coinciden', 'error'
+                );
+                $this->redirect('/usuarios/perfil');
+            }
+            // actualizar contraseña
+            if ($this->Auth->User->savePassword($_POST['contrasenia1'], $_POST['contrasenia'])) {
+                $this->Auth->saveCache();
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Contraseña actualizada', 'ok'
+                );
+            } else {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'No fue posible cambiar la contraseña', 'error'
+                );
+            }
             $this->redirect('/usuarios/perfil');
         }
         // procesar creación del token

@@ -42,10 +42,11 @@ class Model_Usuario extends \Model_App
 
     // Atributos de la clase (columnas en la base de datos)
     public $id; ///< Identificador (serial): integer(32) NOT NULL DEFAULT 'nextval('usuario_id_seq'::regclass)' AUTO PK
-    public $nombre; ///< Nombre real del usuario: character varying(30) NOT NULL DEFAULT ''
-    public $usuario; ///< Nombre de usuario: character varying(20) NOT NULL DEFAULT ''
-    public $email; ///< Correo electrónico del usuario: character varying(20) NOT NULL DEFAULT ''
-    public $contrasenia; ///< Contraseña del usuario: character(64) NOT NULL DEFAULT ''
+    public $nombre; ///< Nombre real del usuario: character varying(50) NOT NULL DEFAULT ''
+    public $usuario; ///< Nombre de usuario: character varying(30) NOT NULL DEFAULT ''
+    public $usuario_ldap; ///< Nombre de usuario de LDAP: character varying(30) NOT NULL DEFAULT ''
+    public $email; ///< Correo electrónico del usuario: character varying(50) NOT NULL DEFAULT ''
+    public $contrasenia; ///< Contraseña del usuario: character(255) NOT NULL DEFAULT ''
     public $contrasenia_intentos; ///< Intentos de inicio de sesión antes de bloquear cuenta: SMALLINT(6) NOT NULL DEFAULT '3'
     public $hash; ///< Hash único del usuario (32 caracteres): character(32) NOT NULL DEFAULT ''
     public $token; ///< Token para servicio secundario de autorización: character(64) NULL DEFAULT ''
@@ -71,7 +72,7 @@ class Model_Usuario extends \Model_App
             'name'      => 'Nombre',
             'comment'   => 'Nombre real del usuario',
             'type'      => 'character varying',
-            'length'    => 30,
+            'length'    => 50,
             'null'      => false,
             'default'   => "",
             'auto'      => false,
@@ -82,8 +83,19 @@ class Model_Usuario extends \Model_App
             'name'      => 'Usuario',
             'comment'   => 'Nombre de usuario',
             'type'      => 'character varying',
-            'length'    => 20,
+            'length'    => 30,
             'null'      => false,
+            'default'   => "",
+            'auto'      => false,
+            'pk'        => false,
+            'fk'        => null
+        ),
+        'usuario_ldap' => array(
+            'name'      => 'Usuario LDAP',
+            'comment'   => 'Nombre de usuario de LDAP',
+            'type'      => 'character varying',
+            'length'    => 30,
+            'null'      => true,
             'default'   => "",
             'auto'      => false,
             'pk'        => false,
@@ -93,7 +105,7 @@ class Model_Usuario extends \Model_App
             'name'      => 'Email',
             'comment'   => 'Correo electrónico del usuario',
             'type'      => 'character varying',
-            'length'    => 20,
+            'length'    => 50,
             'null'      => false,
             'default'   => "",
             'auto'      => false,
@@ -105,7 +117,7 @@ class Model_Usuario extends \Model_App
             'name'      => 'Contraseña',
             'comment'   => 'Contraseña del usuario',
             'type'      => 'character',
-            'length'    => 64,
+            'length'    => 255,
             'null'      => false,
             'default'   => "",
             'auto'      => false,
@@ -245,7 +257,7 @@ class Model_Usuario extends \Model_App
      * token, lo anterior ya que hay métodos especiales para actualizar dichas
      * columnas.
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-25
+     * @version 2015-01-02
      */
     public function update ($columns = null)
     {
@@ -255,6 +267,7 @@ class Model_Usuario extends \Model_App
             return parent::update([
                 'nombre' => $this->nombre,
                 'usuario' => $this->usuario,
+                'usuario_ldap' => $this->usuario_ldap,
                 'email' => $this->email,
                 'hash' => $this->hash,
                 'activo' => $this->activo,
@@ -329,16 +342,36 @@ class Model_Usuario extends \Model_App
     }
 
     /**
-     * Método que guarda la contraseña de un usuario
+     * Método que cambia la contraseña del usuario
+     * @param new Contraseña nueva en texto plano
+     * @param old Contraseña actual en texto plano
+     * @return =true si la contraseña pudo ser cambiada
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-27
+     * @version 2015-01-02
      */
-    public function savePassword($password)
+    public function savePassword($new, $old = null)
     {
-        $this->contrasenia = $this->hashPassword($password);
+        if ($this->getLdapPerson()) {
+            if (!$this->getLdapPerson()->savePassword($new, $old))
+                return false;
+        }
+        return $this->savePasswordLocal($new);
+    }
+
+    /**
+     * Método que cambia la contraseña del usuario en la base de datos
+     * @param new Contraseña nueva en texto plano
+     * @return =true si la contraseña pudo ser cambiada
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-01-02
+     */
+    private function savePasswordLocal($new)
+    {
+        $this->contrasenia = $this->hashPassword($new);
         $this->db->query('
             UPDATE usuario SET contrasenia = :contrasenia WHERE id = :id
         ', [':contrasenia'=>$this->contrasenia, ':id'=>$this->id]);
+        return true;
     }
 
     /**
@@ -360,16 +393,24 @@ class Model_Usuario extends \Model_App
      * @param password Contrasela que se desea verificar
      * @return =true si la contraseña coincide con la de la base de datos
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-27
+     * @version 2015-01-02
      */
     public function checkPassword($password)
     {
-        if ($this->contrasenia[0]!='$') {
-            $status = $this->contrasenia == hash('sha256', $password);
-            if ($status) $this->savePassword($password);
-            return $status;
+        if ($this->getLdapPerson()) {
+            if ($this->getLdapPerson()->checkPassword($password)) {
+                $this->savePasswordLocal($password);
+                return true;
+            }
+            return false;
+        } else {
+            if ($this->contrasenia[0]!='$') {
+                $status = $this->contrasenia == hash('sha256', $password);
+                if ($status) $this->savePasswordLocal($password);
+                return $status;
+            }
+            return password_verify($password, $this->contrasenia);
         }
-        return password_verify($password, $this->contrasenia);
     }
 
     /**
@@ -388,10 +429,12 @@ class Model_Usuario extends \Model_App
      * Método que indica si el usuario está o no activo
      * @return =true si el usuario está activo
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-14
+     * @version 2015-01-02
      */
     public function isActive()
     {
+        if ($this->getEmailAccount())
+            return $this->getEmailAccount()->isActive();
         return (boolean) $this->activo;
     }
 
@@ -642,7 +685,7 @@ class Model_Usuario extends \Model_App
      * Método que recupera la persona LDAP asociada al usuario
      * @return Model_Datasource_Ldap_Person o Model_Datasource_Zimbra_Account
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-01-01
+     * @version 2015-01-02
      */
     public function getLdapPerson()
     {
@@ -650,7 +693,9 @@ class Model_Usuario extends \Model_App
             return $this->LdapPerson;
         if ($this->LdapPerson===null and \sowerphp\core\Configure::read('ldap.default')) {
             try {
-                $this->LdapPerson = \sowerphp\app\Model_Datasource_Ldap::get()->getPerson($this->usuario);
+                $this->LdapPerson = \sowerphp\app\Model_Datasource_Ldap::get()->getPerson(
+                    $this->{\sowerphp\app\Model_Datasource_Ldap::get()->config['person_uid']}
+                );
                 if (!$this->LdapPerson->exists())
                     $this->LdapPerson = false;
             } catch (\Exception $e) {
@@ -664,15 +709,17 @@ class Model_Usuario extends \Model_App
      * Método que recupera la cuenta Zimbra asociada al usuario
      * @return Model_Datasource_Zimbra_Account
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-01-01
+     * @version 2015-01-03
      */
     public function getEmailAccount()
     {
-        if ($this->LdapPerson!==null and get_class($this->LdapPerson)!='sowerphp\app\Model_Datasource_Zimbra_Account')
+        if ($this->LdapPerson and get_class($this->LdapPerson)!='sowerphp\app\Model_Datasource_Zimbra_Account')
             return false;
         if ($this->LdapPerson===null and \sowerphp\core\Configure::read('zimbra.default')) {
             try {
-                $this->LdapPerson = \sowerphp\app\Model_Datasource_Zimbra::get()->getAccount($this->usuario);
+                $this->LdapPerson = \sowerphp\app\Model_Datasource_Zimbra::get()->getAccount(
+                    $this->{\sowerphp\app\Model_Datasource_Ldap::get()->config['person_uid']}
+                );
                 if (!$this->LdapPerson->exists())
                     $this->LdapPerson = false;
             } catch (\Exception $e) {
@@ -680,6 +727,21 @@ class Model_Usuario extends \Model_App
             }
         }
         return $this->LdapPerson;
+    }
+
+    /**
+     * Método que entrega el correo del usuario seleccionando el que tiene en
+     * su cuenta o bien el de la cuenta de correo (Zimbra) si existe una
+     * asociada.
+     * @return Cuenta de correo oficial del usuario
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-01-03
+     */
+    public function getEmail()
+    {
+        if ($this->getEmailAccount())
+            return $this->getEmailAccount()->getEmail();
+        return $this->email;
     }
 
 }

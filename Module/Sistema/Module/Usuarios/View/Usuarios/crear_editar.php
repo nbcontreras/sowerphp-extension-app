@@ -3,83 +3,63 @@
 <?php
 
 // crear formulario
-$form = new \sowerphp\general\View_Helper_Form ();
+$form = new \sowerphp\general\View_Helper_Form();
 echo $form->begin(array('onsubmit'=>'Form.check()'));
 
-// opciones para select en caso que sea un campo boolean
-$optionsBoolean = array(
-    array('', 'Seleccione una opción'),
-    array('1', 'Si'),
-    array('0', 'No')
-);
-
-// agregar campos del formulario
-foreach ($columns as $column => &$info) {
-    if (in_array($column, ['contrasenia_intentos', 'hash', 'token']))
-        continue;
-    // se genera campo de input solo si no es una columna automática
-    if (!$info['auto']) {
-        // configuración base para campo
-        $input = array(
-            'name'  => $column,
-            'label' => $info['name'],
-            'help'  => $info['comment'],
-            'check' => (!$info['null']?['notempty']:[])
-        );
-        // si es un archivo
-        if ($info['type']=='file') {
-            $input['type'] = 'file';
-            echo $form->input($input);
-        }
-        // si es de tipo text se muestra un textarea
-        else if ($info['type']=='text') {
-            $input['type'] = 'textarea';
-            if (isset($Obj)) $input['value'] = $Obj->{$column};
-            echo $form->input($input);
-        }
-        // si es de tipo boolean se muestra lista desplegable
-        else if ($info['type']=='boolean') {
-            $input['type'] = 'select';
-            $input['options'] = $optionsBoolean;
-            if (isset($Obj)) $input['selected'] = $Obj->{$column};
-            echo $form->input($input);
-        }
-        // si es de tipo date se muestra calendario
-        else if ($info['type']=='date') {
-            $input['type'] = 'date';
-            $input['check'][] = 'date';
-            if (isset($Obj)) $input['value'] = $Obj->{$column};
-            echo $form->input($input);
-        }
-        // si es llave foránea
-        else if ($info['fk']) {
-            $class = 'Model_'.\sowerphp\core\Utility_Inflector::camelize(
-                $info['fk']['table']
-            );
-            $classs = $fkNamespace[$class].'\Model_'.\sowerphp\core\Utility_Inflector::camelize(
-                \sowerphp\core\Utility_Inflector::pluralize($info['fk']['table'])
-            );
-            $options = (new $classs())->getList();
-            array_unshift($options, array('', 'Seleccione una opción'));
-            $input['type'] = 'select';
-            $input['options'] = $options;
-            if (isset($Obj)) $input['selected'] = $Obj->{$column};
-            echo $form->input($input);
-        }
-        // si el nombre de la columna es contrasenia o clave o password o pass
-        else if (in_array($column, array('contrasenia', 'clave', 'password', 'pass'))) {
-            $input['type'] = 'password';
-            echo $form->input($input);
-        }
-        // si es cualquier otro tipo de datos
-        else {
-            if (!empty($info['check']))
-                $input['check'] = array_merge($input['check'], $info['check']);
-            if (isset($Obj)) $input['value'] = $Obj->{$column};
-            echo $form->input($input);
-        }
-    }
+// atributos del usuario
+echo $form->input([
+    'name' => 'nombre',
+    'label' => $columns['nombre']['name'],
+    'value' => isset($Obj) ? $Obj->nombre : '',
+    'help'  => $columns['nombre']['comment'],
+    'check' => (!$columns['nombre']['null']?['notempty']:[]),
+]);
+echo $form->input([
+    'name' => 'usuario',
+    'label' => $columns['usuario']['name'],
+    'value' => isset($Obj) ? $Obj->usuario : '',
+    'help'  => $columns['usuario']['comment'],
+    'check' => (!$columns['usuario']['null']?['notempty']:[]),
+]);
+if (is_array($ldap) and isset($ldap['person_uid']) and $ldap['person_uid']=='usuario_ldap') {
+    echo $form->input([
+        'name' => 'usuario_ldap',
+        'label' => $columns['usuario_ldap']['name'],
+        'value' => isset($Obj) ? $Obj->usuario_ldap : '',
+        'help'  => $columns['usuario_ldap']['comment'],
+    ]);
+} else {
+    echo $form->input([
+        'type' => 'hidden',
+        'name' => 'usuario_ldap',
+    ]);
 }
+echo $form->input([
+    'name' => 'email',
+    'label' => $columns['email']['name'],
+    'value' => isset($Obj) ? $Obj->email : '',
+    'help'  => $columns['email']['comment'],
+    'check' => 'notempty email',
+]);
+echo $form->input([
+    'type' => 'password',
+    'name' => 'contrasenia',
+    'label' => $columns['contrasenia']['name'],
+    'help'  => $columns['contrasenia']['comment'],
+]);
+echo $form->input([
+    'type' => 'select',
+    'name' => 'activo',
+    'label' => $columns['activo']['name'],
+    'options' => [
+        '' => 'Seleccione una opción',
+        '1' => 'Si',
+        '0' => 'No'
+    ],
+    'selected' => isset($Obj) ? $Obj->activo : '',
+    'help'  => $columns['activo']['comment'],
+    'check' => (!$columns['activo']['null']?['notempty']:[]),
+]);
 
 // agregar campo para los grupos a los que pertenece el usuario
 echo $form->input([

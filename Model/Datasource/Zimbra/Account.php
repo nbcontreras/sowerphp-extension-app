@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Modelo para trabajar con una persona del LDAP de zimbra
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-12-29
+ * @version 2015-01-03
  */
 class Model_Datasource_Zimbra_Account extends Model_Datasource_Ldap_Person
 {
@@ -105,13 +105,14 @@ class Model_Datasource_Zimbra_Account extends Model_Datasource_Ldap_Person
                         'password' => $new,
                     ]
                 );
+                $this->userPassword = $this->hashPassword($new);
                 return true;
             } catch (\Exception $e) {
                 return false;
             }
         }
-        // modificar directamente en LDAP, esto demora unos 15 min en actualizar
-        // en Zimbra
+        // modificar directamente en LDAP, esto demora unos minutoss en
+        // actualizar en Zimbra
         else {
             $entry = [
                 'userPassword' => [$this->hashPassword($new)],
@@ -160,7 +161,7 @@ class Model_Datasource_Zimbra_Account extends Model_Datasource_Ldap_Person
      * Método que obtiene el token de autorización para la cuenta de usuario
      * @return Token de autorización
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-30
+     * @version 2015-01-03
      */
     public function getUserAuthToken()
     {
@@ -176,7 +177,7 @@ class Model_Datasource_Zimbra_Account extends Model_Datasource_Ldap_Person
             'preauth' => $preAuthToken,
         ], [], $this->Zimbra->config['sslv3'], $this->Zimbra->config['sslcheck']);
         if ($response['status']['code']!=302) return false;
-        return substr($response['header']['Set-Cookie'], 14, 213);
+        return substr(explode(';', $response['header']['Set-Cookie'])[0], 14);
     }
 
     /**
@@ -201,6 +202,31 @@ class Model_Datasource_Zimbra_Account extends Model_Datasource_Ldap_Person
         if (!isset($response['body']['m'])) return [];
         if (!$length) return $response['body']['m'];
         return array_slice($response['body']['m'], $offset, $length);
+    }
+
+    /**
+     * Método que entrega la cantidad de mensajes sin leer de cierta carpeta
+     * @param folder Carpeta del servidor de correo
+     * @return Cantidad de mensajes sin leer en la carpeta
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-01-03
+     */
+    public function countUnreadMessages($folder = 'inbox')
+    {
+        $messages = $this->getUnreadMessages($folder);
+        if ($messages===false) return false;
+        return count($messages);
+    }
+
+    /**
+     * Método que entrega el correo de la cuenta
+     * @return Dirección de correo electrónico
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-01-03
+     */
+    public function getEmail()
+    {
+        return $this->zimbraMailDeliveryAddress;
     }
 
 }

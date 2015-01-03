@@ -11,6 +11,7 @@ CREATE TABLE usuario (
 	id INTEGER PRIMARY KEY,
 	nombre CHARACTER VARYING (50) NOT NULL,
 	usuario CHARACTER VARYING (30) NOT NULL,
+	usuario_ldap CHARACTER VARYING (30),
 	email CHARACTER VARYING (50) NOT NULL,
 	contrasenia CHARACTER VARYING(255) NOT NULL,
 	contrasenia_intentos SMALLINT NOT NULL DEFAULT 3,
@@ -22,6 +23,7 @@ CREATE TABLE usuario (
 	ultimo_ingreso_hash CHAR(32)
 );
 CREATE UNIQUE INDEX usuario_usuario_idx ON usuario (usuario);
+CREATE UNIQUE INDEX usuario_usuario_ldap_idx ON usuario (usuario_ldap);
 CREATE UNIQUE INDEX usuario_email_idx ON usuario (email);
 CREATE UNIQUE INDEX usuario_hash_idx ON usuario (hash);
 

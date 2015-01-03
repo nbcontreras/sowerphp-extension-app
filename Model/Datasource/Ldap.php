@@ -26,16 +26,17 @@ namespace sowerphp\app;
 /**
  * Modelo para trabajar con LDAP
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-12-30
+ * @version 2015-01-02
  */
 class Model_Datasource_Ldap extends \sowerphp\core\Model_Datasource
 {
-    protected $config = [
+    public $config = [
         'host' => 'ldaps://localhost',
         'port' => 636,
         'user' => 'uid=zimbra,cn=admins,cn=zimbra',
         'version' => 3,
         'timeout' => 3,
+        'person_uid' => 'usuario',
     ]; ///< Configuración de la fuente de datos
     protected $link; ///< Conexión al servidor LDAP
 

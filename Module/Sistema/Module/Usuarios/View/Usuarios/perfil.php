@@ -59,6 +59,22 @@ echo $form->input(array(
     'help' => 'Hash único para identificar el usuario (32 caracteres).<br />Si desea uno nuevo, borrar este y automáticamente se generará uno nuevo al guardar los cambios',
     'attr' => 'style="width:350px"',
 ));
+if ($_Auth->User->getLdapPerson() and $_Auth->User->getLdapPerson()->uid != $_Auth->User->usuario) {
+    echo $form->input(array(
+        'type' => 'div',
+        'label' => 'Usuario LDAP',
+        'value' => $_Auth->User->getLdapPerson()->uid,
+        'help' => 'Usuario LDAP asociado a la cuenta de usuario',
+    ));
+}
+if ($_Auth->User->getEmailAccount() and $_Auth->User->getEmailAccount()->getEmail() != $_Auth->User->email) {
+    echo $form->input(array(
+        'type' => 'div',
+        'label' => 'Email oficial',
+        'value' => $_Auth->User->getEmailAccount()->getEmail(),
+        'help' => 'Correo electrónico oficial del usuario',
+    ));
+}
 echo $form->end(array(
     'name' => 'datosUsuario',
     'value' => 'Guardar cambios',
@@ -74,8 +90,15 @@ echo $form->begin(array(
 ));
 echo $form->input(array(
     'type' => 'password',
+    'name' => 'contrasenia',
+    'label' => 'Contraseña actual',
+    'help' => 'Contraseña actualmente usada por el usuario',
+    'check' => 'notempty',
+));
+echo $form->input(array(
+    'type' => 'password',
     'name' => 'contrasenia1',
-    'label' => 'Contraseña',
+    'label' => 'Contraseña nueva',
     'help' => 'Contraseña que se quiere utilizar',
     'check' => 'notempty',
 ));

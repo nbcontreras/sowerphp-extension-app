@@ -15,6 +15,8 @@ CREATE TABLE usuario (
 		COMMENT 'Nombre real del usuario',
 	usuario CHARACTER VARYING (30) NOT NULL
 		COMMENT 'Nombre de usuario',
+	usuario_ldap CHARACTER VARYING (30)
+		COMMENT 'Nombre de usuario de LDAP',
 	email CHARACTER VARYING (50) NOT NULL
 		COMMENT 'Correo electrónico del usuario',
 	contrasenia VARCHAR(255) NOT NULL
@@ -36,6 +38,7 @@ CREATE TABLE usuario (
 ) ENGINE = InnoDB COMMENT = 'Usuarios de la aplicación';
 ALTER TABLE usuario AUTO_INCREMENT=1000;
 CREATE UNIQUE INDEX usuario_usuario_idx ON usuario (usuario);
+CREATE UNIQUE INDEX usuario_usuario_ldap_idx ON usuario (usuario_ldap);
 CREATE UNIQUE INDEX usuario_email_idx ON usuario (email);
 CREATE UNIQUE INDEX usuario_hash_idx ON usuario (hash);
 
