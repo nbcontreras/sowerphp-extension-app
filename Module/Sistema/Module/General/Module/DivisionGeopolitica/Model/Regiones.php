@@ -38,4 +38,19 @@ class Model_Regiones extends \Model_Plural_App
     protected $_database = 'default'; ///< Base de datos del modelo
     protected $_table = 'region'; ///< Tabla del modelo
 
+    /**
+     * Método que entrega la lista de regiones ordenadas por código
+     * @return Tabla con los códigos y regiones
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-01-07
+     */
+    public function getList()
+    {
+        return $this->db->getTable('
+            SELECT codigo, codigo || \' - \' || region AS region
+            FROM region
+            ORDER BY codigo
+        ');
+    }
+
 }
