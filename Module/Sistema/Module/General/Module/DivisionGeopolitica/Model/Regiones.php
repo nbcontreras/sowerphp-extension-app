@@ -47,7 +47,7 @@ class Model_Regiones extends \Model_Plural_App
     public function getList()
     {
         return $this->db->getTable('
-            SELECT codigo, codigo || \' - \' || region AS region
+            SELECT codigo AS id, codigo || \' - \' || region AS glosa
             FROM region
             ORDER BY codigo
         ');

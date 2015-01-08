@@ -42,12 +42,12 @@ class Model_Comunas extends \Model_Plural_App
      * Método que entrega la lista de comunas agrupadas por regiones
      * @return Arreglo con índice el código de región y una tabla con los códigos y glosas de comunas
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-01-07
+     * @version 2015-01-08
      */
     public function getListByRegion()
     {
         return $this->db->getAssociativeArray('
-            SELECT r.codigo AS region, c.codigo, c.comuna
+            SELECT r.codigo AS region, c.codigo AS id, c.comuna AS glosa
             FROM region AS r, provincia AS p, comuna AS c
             WHERE
                 c.provincia = p.codigo
