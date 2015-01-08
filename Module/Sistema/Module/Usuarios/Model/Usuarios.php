@@ -38,4 +38,36 @@ class Model_Usuarios extends \Model_Plural_App
     protected $_database = 'default'; ///< Base de datos del modelo
     protected $_table = 'usuario'; ///< Tabla del modelo
 
+    /**
+     * Método que entrega el listado de usuarios
+     * @return Tabla con el listado de usuarios activos ordenados por nombre
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-01-07
+     */
+    public function getList()
+    {
+        return $this->db->getTable('
+            SELECT id, '.$this->db->concat('usuario', ' - ', 'nombre').' AS glosa
+            FROM usuario
+            WHERE activo = true
+            ORDER BY nombre
+        ');
+    }
+
+    /**
+     * Método que entrega el listado de usuarios pertenecientes a cierto grupo
+     * @return Tabla con el listado de usuarios activos ordenados por nombre que pertenecen al grupo indicado
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-01-07
+     */
+    public function getListInGroup($grupo)
+    {
+        return $this->db->getTable('
+            SELECT u.id, '.$this->db->concat('u.usuario', ' - ', 'u.nombre').' AS glosa
+            FROM usuario AS u, usuario_grupo AS ug, grupo AS g
+            WHERE u.activo = true AND g.grupo = :grupo AND ug.grupo = g.id AND ug.usuario = u.id
+            ORDER BY nombre
+        ', [':grupo'=>$grupo]);
+    }
+
 }
