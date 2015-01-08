@@ -70,4 +70,20 @@ class Model_Usuarios extends \Model_Plural_App
         ', [':grupo'=>$grupo]);
     }
 
+    /**
+     * Método que entrega los correos electrónicos de usuarios pertenecientes a cierto grupo
+     * @return Arreglo con los correos electrónicos
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-01-08
+     */
+    public function getEmailsInGroup($grupo)
+    {
+        return $this->db->getCol('
+            SELECT u.email
+            FROM usuario AS u, usuario_grupo AS ug, grupo AS g
+            WHERE u.activo = true AND g.grupo = :grupo AND ug.grupo = g.id AND ug.usuario = u.id
+            ORDER BY nombre
+        ', [':grupo'=>$grupo]);
+    }
+
 }
