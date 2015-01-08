@@ -1,7 +1,7 @@
 <h1>Registro de nuevo usuario</h1>
 <?php
 $form = new sowerphp\general\View_Helper_Form();
-echo $form->begin(array('focus'=>'nombre', 'onsubmit'=>'Form.check()'));
+echo $form->begin(array('focus'=>'nombreField', 'onsubmit'=>'Form.check()'));
 echo $form->input([
     'name'=>'nombre',
     'label'=>'Nombre',
