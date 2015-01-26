@@ -281,7 +281,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     // enviar correo
                     $emailConfig = \sowerphp\core\Configure::read('email.default');
                     if (!empty($emailConfig['type']) && !empty($emailConfig['type']) && !empty($emailConfig['pass'])) {
-                    $layout = $this->layout;
+                        $layout = $this->layout;
                         $this->layout = null;
                         $this->set(array(
                             'nombre'=>$Usuario->nombre,
@@ -329,7 +329,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para editar un nuevo usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-01-02
+     * @version 2015-01-26
      */
     public function editar($id)
     {
@@ -374,6 +374,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 );
                 $this->redirect('/sistema/usuarios/usuarios/editar/'.$id.$filterListarUrl);
             }
+            $activo = $Usuario->activo;
             $Usuario->set($_POST);
             if ($Usuario->checkIfUserAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
@@ -395,6 +396,24 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 $this->redirect('/sistema/usuarios/usuarios/editar/'.$id.$filterListarUrl);
             }
             $Usuario->save();
+            // enviar correo solo si el usuario estaba inactivo y ahora está activo
+            if (!$activo and $Usuario->activo) {
+                $emailConfig = \sowerphp\core\Configure::read('email.default');
+                    if (!empty($emailConfig['type']) && !empty($emailConfig['type']) && !empty($emailConfig['pass'])) {
+                    $layout = $this->layout;
+                    $this->layout = null;
+                    $this->set([
+                        'nombre'=>$Usuario->nombre,
+                        'usuario'=>$Usuario->usuario,
+                    ]);
+                    $msg = $this->render('Usuarios/activo_email')->body();
+                    $this->layout = $layout;
+                    $email = new \sowerphp\core\Network_Email();
+                    $email->to($Usuario->email);
+                    $email->subject('Cuenta de usuario habilitada');
+                    $email->send($msg);
+                }
+            }
             if (!empty($_POST['contrasenia'])) {
                 $Usuario->savePassword($_POST['contrasenia']);
             }
