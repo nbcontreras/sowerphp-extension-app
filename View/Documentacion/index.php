@@ -13,6 +13,7 @@ enlaces($archivos);
 function enlaces($archivos, $ruta = '')
 {
     $omitir = [];
+    $mostrado = [];
     echo '<ul>',"\n";
     foreach ($archivos as $dir => $docs) {
         if (is_string($dir)) {
@@ -24,8 +25,9 @@ function enlaces($archivos, $ruta = '')
             echo '<li>',$dir,"\n";
             enlaces($docs, $aux);
             echo '</li>',"\n";
-        } else if (!in_array($docs, $omitir)) {
+        } else if (!in_array($docs, $omitir) and !in_array($docs, $mostrado)) {
             echo '<li><a href="',_BASE,'/documentacion',$ruta,'/',urlencode($docs),'">',$docs,'</a></li>',"\n";
+            $mostrado[] = $docs;
         }
     }
     echo '</ul>',"\n";
