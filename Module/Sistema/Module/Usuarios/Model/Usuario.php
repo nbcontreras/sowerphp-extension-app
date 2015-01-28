@@ -496,11 +496,13 @@ class Model_Usuario extends \Model_App
      * @param grupos Arreglo con los grupos que se desean revisar
      * @return =true si pertenece a alguno de los grupos que se solicitaron
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-14
+     * @version 2015-01-28
      */
     public function inGroup ($grupos = [])
     {
         $this->groups();
+        if (!is_array($grupos))
+            $grupos = [$grupos];
         $grupos[] = 'sysadmin';
         foreach ($grupos as $g) {
             if (in_array($g, $this->groups()))
