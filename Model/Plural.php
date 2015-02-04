@@ -302,10 +302,9 @@ abstract class Model_Plural extends \sowerphp\core\Object
                 // procesar tabla y asignar valores al objeto
                 $objetos = array();
                 // determinar nombre de la clase singular (se busca en el mismo namespace que la clase plural)
-                $class = \sowerphp\core\Utility_Inflector::singularize(get_class($this));
-                /*$classs = \sowerphp\core\Utility_Inflector::singularize(get_class($this));
-                $namespace = substr($classs, 0, strrpos($classs, '\\'));
-                $class = $namespace.'\Model_'.\sowerphp\core\Utility_Inflector::camelize($this->_table);*/
+                $aux = \sowerphp\core\Utility_Inflector::singularize(get_class($this));
+                $namespace = substr($aux, 0, strrpos($aux, '\\'));
+                $class = $namespace.'\Model_'.\sowerphp\core\Utility_Inflector::camelize($this->_table);
                 // iterar creando objetos
                 foreach ($tabla as &$fila) {
                     $obj = new $class();
