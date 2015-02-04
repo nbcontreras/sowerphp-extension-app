@@ -84,7 +84,7 @@ class Controller_Bd extends \Controller_App
      * Acción que permite poblar datos en tablas de una BD
      * @todo Poblar tablas con PK autoincrementales (idea, actualizar serie)
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-18
+     * @version 2015-02-04
      */
     public function poblar ()
     {
@@ -98,8 +98,8 @@ class Controller_Bd extends \Controller_App
             foreach ($sheets as $id => &$name) {
                 $data = \sowerphp\general\Utility_Spreadsheet::read($_FILES['file'], $id);
                 $table = $name;
-                $info = $db->getInfoFromTable ($table);
-                $cols = array_flip(array_shift ($data));
+                $info = $db->getInfoFromTable($table);
+                $cols = array_flip(array_shift($data));
                 $existsQuery = 'SELECT COUNT(*) FROM '.$table.' ';
                 $whereQuery = 'WHERE '.implode(' = \'?\' AND ', $info['pk']).' = \'?\'';
                 $updateQuery = 'UPDATE '.$table.' SET';
@@ -107,13 +107,13 @@ class Controller_Bd extends \Controller_App
                 // contar registros totales (en el archivo) y existentes antes de hacer algo en la tabla
                 $registros = array(
                     'total' => count($data),
-                    'existentes' => $db->getValue ('SELECT COUNT(*) FROM '.$table),
+                    'existentes' => $db->getValue('SELECT COUNT(*) FROM '.$table),
                     'actualizados' => 0,
                     'insertados' => 0,
                 );
                 // eliminar datos de la tabla en caso que se haya solicitado
                 if (isset($_POST['delete'])) {
-                    $db->query ('DELETE FROM '.$table);
+                    $db->query('DELETE FROM '.$table);
                 }
                 // variable para almacenar el ID más alto (en caso que exista para luego alterar la secuencia/autoincremental)
                 $id = 0;
@@ -121,11 +121,14 @@ class Controller_Bd extends \Controller_App
                 // una de las filas de la tabla
                 foreach ($data as &$row) {
                     $where = $whereQuery;
+                    $pkCompleta = true;
                     foreach ($info['pk'] as $pk) {
+                        if (empty($row[$cols[$pk]]))
+                            $pkCompleta = false;
                         $where = preg_replace ('/\?/', $row[$cols[$pk]], $where, 1);
                     }
                     // si el registro existe se actualiza
-                    if ($db->getValue($existsQuery.$where)) {
+                    if ($pkCompleta and $db->getValue($existsQuery.$where)) {
                         $values = array();
                         $auxCols = array_keys ($cols);
                         foreach ($row as &$col) {
@@ -158,8 +161,8 @@ class Controller_Bd extends \Controller_App
                 }
                 // alterar secuencia
                 if (in_array('id', $info['pk']) && $id>0) {
-                    if (get_class($db)=='PostgreSQL') {
-                        $db->query ('SELECT SETVAL (\''.$table.'_id_seq\', '.$id.');');
+                    if ($db=='PostgreSQL') {
+                        $db->query('SELECT SETVAL (\''.$table.'_id_seq\', '.$id.');')->errorCode();
                     }
                 }
                 // crear mensaje para esta tabla
@@ -167,7 +170,8 @@ class Controller_Bd extends \Controller_App
                     ': existentes='.$registros['existentes'].
                     ', actualizados='.$registros['actualizados'].
                     ', insertados='.$registros['insertados'].
-                    ', total='.$registros['total'];
+                    ', total='.$registros['total']
+                ;
             }
             // terminar transacción
             $db->commit();
