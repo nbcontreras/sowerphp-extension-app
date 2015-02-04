@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Componente para proveer una API para funciones de los controladores
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-12-01
+ * @version 2015-01-31
  */
 class Controller_Component_Api extends \sowerphp\core\Controller_Component
 {
@@ -34,6 +34,15 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
     public $method; ///< Método HTTP que se utilizó para acceder a la API
     public $headers; ///< Cabeceras HTTP de la solicitud que se hizo a la API
     public $data; ///< Datos que se han pasado a la función de la API
+    public $settings = [
+        'messages' => [
+            'error' => [
+                'not-found' => 'Recurso %s a través de %s no existe en la API %s',
+                'args-miss' => 'Argumentos insuficientes para el recurso %s(%s) a través de %s en la API %s',
+                'auth-miss' => 'Cabecera _Authorization_ no fue recibida',
+            ]
+        ]
+    ];
 
     /**
      * Método para inicializar la función de la API que se está ejecutando
@@ -54,7 +63,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * solicitó la ejecución. Este método es el que controla las funciones del
      * controlador que se está ejecutando.
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-02
+     * @version 2015-01-31
      */
     public function run($resource, $args = null)
     {
@@ -65,7 +74,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         if (!method_exists($this->controller, $method)) {
             $this->send(
                 sprintf(
-                    'Recurso %s a través de %s no existe en la API %s',
+                    $this->settings['messages']['error']['not-found'],
                     $resource,
                     $this->method,
                     get_class($this->controller)
@@ -82,7 +91,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
             }
             $this->send(
                 sprintf(
-                    'Argumentos insuficientes para el recurso %s(%s) a través de %s en la API %s',
+                    $this->settings['messages']['error']['args-miss'],
                     $resource,
                     implode(', ', $args),
                     $this->method,
@@ -134,12 +143,12 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * controlador y devuelve el usuario que se autenticó
      * @return Objeto con usuario autenticado o string con el error si hubo uno
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-01
+     * @version 2015-01-31
      */
     public function getAuthUser()
     {
         $auth = isset($this->headers['Authorization']) ? $this->headers['Authorization'] : false;
-        if ($auth===false) return $this->controller->Auth->settings['messages']['error']['invalid'];
+        if ($auth===false) return $this->settings['messages']['error']['auth-miss'];
         list($basic, $user_pass) = explode(' ', $auth);
         list($user, $pass) = explode(':', base64_decode($user_pass));
         // crear objeto del usuario
