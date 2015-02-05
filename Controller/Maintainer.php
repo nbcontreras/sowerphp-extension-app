@@ -160,7 +160,7 @@ class Controller_Maintainer extends \Controller_App
             'order' => $order,
             'searchUrl' => $searchUrl,
             'search' => $search,
-            'Objs' => $Objs->getObjects(),
+            'Objs' => $Objs->getObjects($this->model),
             'columns' => $columns,
             'registers_total' => $registers_total,
             'pages' => isset($pages) ? $pages : 0,

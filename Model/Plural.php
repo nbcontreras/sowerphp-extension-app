@@ -270,11 +270,12 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * no es null, también de limitStatement, de orderbyStatement y de
      * selectStatement
      * @param solicitado Lo que se está solicitando (objetcs, table, etc)
+     * @param class Se permite pasar el nombre de la clase en caso que se quieran recuperar objetos (si no se pasa se tratará de detectar)
      * @return Mixed Arreglo o valor según lo solicitado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-01-13
+     * @version 2015-02-05
      */
-    private function getData($solicitado)
+    private function getData($solicitado, $class = null)
     {
         // preparar consulta inicial
         if ($this->selectStatement)
@@ -302,9 +303,11 @@ abstract class Model_Plural extends \sowerphp\core\Object
                 // procesar tabla y asignar valores al objeto
                 $objetos = array();
                 // determinar nombre de la clase singular (se busca en el mismo namespace que la clase plural)
-                $aux = \sowerphp\core\Utility_Inflector::singularize(get_class($this));
-                $namespace = substr($aux, 0, strrpos($aux, '\\'));
-                $class = $namespace.'\Model_'.\sowerphp\core\Utility_Inflector::camelize($this->_table);
+                if ($class===null) {
+                    $aux = \sowerphp\core\Utility_Inflector::singularize(get_class($this));
+                    $namespace = substr($aux, 0, strrpos($aux, '\\'));
+                    $class = $namespace.'\Model_'.\sowerphp\core\Utility_Inflector::camelize($this->_table);
+                }
                 // iterar creando objetos
                 foreach ($tabla as &$fila) {
                     $obj = new $class();
@@ -326,13 +329,14 @@ abstract class Model_Plural extends \sowerphp\core\Object
      * Recupera objetos desde la tabla, hará uso del whereStatement si
      * no es null, también de limitStatement, de orderbyStatement y de
      * selectStatement
+     * @param class Clase que se debe usar para instanciar los objetos recuperados de la BD
      * @return Array Arreglo con los objetos
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-15
+     * @version 2015-02-05
      */
-    public function getObjects ()
+    public function getObjects($class = null)
     {
-        return $this->getData('objects');
+        return $this->getData('objects', $class);
     }
 
     /**
