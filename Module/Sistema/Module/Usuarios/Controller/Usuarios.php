@@ -416,6 +416,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             }
             if (!empty($_POST['contrasenia'])) {
                 $Usuario->savePassword($_POST['contrasenia']);
+                $Usuario->savePasswordRetry($this->Auth->settings['maxLoginAttempts']);
             }
             $Usuario->saveGroups($_POST['grupos']);
             \sowerphp\core\Model_Datasource_Session::message(
