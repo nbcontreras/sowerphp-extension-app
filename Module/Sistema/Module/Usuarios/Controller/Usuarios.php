@@ -222,7 +222,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para crear un nuevo usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-01-03
+     * @version 2015-03-23
      */
     public function crear()
     {
@@ -237,6 +237,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         if (isset($_POST['submit'])) {
             $Usuario = new Model_Usuario();
             $Usuario->set($_POST);
+            $Usuario->email = strtolower($Usuario->email);
             $ok = true;
             if ($Usuario->checkIfUserAlreadyExists()) {
                 \sowerphp\core\Model_Datasource_Session::message(
@@ -329,7 +330,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para editar un nuevo usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-01-26
+     * @version 2015-03-23
      */
     public function editar($id)
     {
@@ -376,6 +377,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             }
             $activo = $Usuario->activo;
             $Usuario->set($_POST);
+            $Usuario->email = strtolower($Usuario->email);
             if ($Usuario->checkIfUserAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario '.$_POST['usuario'].' ya está en uso',
@@ -454,7 +456,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para mostrar y editar el perfil del usuario que esta autenticado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-01-02
+     * @version 2015-03-23
      */
     public function perfil()
     {
@@ -468,7 +470,11 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 );
                 $this->redirect('/usuarios/perfil');
             }
-            $this->Auth->User->set($_POST);
+            $this->Auth->User->nombre = $_POST['nombre'];
+            if ($this->changeUsername)
+                $this->Auth->User->usuario = $_POST['usuario'];
+            $this->Auth->User->email = strtolower($_POST['email']);
+            $this->Auth->User->hash = $_POST['hash'];
             if ($this->Auth->User->checkIfUserAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario '.$_POST['usuario'].' ya está en uso',
@@ -579,7 +585,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción que permite registrar un nuevo usuario en la aplicación
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-11-19
+     * @version 2015-03-23
      */
     public function registrar()
     {
@@ -620,7 +626,9 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             }
             // validar que el usuario y/o correo no exista previamente
             $Usuario = new Model_Usuario();
-            $Usuario->set($_POST);
+            $Usuario->nombre = $_POST['nombre'];
+            $Usuario->usuario = $_POST['usuario'];
+            $Usuario->email = strtolower($_POST['email']);
             if ($Usuario->checkIfUserAlreadyExists()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario '.$_POST['usuario'].' ya está en uso',

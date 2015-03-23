@@ -282,20 +282,20 @@ class Model_Usuario extends \Model_App
      * Método que revisa si el nombre de usuario ya existe en la base de datos
      * @return =true si el nombre de usuario ya existe
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-27
+     * @version 2015-03-23
      */
     public function checkIfUserAlreadyExists ()
     {
         if (empty($this->id)) {
             return (boolean)$this->db->getValue('
-                SELECT COUNT(*) FROM usuario WHERE usuario = :usuario
-            ', [':usuario'=>$this->usuario]);
+                SELECT COUNT(*) FROM usuario WHERE LOWER(usuario) = :usuario
+            ', [':usuario'=>strtolower($this->usuario)]);
         } else {
             return (boolean)$this->db->getValue('
                 SELECT COUNT(*)
                 FROM usuario
-                WHERE id != :id AND usuario = :usuario
-            ', [':id'=>$this->id, ':usuario'=>$this->usuario]);
+                WHERE id != :id AND LOWER(usuario) = :usuario
+            ', [':id'=>$this->id, ':usuario'=>strtolower($this->usuario)]);
         }
     }
 
