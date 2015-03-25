@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Componente para proveer de un sistema de autenticación y autorización
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-12-26
+ * @version 2015-03-24
  */
 class Controller_Component_Auth extends \sowerphp\core\Controller_Component
 {
@@ -53,6 +53,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
                 'nologin' => 'Debe iniciar sesión para tratar de acceder a <em>%s</em>',
                 'auth' => 'No dispone de permisos para acceder a <em>%s</em>',
                 'invalid' => 'Usuario o clave inválida',
+                'notexist' => 'Usuario o clave inválida',
                 'inactive' => 'Cuenta de usuario no activa',
                 'newlogin' => 'Sesión cerrada. Usuario <em>%s</em> tiene una más nueva en otro lugar',
                 'login_attempts_exceeded' => 'Número de intentos de sesión excedidos. Cuenta bloqueada, debe recuperar su contraseña.',
@@ -229,7 +230,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que realiza el login del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-26
+     * @version 2015-03-24
      */
     public function login ($usuario, $contrasenia)
     {
@@ -238,9 +239,12 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         // si el usuario no existe -> error
         if (!$this->User->exists()) {
             \sowerphp\core\Model_Datasource_Session::message(
-                $this->settings['messages']['error']['invalid'], 'error'
+                $this->settings['messages']['error']['notexist'], 'error'
             );
-            return;
+            if (isset($this->settings['redirect']['notexist']))
+                $this->controller->redirect($this->settings['redirect']['notexist']);
+            else
+                return;
         }
         // si el usuario no está activo -> error
         if (!$this->User->isActive()) {
