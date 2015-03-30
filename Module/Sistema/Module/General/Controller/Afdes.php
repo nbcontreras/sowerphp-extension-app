@@ -142,9 +142,11 @@ class Controller_Afdes extends \Controller_Maintainer
      */
     public function grafo($codigo)
     {
-        (new \sowerphp\general\Utility_Automata_AFD(
+        $image = (new \sowerphp\general\Utility_Automata_AFD(
             (new Model_Afd($codigo))->getTransiciones()
-        ))->display();
+        ))->image();
+        $this->response->header('Content-type', 'image/png');
+        $this->response->send($image);
     }
 
 }
