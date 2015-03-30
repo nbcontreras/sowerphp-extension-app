@@ -138,15 +138,13 @@ class Controller_Afdes extends \Controller_Maintainer
      * Acción que genera la imagen del grafo del AFD
      * @param codigo Código del AFD a generar su imagen
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-19
+     * @version 2015-03-29
      */
     public function grafo($codigo)
     {
-        $graph = (new \sowerphp\general\Utility_Automata_AFD(
+        (new \sowerphp\general\Utility_Automata_AFD(
             (new Model_Afd($codigo))->getTransiciones()
-        ))->getGraph();
-        $this->response->header('Content-type', 'image/png');
-        $this->response->send((string)$graph);
+        ))->display();
     }
 
 }
