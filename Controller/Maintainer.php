@@ -177,7 +177,7 @@ class Controller_Maintainer extends \Controller_App
     /**
      * Acción para crear un registro en la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-20
+     * @version 2015-03-30
      */
     public function crear ()
     {
@@ -186,16 +186,20 @@ class Controller_Maintainer extends \Controller_App
         if (isset($_POST['submit'])) {
             $Obj = new $this->model();
             $Obj->set($_POST);
-            foreach($_FILES as $name => &$file) {
-                if (!$file['error']) {
-                    $Obj->setFile($name, $file);
+            if (!$Obj->exists()) {
+                foreach($_FILES as $name => &$file) {
+                    if (!$file['error']) {
+                        $Obj->setFile($name, $file);
+                    }
                 }
+                $msg = $Obj->save() ? 'Registro creado' : 'Registro no creado';
+                \sowerphp\core\Model_Datasource_Session::message($msg, 'ok');
+                $this->redirect(
+                    $this->module_url.$this->request->params['controller'].'/listar'.$filterListar
+                );
+            } else {
+                \sowerphp\core\Model_Datasource_Session::message('Registro ya existe', 'error');
             }
-            $msg = $Obj->save() ? 'Registro creado' : 'Registro no creado';
-            \sowerphp\core\Model_Datasource_Session::message($msg, 'ok');
-            $this->redirect(
-                $this->module_url.$this->request->params['controller'].'/listar'.$filterListar
-            );
         }
         // setear variables
         $model = $this->model;
