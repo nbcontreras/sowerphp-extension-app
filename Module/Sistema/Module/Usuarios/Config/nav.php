@@ -43,4 +43,9 @@
         'desc' => 'Autorización y control de acceso sobre recursos',
         'imag' => '/sistema/usuarios/img/icons/48x48/auth.png',
     ),
+    '/email/grupos' => array(
+        'name' => 'Enviar email a grupos',
+        'desc' => 'Enviar correo electrónico a todos los usuarios de uno o varios grupos',
+        'imag' => '/sistema/usuarios/img/icons/48x48/email.png',
+    ),
 ));

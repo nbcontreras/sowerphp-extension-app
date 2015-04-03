@@ -59,4 +59,57 @@ class Model_Grupos extends \Model_Plural_App
         return $ids;
     }
 
+    /**
+     * Método que entrega las glosas de lo grupos a partir de sus IDs
+     * @param grupos Arreglo con los grupos que se buscan sus glosas
+     * @return Arreglo con las glosas de los grupos
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-04-03
+     */
+    public function getGlosas($grupos)
+    {
+        if (!is_array($grupos))
+            $grupos = [$grupos];
+        $where = $vars = [];
+        $i = 1;
+        foreach ($grupos as &$g) {
+            $where[] = ':grupo'.$i;
+            $vars[':grupo'.$i] = $g;
+            $i++;
+        }
+        return $this->db->getCol('
+            SELECT DISTINCT grupo
+            FROM grupo
+            WHERE id IN ('.implode(', ', $where).')
+            ORDER BY grupo
+        ', $vars);
+    }
+
+    /**
+     * Método que entrega los correos electrónicos de los usuarios que
+     * pertenecen a los grupos indicados
+     * @param grupos Arreglo con los grupos que se buscan los email de sus usuarios
+     * @return Arreglo con los correos de los usuarios que pertenecen a esos grupos
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-04-03
+     */
+    public function emails($grupos)
+    {
+        if (!is_array($grupos))
+            $grupos = [$grupos];
+        $where = $vars = [];
+        $i = 1;
+        foreach ($grupos as &$g) {
+            $where[] = ':grupo'.$i;
+            $vars[':grupo'.$i] = $g;
+            $i++;
+        }
+        return $this->db->getCol('
+            SELECT DISTINCT u.email
+            FROM usuario AS u JOIN usuario_grupo AS ug ON u.id = ug.usuario
+            WHERE ug.grupo IN ('.implode(', ', $where).') AND u.activo = 1
+            ORDER BY u.email
+        ', $vars);
+    }
+
 }
