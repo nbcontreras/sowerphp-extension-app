@@ -11,6 +11,12 @@ echo $f->input([
     'display-key' => false,
 ]);
 echo $f->input([
+    'type' => 'select',
+    'name' => 'enviar_como',
+    'label' => 'Enviar como',
+    'options' => ['bcc'=>'BCC: copia oculta', 'cc'=>'CC: copia'],
+]);
+echo $f->input([
     'name' => 'asunto',
     'label' => 'Asunto',
     'help' => 'Se incluirá automáticamente "['.$page_title.'] " al inicio del asunto',

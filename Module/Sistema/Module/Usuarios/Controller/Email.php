@@ -80,7 +80,11 @@ class Controller_Email extends \Controller_App
                     $email->from($this->Auth->User->email, $this->Auth->User->nombre);
                     $email->replyTo($this->Auth->User->email, $this->Auth->User->nombre);
                     $email->to($this->Auth->User->email);
-                    $email->bcc($emails);
+                    if ($_POST['enviar_como']=='cc') {
+                        $email->cc($emails);
+                    } else {
+                        $email->bcc($emails);
+                    }
                     $email->subject('['.$page_title.'] '.$_POST['asunto']);
                     $status = $email->send($msg);
                     if ($status===true) {
