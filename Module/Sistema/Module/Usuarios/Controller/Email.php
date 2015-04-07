@@ -48,7 +48,7 @@ class Controller_Email extends \Controller_App
             'page_title' => $page_title,
         ]);
         if (isset($_POST['submit'])) {
-            if (!count($_POST['grupos']) or empty($_POST['asunto']) or empty($_POST['mensaje'])) {
+            if (!isset($_POST['grupos']) or empty($_POST['asunto']) or empty($_POST['mensaje'])) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Debe completar todos los campos del formulario', 'error'
                 );
