@@ -91,7 +91,7 @@ class Model_Grupos extends \Model_Plural_App
      * @param grupos Arreglo con los grupos que se buscan los email de sus usuarios
      * @return Arreglo con los correos de los usuarios que pertenecen a esos grupos
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-04-03
+     * @version 2015-04-07
      */
     public function emails($grupos)
     {
@@ -107,7 +107,7 @@ class Model_Grupos extends \Model_Plural_App
         return $this->db->getCol('
             SELECT DISTINCT u.email
             FROM usuario AS u JOIN usuario_grupo AS ug ON u.id = ug.usuario
-            WHERE ug.grupo IN ('.implode(', ', $where).') AND u.activo = 1
+            WHERE ug.grupo IN ('.implode(', ', $where).') AND u.activo
             ORDER BY u.email
         ', $vars);
     }
