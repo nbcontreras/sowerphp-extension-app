@@ -30,7 +30,7 @@ foreach ($columns as $column => &$info) {
     }
     // si es de tipo boolean se muestra lista desplegable
     else if ($info['type']=='boolean' || $info['type']=='tinyint') {
-        $row[] = $form->input(array('type'=>'select', 'name'=>$column, 'options' => $optionsBoolean, 'selected' => (isset($search[$column])?$search[$column]:'')));
+        $row[] = $form->input(array('type'=>'select', 'name'=>$column, 'options' => $optionsBoolean, 'value' => (isset($search[$column])?$search[$column]:'')));
     }
     // si es llave foránea
     else if ($info['fk']) {
@@ -43,7 +43,7 @@ foreach ($columns as $column => &$info) {
         $objs = new $classs();
         $options = $objs->getList();
         array_unshift($options, array('', 'Seleccione una opción'));
-        $row[] = $form->input(array('type'=>'select', 'name'=>$column, 'options' => $options, 'selected' => (isset($search[$column])?$search[$column]:'')));
+        $row[] = $form->input(array('type'=>'select', 'name'=>$column, 'options' => $options, 'value' => (isset($search[$column])?$search[$column]:'')));
     }
     // si es un tipo de dato de fecha o fecha con hora se muestra un input para fecha
     else if (in_array($info['type'], ['date', 'timestamp', 'timestamp without time zone'])) {

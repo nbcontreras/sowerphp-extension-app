@@ -47,7 +47,7 @@ foreach ($columns as $column => &$info) {
         else if ($info['type']=='boolean' || $info['type']=='tinyint') {
             $input['type'] = 'select';
             $input['options'] = $optionsBoolean;
-            if (isset($Obj)) $input['selected'] = $Obj->{$column};
+            if (isset($Obj)) $input['value'] = $Obj->{$column};
             echo $form->input($input);
         }
         // si es de tipo date se muestra calendario
@@ -69,7 +69,7 @@ foreach ($columns as $column => &$info) {
             array_unshift($options, array('', 'Seleccione una opción'));
             $input['type'] = 'select';
             $input['options'] = $options;
-            if (isset($Obj)) $input['selected'] = $Obj->{$column};
+            if (isset($Obj)) $input['value'] = $Obj->{$column};
             echo $form->input($input);
         }
         // si es contraseña

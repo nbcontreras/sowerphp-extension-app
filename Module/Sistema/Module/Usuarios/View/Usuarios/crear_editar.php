@@ -56,7 +56,7 @@ echo $form->input([
         '1' => 'Si',
         '0' => 'No'
     ],
-    'selected' => isset($Obj) ? $Obj->activo : '',
+    'value' => isset($Obj) ? $Obj->activo : '',
     'help'  => $columns['activo']['comment'],
     'check' => (!$columns['activo']['null']?['notempty']:[]),
 ]);
