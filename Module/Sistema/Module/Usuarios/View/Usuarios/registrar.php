@@ -19,11 +19,7 @@ echo $form->input([
     'label'=>'Email',
     'check'=>'notempty email',
     'attr'=>'maxlength="50"',
-]);
-echo $form->input([
-    'type'=>'div',
-    'label'=>'',
-    'value'=>'<strong>La contraseña será enviada a su email</strong>'
+    'help'=>'La contraseña será enviada a su email'
 ]);
 if (!empty($public_key)) {
     echo $form->input([
