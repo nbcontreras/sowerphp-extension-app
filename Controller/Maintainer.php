@@ -85,9 +85,27 @@ class Controller_Maintainer extends \Controller_App
     }
 
     /**
+     * Método que busca la vista que se deberá renderizar
+     * @param view Vista que se desea renderizar
+     * @param location No se utiliza, esta por compatibilidad con método padre
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-04-23
+     */
+    public function render($view = null, $location = null)
+    {
+        $ControllerName = str_replace($this->namespace.'\Controller_', '', get_class($this));
+        $this->autoRender = false;
+        if (\sowerphp\core\View::location($ControllerName.'/'.$view, $this->request->params['module'])) {
+            parent::render($ControllerName.'/'.$view);
+        } else {
+            parent::render('Maintainer/'.$view, 'sowerphp/app');
+        }
+    }
+
+    /**
      * Acción para listar los registros de la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-11
+     * @version 2015-04-23
      */
     public function listar ($page = 1, $orderby = null, $order = 'A')
     {
@@ -170,14 +188,14 @@ class Controller_Maintainer extends \Controller_App
             'listarFilterUrl' => '?listar='.base64_encode('/'.$page.($orderby ? '/'.$orderby.'/'.$order : '').$searchUrl),
             'deleteRecord' => $this->deleteRecord,
         ));
-        $this->autoRender = false;
-        $this->render('Maintainer/listar', 'sowerphp/app');
+        // renderizar
+        $this->render('listar');
     }
 
     /**
      * Acción para crear un registro en la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-03-30
+     * @version 2015-04-23
      */
     public function crear ()
     {
@@ -212,15 +230,14 @@ class Controller_Maintainer extends \Controller_App
             'listarUrl' => $this->module_url.$this->request->params['controller'].'/listar'.$filterListar,
         ));
         // renderizar
-        $this->autoRender = false;
-        $this->render('Maintainer/crear_editar', 'sowerphp/app');
+        $this->render('crear_editar');
     }
 
     /**
      * Acción para editar un registro de la tabla
      * @param pk Parámetro que representa la PK, pueden ser varios parámetros los pasados
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-20
+     * @version 2015-04-23
      */
     public function editar ($pk)
     {
@@ -248,8 +265,7 @@ class Controller_Maintainer extends \Controller_App
                 'listarUrl' => $this->module_url.$this->request->params['controller'].'/listar'.$filterListar,
             ));
             // renderizar
-             $this->autoRender = false;
-            $this->render('Maintainer/crear_editar', 'sowerphp/app');
+            $this->render('crear_editar');
         }
         // si se envió el formulario se procesa
         else {
