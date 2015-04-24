@@ -336,7 +336,7 @@ class Controller_Maintainer extends \Controller_App
         $model = $this->model;
         if (!isset($model::$columnsInfo[$campo.'_data'])) {
             \sowerphp\core\Model_Datasource_Session::message(
-                'Campo '.$campo.' no exite', 'error'
+                'Campo '.$campo.' no existe', 'error'
             );
             $this->redirect(
                 $this->module_url.$this->request->params['controller'].'/listar'
