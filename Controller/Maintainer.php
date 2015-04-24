@@ -91,29 +91,21 @@ class Controller_Maintainer extends \Controller_App
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2015-04-24
      */
-    public function render($view = null, $location = null)
+    private function renderView($view = null, $location = null)
     {
         $this->autoRender = false;
-        if (in_array($this->request->params['action'], ['listar', 'crear', 'editar'])) {
-            if (strpos($view, '/')) {
-                return parent::render($view, $location);
-            } else {
-                $ControllerName = str_replace($this->namespace.'\Controller_', '', get_class($this));
-                if (\sowerphp\core\View::location($ControllerName.'/'.$view, $this->request->params['module'])) {
-                    return parent::render($ControllerName.'/'.$view, $location);
-                } else {
-                    return parent::render('Maintainer/'.$view, 'sowerphp/app');
-                }
-            }
+        $ControllerName = str_replace($this->namespace.'\Controller_', '', get_class($this));
+        if (\sowerphp\core\View::location($ControllerName.'/'.$view, $this->request->params['module'])) {
+            return parent::render($ControllerName.'/'.$view, $location);
         } else {
-            return parent::render($view, $location);
+            return parent::render('Maintainer/'.$view, 'sowerphp/app');
         }
     }
 
     /**
      * Acción para listar los registros de la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-04-23
+     * @version 2015-04-24
      */
     public function listar ($page = 1, $orderby = null, $order = 'A')
     {
@@ -197,13 +189,13 @@ class Controller_Maintainer extends \Controller_App
             'deleteRecord' => $this->deleteRecord,
         ));
         // renderizar
-        $this->render('listar');
+        $this->renderView('listar');
     }
 
     /**
      * Acción para crear un registro en la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-04-23
+     * @version 2015-04-24
      */
     public function crear ()
     {
@@ -238,14 +230,14 @@ class Controller_Maintainer extends \Controller_App
             'listarUrl' => $this->module_url.$this->request->params['controller'].'/listar'.$filterListar,
         ));
         // renderizar
-        $this->render('crear_editar');
+        $this->renderView('crear_editar');
     }
 
     /**
      * Acción para editar un registro de la tabla
      * @param pk Parámetro que representa la PK, pueden ser varios parámetros los pasados
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-04-23
+     * @version 2015-04-24
      */
     public function editar ($pk)
     {
@@ -273,7 +265,7 @@ class Controller_Maintainer extends \Controller_App
                 'listarUrl' => $this->module_url.$this->request->params['controller'].'/listar'.$filterListar,
             ));
             // renderizar
-            $this->render('crear_editar');
+            $this->renderView('crear_editar');
         }
         // si se envió el formulario se procesa
         else {
