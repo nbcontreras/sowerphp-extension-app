@@ -89,17 +89,21 @@ class Controller_Maintainer extends \Controller_App
      * @param view Vista que se desea renderizar
      * @param location No se utiliza, esta por compatibilidad con método padre
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-04-23
+     * @version 2015-04-24
      */
     public function render($view = null, $location = null)
     {
+        $this->autoRender = false;
         if (in_array($this->request->params['action'], ['listar', 'crear', 'editar'])) {
-            $ControllerName = str_replace($this->namespace.'\Controller_', '', get_class($this));
-            $this->autoRender = false;
-            if (\sowerphp\core\View::location($ControllerName.'/'.$view, $this->request->params['module'])) {
-                return parent::render($ControllerName.'/'.$view);
+            if (strpos($view, '/')) {
+                return parent::render($view, $location);
             } else {
-                return parent::render('Maintainer/'.$view, 'sowerphp/app');
+                $ControllerName = str_replace($this->namespace.'\Controller_', '', get_class($this));
+                if (\sowerphp\core\View::location($ControllerName.'/'.$view, $this->request->params['module'])) {
+                    return parent::render($ControllerName.'/'.$view, $location);
+                } else {
+                    return parent::render('Maintainer/'.$view, 'sowerphp/app');
+                }
             }
         } else {
             return parent::render($view, $location);
