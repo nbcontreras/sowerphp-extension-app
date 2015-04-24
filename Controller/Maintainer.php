@@ -93,12 +93,16 @@ class Controller_Maintainer extends \Controller_App
      */
     public function render($view = null, $location = null)
     {
-        $ControllerName = str_replace($this->namespace.'\Controller_', '', get_class($this));
-        $this->autoRender = false;
-        if (\sowerphp\core\View::location($ControllerName.'/'.$view, $this->request->params['module'])) {
-            parent::render($ControllerName.'/'.$view);
+        if (in_array($this->request->params['action'], ['listar', 'crear', 'editar'])) {
+            $ControllerName = str_replace($this->namespace.'\Controller_', '', get_class($this));
+            $this->autoRender = false;
+            if (\sowerphp\core\View::location($ControllerName.'/'.$view, $this->request->params['module'])) {
+                return parent::render($ControllerName.'/'.$view);
+            } else {
+                return parent::render('Maintainer/'.$view, 'sowerphp/app');
+            }
         } else {
-            parent::render('Maintainer/'.$view, 'sowerphp/app');
+            return parent::render($view, $location);
         }
     }
 
