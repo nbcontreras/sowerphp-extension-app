@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Componente para proveer de un sistema de autenticación y autorización
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2015-03-24
+ * @version 2015-04-28
  */
 class Controller_Component_Auth extends \sowerphp\core\Controller_Component
 {
@@ -51,15 +51,15 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             ],
             'error' => [
                 'nologin' => 'Debe iniciar sesión para tratar de acceder a <em>%s</em>',
-                'auth' => 'No dispone de permisos para acceder a <em>%s</em>',
-                'invalid' => 'Usuario o clave inválida',
-                'notexist' => 'Usuario o clave inválida',
-                'inactive' => 'Cuenta de usuario no activa',
+                'auth' => 'Usuario <em>%s</em> no dispone de permisos para acceder a <em>%s</em>',
+                'invalid' => 'Clave del usuario <em>%s</em> inválida',
+                'notexist' => 'Usuario <em>%s</em> no existe',
+                'inactive' => 'Cuenta de usuario <em>%s</em> no activa',
                 'newlogin' => 'Sesión cerrada. Usuario <em>%s</em> tiene una más nueva en otro lugar',
-                'login_attempts_exceeded' => 'Número de intentos de sesión excedidos. Cuenta bloqueada, debe recuperar su contraseña.',
-                'token' => 'Token se encuentra bloqueado',
-                'recaptcha_required' => 'Se detectaron intentos previos fallidos. Se requiere Captcha',
-                'recaptcha_invalid' => 'Captcha incorrecto',
+                'login_attempts_exceeded' => 'Número de intentos de sesión excedidos para usuario <em>%s</em>. Cuenta bloqueada, debe recuperar su contraseña.',
+                'token' => 'Token del usuario <em>%s</em> se encuentra bloqueado',
+                'recaptcha_required' => 'Se detectaron intentos previos fallidos para el usuario <em>%s</em>. Se requiere Captcha',
+                'recaptcha_invalid' => 'Captcha incorrecto para el usuario <em>%s</em>',
             ],
         ],
     ];
@@ -110,7 +110,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
      * Método que verifica si el usuario tiene permisos o bien da error
      * Wrapper para el método que hace la validación
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-03-29
+     * @version 2014-04-28
      */
     public function beforeFilter()
     {
@@ -125,10 +125,13 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
                     base64_encode($this->controller->request->request)
                 );
             } else {
-                \sowerphp\core\Model_Datasource_Session::message(sprintf(
+                $msg = sprintf(
                     $this->settings['messages']['error']['auth'],
+                    $this->User->usuario,
                     $this->controller->request->request
-                ), 'error');
+                );
+                \sowerphp\core\Model_Datasource_Session::message($msg, 'error');
+                $this->log($msg, LOG_ERR);
                 $this->controller->redirect($this->settings['redirect']['error']);
             }
         }
@@ -230,7 +233,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que realiza el login del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-03-24
+     * @version 2015-04-28
      */
     public function login ($usuario, $contrasenia)
     {
@@ -239,7 +242,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         // si el usuario no existe -> error
         if (!$this->User->exists()) {
             \sowerphp\core\Model_Datasource_Session::message(
-                $this->settings['messages']['error']['notexist'], 'error'
+                sprintf($this->settings['messages']['error']['notexist'], $usuario), 'error'
             );
             if (isset($this->settings['redirect']['notexist']))
                 $this->controller->redirect($this->settings['redirect']['notexist']);
@@ -249,14 +252,14 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         // si el usuario no está activo -> error
         if (!$this->User->isActive()) {
             \sowerphp\core\Model_Datasource_Session::message(
-                $this->settings['messages']['error']['inactive'], 'error'
+                sprintf($this->settings['messages']['error']['inactive'], $usuario), 'error'
             );
             return;
         }
         // si la cuenta ya no tienen intentos de login -> error
         if (!$this->User->contrasenia_intentos) {
             \sowerphp\core\Model_Datasource_Session::message(
-                $this->settings['messages']['error']['login_attempts_exceeded'],
+                sprintf($this->settings['messages']['error']['login_attempts_exceeded'], $usuario),
                 'error'
             );
             return;
@@ -266,7 +269,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         if ($this->settings['maxLoginAttempts'] and $this->User->contrasenia_intentos<$this->settings['maxLoginAttempts'] and $private_key!==null) {
             if (empty($_POST['recaptcha_challenge_field']) or empty($_POST['recaptcha_response_field'])) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    $this->settings['messages']['error']['recaptcha_required'],
+                    sprintf($this->settings['messages']['error']['recaptcha_required'], $usuario),
                     'warning'
                 );
                 return;
@@ -279,7 +282,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             );
             if (!$resp->is_valid) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    $this->settings['messages']['error']['recaptcha_invalid'],
+                    sprintf($this->settings['messages']['error']['recaptcha_invalid'], $usuario),
                     'error'
                 );
                 return;
@@ -291,21 +294,19 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
                 $this->User->savePasswordRetry($this->User->contrasenia_intentos-1);
             }
             if ($this->User->contrasenia_intentos) {
-                \sowerphp\core\Model_Datasource_Session::message(
-                    $this->settings['messages']['error']['invalid'], 'error'
-                );
+                $msg = sprintf($this->settings['messages']['error']['invalid'], $usuario);
+                \sowerphp\core\Model_Datasource_Session::message($msg, 'error');
             } else {
-                \sowerphp\core\Model_Datasource_Session::message(
-                    $this->settings['messages']['error']['login_attempts_exceeded'],
-                    'error'
-                );
+                $msg = sprintf($this->settings['messages']['error']['login_attempts_exceeded'], $usuario);
+                \sowerphp\core\Model_Datasource_Session::message($msg, 'error');
             }
+            $this->log($msg, LOG_ERR);
             return;
         }
         // verificar token en sistema secundario de autorización
         if ($this->settings['auth2'] !== null and !$this->User->checkToken()) {
             \sowerphp\core\Model_Datasource_Session::message(
-                $this->settings['messages']['error']['token'], 'error'
+                sprintf($this->settings['messages']['error']['token'], $usuario), 'error'
             );
             return;
         }
@@ -334,10 +335,12 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             $this->settings['session']['key'], $this->session
         );
         // mensaje para mostrar
-        \sowerphp\core\Model_Datasource_Session::message(sprintf(
+        $msg = sprintf(
             $this->settings['messages']['ok']['login'],
             $this->User->usuario
-        ).$lastlogin, 'ok');
+        ).$lastlogin;
+        \sowerphp\core\Model_Datasource_Session::message($msg, 'ok');
+        $this->log($msg);
         // redireccionar
         if (isset($_POST['redirect'][0]))
             $this->controller->redirect($_POST['redirect']);
@@ -386,6 +389,20 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     public function host ($get_from_proxy = false)
     {
         return gethostbyaddr($this->ip($get_from_proxy));
+    }
+
+    /**
+     * Método que guarda un evento en el log
+     * @param message Mensaje del evento
+     * @param severity Gravedad del evento
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-05-28
+     */
+    protected function log($message, $severity = LOG_INFO)
+    {
+        if (isset($this->controller->Log)) {
+            $this->controller->Log->write($message, $severity, LOG_AUTH);
+        }
     }
 
 }
