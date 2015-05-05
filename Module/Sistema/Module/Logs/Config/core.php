@@ -21,21 +21,11 @@
  * En caso contrario, consulte <http://www.gnu.org/licenses/gpl.html>.
  */
 
-// ruta para documentación
-\sowerphp\core\Routing_Router::connect('/documentacion/*', [
-    'controller' => 'documentacion',
-    'action' => 'index',
-]);
-
-// rutas para servicios web
-\sowerphp\core\Routing_Router::connect('/api/:controller/*', [
-    'action' => 'api',
-]);
-\sowerphp\core\Routing_Router::connect('/api/sistema/logs/:controller/*', [
-    'module' => 'Sistema.Logs',
-    'action' => 'api',
-]);
-\sowerphp\core\Routing_Router::connect('/api/sistema/usuarios/:controller/*', [
-    'module' => 'Sistema.Usuarios',
-    'action' => 'api',
-]);
+// Menú para el módulo
+Configure::write('nav.module', array(
+    '/logs/online' => array(
+        'name' => 'Visor en línea',
+        'desc' => 'Visualización en línea de eventos registrados por el sistema',
+        'imag' => '/sistema/logs/img/icons/48x48/logs.png',
+    ),
+));

@@ -27,13 +27,14 @@ namespace sowerphp\app;
  * Clase que sirve para extender la clase Controller, este archivo
  * deberá ser sobreescrito en cada una de las aplicaciones
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-12-01
+ * @version 2015-04-28
  */
 class Controller_App extends \sowerphp\core\Controller
 {
 
-    public $components = ['Auth', 'Api']; ///< Componentes usados por el controlador
+    public $components = ['Auth', 'Api', 'Log']; ///< Componentes usados por el controlador
     public $Cache; ///< Objeto para usar el caché
+    public $log_facility = LOG_USER; ///< Origen por defecto de los eventos de los controladores
 
     /**
      * Constructor de la clase

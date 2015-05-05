@@ -21,21 +21,21 @@
  * En caso contrario, consulte <http://www.gnu.org/licenses/gpl.html>.
  */
 
-// ruta para documentación
-\sowerphp\core\Routing_Router::connect('/documentacion/*', [
-    'controller' => 'documentacion',
-    'action' => 'index',
-]);
+// namespace del modelo
+namespace sowerphp\app\Sistema\Logs;
 
-// rutas para servicios web
-\sowerphp\core\Routing_Router::connect('/api/:controller/*', [
-    'action' => 'api',
-]);
-\sowerphp\core\Routing_Router::connect('/api/sistema/logs/:controller/*', [
-    'module' => 'Sistema.Logs',
-    'action' => 'api',
-]);
-\sowerphp\core\Routing_Router::connect('/api/sistema/usuarios/:controller/*', [
-    'module' => 'Sistema.Usuarios',
-    'action' => 'api',
-]);
+/**
+ * Clase para mapear la tabla log de la base de datos
+ * Comentario de la tabla:
+ * Esta clase permite trabajar sobre un conjunto de registros de la tabla log
+ * @author SowerPHP Code Generator
+ * @version 2015-04-28 11:56:29
+ */
+class Model_Logs extends \Model_Plural_App
+{
+
+    // Datos para la conexión a la base de datos
+    protected $_database = 'default'; ///< Base de datos del modelo
+    protected $_table = 'log'; ///< Tabla del modelo
+
+}
