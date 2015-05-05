@@ -625,13 +625,13 @@ class Model_Usuario extends \Model_App
      * @param codigo Código que se usará para crear el token
      * @return =true si el token pudo ser creado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-25
+     * @version 2015-05-04
      */
     public function createToken($codigo)
     {
         $config = \sowerphp\core\Configure::read('auth2');
         if ($config===null) return false;
-        $class = '\sowerphp\app\Model_Auth2_'.$config['name'];
+        $class = '\sowerphp\app\Model_Datasource_Auth2_'.$config['name'];
         $Auth2 = new $class($config);
         $token = $Auth2->createToken($codigo);
         if ($token) {
@@ -649,13 +649,13 @@ class Model_Usuario extends \Model_App
      * Método que destruye el token en la autorización secundaria
      * @return =true si el token pudo ser destruído
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-25
+     * @version 2015-05-04
      */
     public function destroyToken()
     {
         $config = \sowerphp\core\Configure::read('auth2');
         if ($config===null) return true;
-        $class = '\sowerphp\app\Model_Auth2_'.$config['name'];
+        $class = '\sowerphp\app\Model_Datasource_Auth2_'.$config['name'];
         $Auth2 = new $class($config);
         if ($Auth2->destroyToken($this->token)) {
             $this->token = null;
@@ -672,7 +672,7 @@ class Model_Usuario extends \Model_App
      * Método que valida el estado del token con la autorización secundaria
      * @return =true si el token está liberado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-29
+     * @version 2015-05-04
      */
     public function checkToken()
     {
