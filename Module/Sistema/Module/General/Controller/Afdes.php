@@ -41,7 +41,7 @@ class Controller_Afdes extends \Controller_Maintainer
     public function beforeFilter()
     {
         $this->Auth->allowWithLogin('grafo');
-        parent::beforeRender();
+        parent::beforeFilter();
     }
 
     /**
@@ -86,7 +86,7 @@ class Controller_Afdes extends \Controller_Maintainer
      * Acción para editar un AFD
      * @param codigo Código del AFD a editar
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-19
+     * @version 2015-05-13
      */
     public function editar ($codigo)
     {
@@ -129,7 +129,7 @@ class Controller_Afdes extends \Controller_Maintainer
             $Afd->save();
             \sowerphp\core\Model_Datasource_Session::message('AFD <em>'.$Afd->nombre.'</em> editado', 'ok');
             $this->redirect(
-                $this->module_url.$this->request->params['controller'].'/listar'.$filterListar
+                $this->module_url.$this->request->params['controller'].'/editar/'.$codigo.(!empty($_GET['listar']) ? '?listar='.$_GET['listar'] : '')
             );
         }
     }

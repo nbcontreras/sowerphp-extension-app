@@ -164,10 +164,12 @@ class Model_Afd extends \Model_App
             $hastas[$i] = trim($hastas[$i]);
             if (!isset($desdes[$i][0]) or !isset($valores[$i][0]) or !isset($hastas[$i][0]))
                 continue;
-            $this->db->query(
-                'INSERT INTO afd_transicion VALUES (:afd, :desde, :valor, :hasta)',
-                [':afd'=>$this->codigo, ':desde'=>$desdes[$i], ':valor'=>$valores[$i], ':hasta'=>$hastas[$i]]
-            );
+            $AfdTransicion = new Model_AfdTransicion();
+            $AfdTransicion->afd = $this->codigo;
+            $AfdTransicion->desde = $desdes[$i];
+            $AfdTransicion->valor = $valores[$i];
+            $AfdTransicion->hasta = $hastas[$i];
+            $AfdTransicion->save();
         }
         $this->db->commit();
     }
