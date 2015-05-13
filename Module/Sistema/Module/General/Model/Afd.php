@@ -119,16 +119,15 @@ class Model_Afd extends \Model_App
      * @param codigo Arreglo con los códigos de los estados
      * @param nombres Arreglo con los nombres/glosas de los estados
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-19
+     * @version 2015-05-13
      */
     private function saveEstados($codigos, $nombres)
     {
-        // eliminar estados (se vuelven a insertar todos)
+        $this->db->beginTransaction();
         $this->db->query('
             DELETE FROM afd_estado
             WHERE afd = :afd
         ', [':afd'=>$this->codigo]);
-        // agregar estados
         $n = count($codigos);
         for ($i=0; $i<$n; $i++) {
             $codigos[$i] = trim($codigos[$i]);
@@ -140,6 +139,7 @@ class Model_Afd extends \Model_App
                 [':afd'=>$this->codigo, ':codigo'=>$codigos[$i], ':nombre'=>$nombres[$i]]
             );
         }
+        $this->db->commit();
     }
 
     /**
@@ -148,17 +148,15 @@ class Model_Afd extends \Model_App
      * @param valores Arreglo con los valores que hacen pasar desde "desde" a "hasta"
      * @param hastas Arreglo con los estados hasta
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-19
+     * @version 2015-05-13
      */
     private function saveTransiciones($desdes, $valores, $hastas)
     {
-        // eliminar transiciones (no deberían haber, por eliminación de estados
-        // pero se hace de todas formas)
+        $this->db->beginTransaction();
         $this->db->query('
             DELETE FROM afd_transicion
             WHERE afd = :afd
         ', [':afd'=>$this->codigo]);
-        // agregar transiciones
         $n = count($desdes);
         for ($i=0; $i<$n; $i++) {
             $desdes[$i] = trim($desdes[$i]);
@@ -171,6 +169,7 @@ class Model_Afd extends \Model_App
                 [':afd'=>$this->codigo, ':desde'=>$desdes[$i], ':valor'=>$valores[$i], ':hasta'=>$hastas[$i]]
             );
         }
+        $this->db->commit();
     }
 
     /**
