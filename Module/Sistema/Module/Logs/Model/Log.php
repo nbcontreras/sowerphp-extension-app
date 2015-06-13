@@ -192,7 +192,7 @@ class Model_Log extends \Model_App
 
     /**
      * Método que recupera el objeto de la gravedad
-     * @param facility Gravedad que se quiere obtener su objeto
+     * @param severity Gravedad que se quiere obtener su objeto
      * @return std_class
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2015-04-29
