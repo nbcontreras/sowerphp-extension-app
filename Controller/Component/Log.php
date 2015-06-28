@@ -39,7 +39,7 @@ namespace sowerphp\app;
  *  - LOG_LOCAL0 a LOG_LOCAL7: se dejarán para ser utilizados por cada aplicación
  *
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2015-05-04
+ * @version 2015-06-28
  */
 class Controller_Component_Log extends \sowerphp\core\Controller_Component
 {
@@ -57,6 +57,9 @@ class Controller_Component_Log extends \sowerphp\core\Controller_Component
             LOG_AUTH => [
                 LOG_ERR => ['db'],
                 LOG_INFO => ['db'],
+            ],
+            LOG_DAEMON => [
+                LOG_DEBUG => ['file'],
             ],
         ],
         'report_email' => [
@@ -335,6 +338,20 @@ class Controller_Component_Log extends \sowerphp\core\Controller_Component
         } else
             $this->Log->mensaje = $message;
         $this->Log->save();
+    }
+
+    /**
+     * Método que envía el registro a un archivo de texto
+     * @param message Mensaje que se desea reportar (puede ser un arreglo asociativo)
+     * @param facility Origen del envío
+     * @param severity Gravedad del registro
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-06-28
+     */
+    private function reportFile($message, $facility, $severity)
+    {
+        $log = TMP.'/log_'.$this->getFacility($facility).'_'.$this->getSeverity($severity).'_'.date('Ymd').'.log';
+        file_put_contents($log, $message."\n", FILE_APPEND);
     }
 
     /**
