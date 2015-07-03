@@ -59,12 +59,15 @@ abstract class Controller_Bot extends \Controller_App
 
     /**
      * Acción principal de la API, se encargará de llamar los comandos del Bot
+     * @param token Token del Bot de Telegra, permite validar que es Telegram quien escribe al Bot
      * @return Entrega el retorno entregado por el método del bot ejecutado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-07-01
+     * @version 2015-07-03
      */
-    public function _api_telegram_POST()
+    public function _api_telegram_POST($token)
     {
+        if ($token!=\sowerphp\core\Configure::read('telegram.default.token'))
+            $this->Api->send('Token del Bot de Telegram incorrecto', 401);
         $this->Bot = new \sowerphp\app\Utility_Bot_Telegram();
         return $this->run($this->Bot->getCommand());
     }
