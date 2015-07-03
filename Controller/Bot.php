@@ -228,14 +228,29 @@ abstract class Controller_Bot extends \Controller_App
      * @param keyboard Teclado que se quiere recuperar
      * @return Layout (arreglo) con el teclado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-06-28
+     * @version 2015-07-03
      */
-    protected function getKeyboard($keyboard)
+    protected function getKeyboard($keyboard, $cols = 2)
     {
-        if (method_exists($this, 'getKeyboard'.ucfirst($keyboard)))
-            return $this->{'getKeyboard'.ucfirst($keyboard)}();
-        else if (isset($this->keyboards[$keyboard]))
-            return $this->keyboards[$keyboard];
+        if (is_string($keyboard)) {
+            if (method_exists($this, 'getKeyboard'.ucfirst($keyboard)))
+                return $this->{'getKeyboard'.ucfirst($keyboard)}();
+            else if (isset($this->keyboards[$keyboard]))
+                return $this->keyboards[$keyboard];
+        }
+        else if (is_array($keyboard)) {
+            $kb = [];
+            $i = 0;
+            foreach ($keyboard as $option) {
+                if (is_array($option))
+                    $option = implode(' - ', $option);
+                if ($i%$cols==0)
+                    $kb[] = [];
+                $kb[(int)($i/$cols)][] = $option;
+                $i++;
+            }
+            return $kb;
+        }
         return false;
     }
 
