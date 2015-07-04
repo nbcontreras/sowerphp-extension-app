@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Clase para comunicación con Bot de Telegram
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2015-07-01
+ * @version 2015-07-04
  */
 class Utility_Bot_Telegram
 {
@@ -133,28 +133,97 @@ class Utility_Bot_Telegram
     }
 
     /**
+     * Método que prepara el teclado y lo entrega como objeto json
+     * @param keyboard Layout del teclado o bien arreglo con las opciones más el layout en índice keyboard
+     * @return Objeto json reply_markup con el teclado
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-07-04
+     */
+    private function getKeyboard($keyboard)
+    {
+        return json_encode(array_merge(
+            [
+                'resize_keyboard' => true,
+                'one_time_keyboard' => true,
+                'selective' => false,
+            ],
+            isset($keyboard['keyboard']) ? $keyboard : ['keyboard' => $keyboard]
+        ));
+    }
+
+    /**
      * Método que envía una respuesta a un usuario con un teclado personalizado
      * @param message Mensaje que se desea enviar al usuario
      * @param keyboard Layout, en arreglo, del teclado que se enviará
-     * @param options Opciones para el teclado
      * @param chat_id ID del chat con el usuario, sino se indica se asumirá es respuesta a mensaje previo enviado por usuario
      * @return Retorno de \sowerphp\core\Network_Http_Socket::post() con estado solicitud POST
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-06-29
+     * @version 2015-07-04
      */
-    public function sendKeyboard($message, $keyboard, $options = [], $chat_id = null)
+    public function sendKeyboard($message, $keyboard, $chat_id = null)
     {
-        $default = [
-            'resize_keyboard' => true,
-            'one_time_keyboard' => true,
-            'selective' => false,
-        ];
-        if (isset($keyboard['keyboard'])) {
-            $reply_markup = array_merge($default, $keyboard, $options);
-        } else {
-            $reply_markup = array_merge($default, ['keyboard' => $keyboard], $options);
+        return $this->send([
+            'text' => $message,
+            'reply_markup' => $this->getKeyboard($keyboard)
+        ], $chat_id);
+    }
+
+    /**
+     * Método que envía un archivo al usuario
+     * @param endpoint El método que se ejecutará en la API de Telegram
+     * @param params Arreglo con los datos que se enviarán
+     * @return Respuesta del método Network_Http_Socket::post()
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-07-04
+     */
+    private function uploadFile($endpoint, $params)
+    {
+        foreach ($params as $name => &$contents) {
+            if (is_file($contents)) {
+                $contents = curl_file_create(
+                    $contents,
+                    \sowerphp\general\Utility_File::mimetype($contents),
+                    basename($contents)
+                );
+            }
         }
-        return $this->send(['text'=>$message, 'reply_markup'=>json_encode($reply_markup)], $chat_id);
+        if (!$params['chat_id'])
+            $params['chat_id'] = $this->data->message->chat->id;
+        return $this->__call($endpoint, [$params]);
+    }
+
+    /**
+     * Método que envía una fotografía al usuario
+     * @param photo Ruta absoluta de la imagen que se desea enviar
+     * @param caption Texto a enviar junto con la imagen
+     * @param chat_id Identificador del chat al que se envía el mensaje
+     * @param reply_to_message_id ID de a quien se le está respondiendo
+     * @param reply_markup Opciones a enviar en el mensaje al usuario
+     * @return Retorno de Network_Http_Socket::post()
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-07-04
+     */
+    public function sendPhoto($photo, $caption = null, $chat_id = null, $reply_to_message_id = null, $reply_markup = null)
+    {
+        $this->sendChatAction('upload_photo', $chat_id);
+        if (is_array($photo))
+            return $this->__call('sendPhoto', $photo);
+        return $this->uploadFile('sendPhoto', compact('photo', 'caption', 'chat_id', 'reply_to_message_id', 'reply_markup'));
+    }
+
+    /**
+     * Método que envía una fotografía con un teclado al usuario
+     * @param photo Ruta absoluta de la imagen que se desea enviar
+     * @param keyboard Objeto JSON con el Layout y opciones del teclado
+     * @param caption Texto a enviar junto con la imagen
+     * @param chat_id Identificador del chat al que se envía el mensaje
+     * @return Retorno de Network_Http_Socket::post()
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-07-04
+     */
+    public function sendPhotoKeyboard($photo, $keyboard = [], $caption = null, $chat_id = null)
+    {
+        return $this->sendPhoto($photo, $caption, $chat_id, null, $this->getKeyboard($keyboard));
     }
 
     /**
@@ -179,7 +248,7 @@ class Utility_Bot_Telegram
      * @param args Argumentos que se enviarán al servidor de Telegram
      * @return Retorno de \sowerphp\core\Network_Http_Socket::post() con estado solicitud POST
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-07-01
+     * @version 2015-07-04
      */
     public function __call($method, $args = [])
     {
