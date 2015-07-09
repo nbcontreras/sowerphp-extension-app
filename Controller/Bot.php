@@ -58,6 +58,7 @@ abstract class Controller_Bot extends \Controller_App
     private $auto_previous_command = true; ///< ¿Colocar automáticamente el último comando usado?
     protected $keyboards = [
         'numbers' => [['1','2','3'], ['4','5','6'], ['7','8','9'], ['0']],
+        'like' => [["\xF0\x9F\x91\x8D", "\xF0\x9F\x91\x8E"]],
     ]; ///< Layouts de teclados
 
     /**
