@@ -28,7 +28,7 @@ namespace sowerphp\app;
  * Para usar con Telegram se debe configurar el webhook en la URL:
  *   https://api.telegram.org/bot<token>/setWebhook?url=https://example.com/api/bot/telegram
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2015-07-02
+ * @version 2015-07-08
  */
 abstract class Controller_Bot extends \Controller_App
 {
@@ -39,12 +39,15 @@ abstract class Controller_Bot extends \Controller_App
         'hello' => '¡Hola %s! ¿Qué necesitas?',
         'doNotUnderstand' => "No entiendo lo que me dices \xF0\x9F\x98\x9E Si necesitas ayuda dime /help",
         'helpMiss' => "No sé como explicar lo que puedo hacer por ti \xF0\x9F\x98\x85",
-        'settings' => "No tengo opciones que se puedan configurar \xF0\x9F\x98\x9E",
         'canceled' => "He cancelado lo último que estábamos haciendo \xF0\x9F\x91\x8D",
         'nothingToCancel' => "Aun no me has pedido algo, no sé que quieres cancelar \xF0\x9F\x98\x96",
         'doNotKnow' => "No sé que me estás pidiendo, no sé nada sobre /%s \xF0\x9F\x98\x95",
         'argsMiss' => "Por favor háblame claro \xF0\x9F\x98\x91 Dime lo que necesitas así:\n/%s %s",
         'whoami' => "%s \nUsuario: %s\nID: %s",
+        'settings' => [
+            'select' => 'Dime qué opción quieres configurar',
+            'miss' => "No tengo opciones que se puedan configurar \xF0\x9F\x98\x9E",
+        ],
         'support' => [
             'msg' => 'Dime el mensaje que quieres que envíe a mis creadores',
             'subject' => '@%s necesita ayuda con %s #%d',
@@ -289,12 +292,19 @@ abstract class Controller_Bot extends \Controller_App
      * Comando del Bot para mostrar un mensaje por defecto de no existencia de
      * opciones del bot
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-06-28
+     * @version 2015-07-08
      */
     protected function _bot_settings()
     {
         $this->Bot->sendChatAction();
-        $this->Bot->send(__($this->messages['settings']));
+        if (isset($this->settings) and is_array($this->settings) and !empty($this->settings)) {
+            $this->Bot->sendKeyboard(
+                __($this->messages['settings']['select']),
+                $this->getKeyboard($this->settings, 3)
+            );
+        } else {
+            $this->Bot->send(__($this->messages['settings']['miss']));
+        }
     }
 
     /**
