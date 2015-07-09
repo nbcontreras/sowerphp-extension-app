@@ -392,6 +392,29 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     }
 
     /**
+     * Obtiene la ubicación del usuario que accede al sitio, si está disponible
+     * GeoIP localmente en el servidor lo utilizará en caso contrario usará
+     * el servicio https://freegeoip.net (máximo de 10.000 consultas por hora)
+     * @return Arreglo con los datos de la ubicación del usuario
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-07-09
+     */
+    public function location()
+    {
+        $ip = $this->ip();
+        if (function_exists('geoip_record_by_name')) {
+            $location = @geoip_record_by_name($ip);
+        }
+        if (!isset($location)) {
+            $response = \sowerphp\core\Network_Http_Socket::get(
+                'https://freegeoip.net/json/'.$ip
+            );
+            $location = $response['status']['code']==200 ? (array)json_decode($response['body']) : false;
+        }
+        return $location;
+    }
+
+    /**
      * Método que guarda un evento en el log
      * @param message Mensaje del evento
      * @param severity Gravedad del evento
