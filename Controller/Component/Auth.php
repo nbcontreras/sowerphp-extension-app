@@ -218,7 +218,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
      * usuario (por defecto la web que se trata de acceder y el usuario
      * autenticado).
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-14
+     * @version 2015-08-12
      */
     public function check($recurso = false, $usuario = false)
     {
@@ -227,7 +227,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         if ($usuario)
             return (new $this->settings['model']($usuario))->auth($recurso);
         else
-            return $this->User->auth($recurso);
+            return $this->User ? $this->User->auth($recurso) : false;
     }
 
     /**
