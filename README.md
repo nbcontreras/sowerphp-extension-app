@@ -23,25 +23,25 @@ Componentes
 
 Componente para realizar autenticación y autorización en la aplicación:
 
-[Leer más sobre componente Auth](http://sowerphp.org/componentes/Auth)
+[Leer más sobre componente Auth](http://sowerphp.org/doc/componentes/Auth)
 
 ### Api
 
 Componente que se encarga de ejecutar las acciones de la API de la aplicación.
 
-[Leer más sobre componente Api](http://sowerphp.org/componentes/Api)
+[Leer más sobre componente Api](http://sowerphp.org/doc/componentes/Api)
 
 ### Log
 
 Componente que permite registrar eventos que suceden en la aplicación.
 
-[Leer más sobre componente Log](http://sowerphp.org/componentes/Log)
+[Leer más sobre componente Log](http://sowerphp.org/doc/componentes/Log)
 
 ### Notify
 
 Componente que permite enviar notificaciones a usuarios.
 
-[Leer más sobre componente Notify](http://sowerphp.org/componentes/Notify)
+[Leer más sobre componente Notify](http://sowerphp.org/doc/componentes/Notify)
 
 Módulos
 -------
@@ -53,7 +53,7 @@ una ejecución de cualquier consulta en la base de datos vía web o poder
 descargar el diccionario de datos de la base de datos.
 
 Este módulo es cargado automáticamente cuando el sistema está en [ambiente de
-desarrollo](http://sowerphp.org/general/ambiente_desarrollo).
+desarrollo](http://sowerphp.org/doc/general/ambiente_desarrollo).
 
 ### Sistema.Enlaces
 
