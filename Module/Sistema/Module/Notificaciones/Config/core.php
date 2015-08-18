@@ -21,25 +21,21 @@
  * En caso contrario, consulte <http://www.gnu.org/licenses/gpl.html>.
  */
 
-// ruta para documentación
-\sowerphp\core\Routing_Router::connect('/documentacion/*', [
-    'controller' => 'documentacion',
-    'action' => 'index',
-]);
-
-// rutas para servicios web
-\sowerphp\core\Routing_Router::connect('/api/:controller/*', [
-    'action' => 'api',
-]);
-\sowerphp\core\Routing_Router::connect('/api/sistema/logs/:controller/*', [
-    'module' => 'Sistema.Logs',
-    'action' => 'api',
-]);
-\sowerphp\core\Routing_Router::connect('/api/sistema/notificaciones/:controller/*', [
-    'module' => 'Sistema.Notificaciones',
-    'action' => 'api',
-]);
-\sowerphp\core\Routing_Router::connect('/api/sistema/usuarios/:controller/*', [
-    'module' => 'Sistema.Usuarios',
-    'action' => 'api',
-]);
+// Menú para el módulo
+Configure::write('nav.module', array(
+    '/notificaciones' => array(
+        'name' => 'Mis notificaciones',
+        'desc' => '',
+        'icon' => 'fa fa-bell-o',
+    ),
+    '/notificaciones/enviar' => array(
+        'name' => 'Enviar notificación',
+        'desc' => '',
+        'icon' => 'fa fa-bell-o',
+    ),
+    '/notificaciones/listar' => array(
+        'name' => 'Mantenedor de notificaciones',
+        'desc' => '',
+        'icon' => 'fa fa-bell-o',
+    ),
+));
