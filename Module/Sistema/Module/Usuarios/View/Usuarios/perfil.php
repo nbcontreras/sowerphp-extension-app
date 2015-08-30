@@ -19,7 +19,9 @@ $(function() {
     </ul>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="datos">
-            <p>Aquí puede modificar los datos de su usuario.</p>
+            <div class="row">
+                <div class="col-sm-9">
+                    <p>Aquí puede modificar los datos de su usuario.</p>
 <?php
 $form = new \sowerphp\general\View_Helper_Form();
 echo $form->begin(array(
@@ -76,6 +78,13 @@ echo $form->end(array(
     'value' => 'Guardar cambios',
 ));
 ?>
+                </div>
+                <div class="col-sm-3">
+                    <a href="https://gravatar.com" title="Imagen en Gravatar">
+                        <img src="<?=$_Auth->User->getAvatar(200)?>" alt="Avatar" class="center img-responsive thumbnail" />
+                    </a>
+                </div>
+            </div>
         </div>
         <div role="tabpanel" class="tab-pane" id="contrasenia">
             <p>A través del siguiente formulario puede cambiar su contraseña.</p>

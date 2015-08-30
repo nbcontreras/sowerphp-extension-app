@@ -746,4 +746,15 @@ class Model_Usuario extends \Model_App
         return $this->email;
     }
 
+    /**
+     * Método que entrega la URL del avatar del usuario
+     * @param size Tamaño de la imagen en pixeles (un sólo lado ya que es cuadrada)
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-08-29
+     */
+    public function getAvatar($size = 80)
+    {
+        return 'https://gravatar.com/avatar/'.md5(strtolower(trim($this->email))).'?size='.(int)$size;
+    }
+
 }
