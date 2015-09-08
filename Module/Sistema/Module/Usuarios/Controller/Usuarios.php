@@ -222,7 +222,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para crear un nuevo usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-03-23
+     * @version 2015-09-07
      */
     public function crear()
     {
@@ -281,7 +281,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     }
                     // enviar correo
                     $emailConfig = \sowerphp\core\Configure::read('email.default');
-                    if (!empty($emailConfig['type']) && !empty($emailConfig['type']) && !empty($emailConfig['pass'])) {
+                    if (!empty($emailConfig['type']) && !empty($emailConfig['user']) && !empty($emailConfig['pass'])) {
                         $layout = $this->layout;
                         $this->layout = null;
                         $this->set(array(
@@ -330,7 +330,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para editar un nuevo usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-03-23
+     * @version 2015-09-07
      */
     public function editar($id)
     {
@@ -401,7 +401,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             // enviar correo solo si el usuario estaba inactivo y ahora está activo
             if (!$activo and $Usuario->activo) {
                 $emailConfig = \sowerphp\core\Configure::read('email.default');
-                    if (!empty($emailConfig['type']) && !empty($emailConfig['type']) && !empty($emailConfig['pass'])) {
+                    if (!empty($emailConfig['type']) && !empty($emailConfig['user']) && !empty($emailConfig['pass'])) {
                     $layout = $this->layout;
                     $this->layout = null;
                     $this->set([
@@ -585,7 +585,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción que permite registrar un nuevo usuario en la aplicación
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-03-23
+     * @version 2015-09-07
      */
     public function registrar()
     {
@@ -678,7 +678,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     $Usuario->saveGroups($config['groups']);
                 // enviar correo
                 $emailConfig = \sowerphp\core\Configure::read('email.default');
-                if (!empty($emailConfig['type']) && !empty($emailConfig['type']) && !empty($emailConfig['pass'])) {
+                if (!empty($emailConfig['type']) && !empty($emailConfig['user']) && !empty($emailConfig['pass'])) {
                     $layout = $this->layout;
                     $this->layout = null;
                     $this->set([
