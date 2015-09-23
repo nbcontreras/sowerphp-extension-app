@@ -42,7 +42,7 @@ class Controller_Component_Notify extends \sowerphp\core\Controller_Component
      * @param message Mensaje que se desea registrar o arreglo con el mensaje y su configuración
      * @param methods Métodos que se deberán utilizar para notificar a los destinatarios
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-05-06
+     * @version 2015-09-23
      */
     public function send($from, $to, $message, $methods = 'db')
     {
@@ -60,10 +60,13 @@ class Controller_Component_Notify extends \sowerphp\core\Controller_Component
         if (!is_array($methods)) {
             $methods = [$methods];
         }
+        $status = true;
         foreach ($methods as $method) {
             $method = 'send'.ucfirst($method);
-            $this->$method($from, $to, $message);
+            if (!$this->$method($from, $to, $message))
+                $status = false;
         }
+        return $status;
     }
 
     /**
@@ -72,28 +75,32 @@ class Controller_Component_Notify extends \sowerphp\core\Controller_Component
      * @param to A quien va dirigida la notificación (un arreglo sin son varios usuarios)
      * @param message Mensaje que se desea registrar o arreglo con el mensaje y su configuración
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-05-05
+     * @version 2015-09-23
      */
     private function sendDb($from, $to, $message)
     {
         if (!\sowerphp\core\Module::loaded('Sistema.Notificaciones'))
-            return;
+            return false;
         $Notificacion = new \sowerphp\app\Sistema\Notificaciones\Model_Notificacion();
         foreach ($message as $key => $value)
             $Notificacion->$key = $value;
         $Notificacion->de = $from ? $from->id : null;
+        $status = true;
         foreach ($to as $user) {
             $Notificacion->para = $user->id;
-            $Notificacion->save();
+            if (!$Notificacion->save())
+                $status = false;
         }
+        return $status;
     }
 
     /**
      * Método que envía la notificación por email
+     * @param from ID del usuario que envía el mensaje o bien null para que lo envíe el sistema
+     * @param to ID del usuario que recibe el mensaje
      * @param message Mensaje que se desea reportar (puede ser un arreglo asociativo)
-     * @param severity Gravedad del registro
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-08-18
+     * @version 2015-09-23
      */
     private function sendEmail($from, $to, $message)
     {
@@ -126,7 +133,7 @@ class Controller_Component_Notify extends \sowerphp\core\Controller_Component
         }
         $msg .= $this->controller->request->url;
         // enviar email
-        $email->send($msg);
+        return $email->send($msg) === true ? true : false;
     }
 
     /**
