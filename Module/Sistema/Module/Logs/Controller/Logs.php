@@ -48,6 +48,53 @@ class Controller_Logs extends \Controller_Maintainer
     }
 
     /**
+     * Acción para buscar logs de un usuario en particular
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-09-23
+     */
+    public function buscar()
+    {
+        if (isset($_POST['submit'])) {
+            // crear usuario y verificar que exista
+            $Usuario = new \sowerphp\app\Sistema\Usuarios\Model_Usuario($_POST['usuario']);
+            if (!$Usuario->exists()) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Usuario solicitado no existe', 'error'
+                );
+                return;
+            }
+            // buscar eventos
+            $eventos = [];
+            $Logs = new Model_Logs();
+            $Logs->setOrderByStatement('id DESC');
+            $where = ['usuario = :usuario'];
+            $vars = [':usuario' => $Usuario->id];
+            if (!empty($_POST['desde'])) {
+                $where[] = 'fechahora >= :desde';
+                $vars[':desde'] = $_POST['desde'];
+            }
+            if (!empty($_POST['hasta'])) {
+                $where[] = 'fechahora <= :hasta';
+                $vars[':hasta'] = $_POST['hasta'].' 23:59:59';
+            }
+            $Logs->setWhereStatement($where, $vars);
+            $logs = $Logs->getObjects();
+            foreach ($logs as $Log) {
+                $eventos[] = [
+                    $Log->fechahora,
+                    $Log->getFacility()->glosa.'.'.$Log->getSeverity()->glosa,
+                    $Log->usuario ? ($Log->getUsuario()->usuario.'<br/><span>'.$Log->ip.'</span>') : $Log->ip,
+                    strlen($Log->mensaje)>100 ? substr($Log->mensaje, 0, 100).'...': $Log->mensaje,
+                    '<button type="button" class="btn btn-'.$Log->getSeverity()->style.'" data-toggle="modal" data-target="#modal-log" data-log_id="'.$Log->id.'" title="Ver detalle del evento"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>',
+                ];
+            }
+            $this->set([
+                'eventos' => $eventos
+            ]);
+        }
+    }
+
+    /**
      * Acción de la API para obtener listado de logs o un log en particular
      * @param id ID del Log en caso que se desee obtener uno en particular
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)

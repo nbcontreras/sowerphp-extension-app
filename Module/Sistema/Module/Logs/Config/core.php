@@ -26,6 +26,11 @@ Configure::write('nav.module', array(
     '/logs/online' => array(
         'name' => 'Visor en línea',
         'desc' => 'Visualización en línea de eventos registrados por el sistema',
-        'imag' => '/sistema/logs/img/icons/48x48/logs.png',
+        'icon' => 'fa fa-history',
+    ),
+    '/logs/buscar' => array(
+        'name' => 'Buscar por usuario',
+        'desc' => 'Visualización de eventos registrados por el sistema de un usuario específico',
+        'icon' => 'fa fa-search',
     ),
 ));
