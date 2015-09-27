@@ -56,4 +56,18 @@ class Model_Comunas extends \Model_Plural_App
         ');
     }
 
+    /**
+     * Método que recupera el código de una comuna a partir de su nombre
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2015-09-27
+     */
+    public function getComunaByName($nombre)
+    {
+        $this->setWhereStatement(['UPPER(comuna) = :comuna'], [':comuna'=>strtoupper($nombre)]);
+        $comunas = $this->getObjects();
+        if ($comunas and isset($comunas[0]))
+            return $comunas[0]->codigo;
+        return false;
+    }
+
 }
