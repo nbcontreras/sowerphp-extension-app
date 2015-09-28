@@ -82,9 +82,9 @@ abstract class Controller_Bot extends \Controller_App
      * @param command String completo con el comando y sus argumentos
      * @return Entrega el retorno entregado por el método del bot ejecutado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-07-01
+     * @version 2015-09-28
      */
-    private function run($command)
+    protected function run($command)
     {
         if (!$command)
             return false;
