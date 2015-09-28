@@ -66,14 +66,21 @@ abstract class Controller_Bot extends \Controller_App
      * @param id_bot ID del Bot de Telegram, permite validar que es Telegram quien escribe al Bot
      * @return Entrega el retorno entregado por el método del bot ejecutado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-07-22
+     * @version 2015-09-28
      */
     public function _api_telegram_POST($id_bot)
     {
-        $token = \sowerphp\core\Configure::read('telegram.default.token');
-        if ($id_bot!=explode(':', $token)[0])
+        $telegram = \sowerphp\core\Configure::read('telegram');
+        $config = false;
+        foreach ($telegram as $c) {
+            if (isset($c['bot']) and $id_bot==explode(':', $c['token'])[0]) {
+                $config = $c;
+                break;
+            }
+        }
+        if (!$config)
             $this->Api->send('ID del Bot de Telegram incorrecto', 401);
-        $this->Bot = new \sowerphp\app\Utility_Bot_Telegram();
+        $this->Bot = new \sowerphp\app\Utility_Bot_Telegram($config);
         return $this->run($this->Bot->getCommand());
     }
 
