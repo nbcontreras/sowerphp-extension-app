@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Clase para comunicación con Bot de Telegram
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2015-07-04
+ * @version 2015-10-12
  */
 class Utility_Bot_Telegram
 {
@@ -240,6 +240,45 @@ class Utility_Bot_Telegram
             'chat_id' => $chat_id ? $chat_id : $this->data->message->chat->id,
             'action' => $action,
         ]]);
+    }
+
+    /**
+     * Método que obtiene la información de un archivo para descargar
+     * @param file_id ID del archivo que se desea obtener su información para descargar
+     * @return Retorno de \sowerphp\core\Network_Http_Socket::post() con estado solicitud POST
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-10-12
+     */
+    public function getFile($file_id)
+    {
+        return $this->__call('getFile', [['file_id' => $file_id,]]);
+    }
+
+    /**
+     * Método que descarga un archivo desde el servidor de telegram
+     * @param file_id ID del archivo que se desea descargar
+     * @return Arreglo con los índices: id, name, size, path y data
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2015-10-12
+     */
+    public function downloadFile($file_id)
+    {
+        $response = $this->getFile($file_id);
+        if (!$response or $response['status']['code']!=200)
+            return false;
+        $body = json_decode($response['body']);
+        if (!$body->ok)
+            return false;
+        $file = [
+            'id' => $body->result->file_id,
+            'size' => $body->result->file_size,
+            'path' => $body->result->file_path,
+        ];
+        $url = 'https://api.telegram.org/file/bot'.$this->config['token'].'/'.$file['path'];
+        $file['data'] = file_get_contents($url);
+        if ($file['data']===false)
+            return false;
+        return $file;
     }
 
     /**
