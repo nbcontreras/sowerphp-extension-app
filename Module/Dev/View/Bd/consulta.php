@@ -18,6 +18,13 @@ echo $f->input([
     'help'=>'Consulta SQL que se desea ejecutar en la base de datos seleccionada',
     'rows'=>10,
 ]);
+echo $f->input([
+    'type'=>'select',
+    'name'=>'resultados',
+    'label'=>'Resultados',
+    'options'=>['web'=>'Ver resultados en la aplicación', 'download'=>'Descargar archivo con los datos'],
+    'check'=>'notempty',
+]);
 echo $f->end('Ejecutar consulta SQL');
 
 if (isset($data)) {

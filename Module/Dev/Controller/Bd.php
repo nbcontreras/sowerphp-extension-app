@@ -231,16 +231,22 @@ class Controller_Bd extends \Controller_App
     /**
      * Acción para ejecutar una consulta SQL en una de las bases de datos
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-08-05
+     * @version 2015-10-07
      */
     public function consulta()
     {
         if (isset($_POST['submit'])) {
+            ini_set('memory_limit', '1024M');
             $db = &\sowerphp\core\Model_Datasource_Database::get ($_POST['database']);
-            $this->set([
-                'data' => $db->getTableWithColsNames($_POST['query']),
-                'database' => $_POST['database']
-            ]);
+            $data = $db->getTableWithColsNames($_POST['query']);
+            if ($_POST['resultados']=='web') {
+                $this->set([
+                    'data' => $data,
+                    'database' => $_POST['database']
+                ]);
+            } else {
+                \sowerphp\general\Utility_Spreadsheet_CSV::generate($data, 'query_'.$_POST['database'].'_'.date('U'));
+            }
         }
         // setear listado de bases de datos
         $this->_setDatabases();
