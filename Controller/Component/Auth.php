@@ -163,6 +163,18 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     }
 
     /**
+     * Método que permite determinar si la acción solicitada del controlador
+     * puede o no ser ejecutada sin estar con una sesión activa
+     * @return =true si la acción del controlador se puede ejecutar sin tener sesión creada
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2014-03-22
+     */
+    public function allowedWithoutLogin()
+    {
+        return in_array($this->controller->request->params['action'], $this->allowedActions);
+    }
+
+    /**
      * Método para determinar si un usuario está o no autorizado a un área
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-03-29
