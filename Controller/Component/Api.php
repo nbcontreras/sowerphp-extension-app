@@ -130,12 +130,12 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * @param data Datos que se enviarán
      * @param status Estado HTTP de resultado de la ejecución de la funcionalidad
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-09-10
+     * @version 2015-12-30
      */
-    public function send($data, $status = 200)
+    public function send($data, $status = 200, $options = 0)
     {
         $this->controller->response->status($status);
-        $this->controller->response->send(json_encode($data)."\n");
+        $this->controller->response->send(json_encode($data, $options)."\n");
     }
 
     /**
