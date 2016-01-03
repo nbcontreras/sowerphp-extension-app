@@ -61,13 +61,16 @@ class View_Helper_Maintainer extends \sowerphp\general\View_Helper_Table
      * @param data Registros que se deben renderizar
      * @param pages Cantidad total de páginas que tienen los registros
      * @param page Página que se está revisando o 0 para no usar el paginador
+     * @param create =true se agrega icono para crear registro
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-11
+     * @version 2016-01-03
      */
-    public function listar ($data, $pages = 1, $page = 1)
+    public function listar ($data, $pages = 1, $page = 1, $create = true)
     {
         $buffer = $this->form->begin(array('onsubmit'=>'buscar(this)'))."\n";
-        $buffer .= '<div style="float:left"><a href="'.$this->options['link'].'/crear'.$this->options['listarFilterUrl'].'" title="Crear nuevo registro" style="font-size:16px"><span class="glyphicon glyphicon-plus btn btn-default" aria-hidden="true"></span></a></div>'."\n";
+        if ($create) {
+            $buffer .= '<div style="float:left"><a href="'.$this->options['link'].'/crear'.$this->options['listarFilterUrl'].'" title="Crear nuevo registro" style="font-size:16px"><span class="glyphicon glyphicon-plus btn btn-default" aria-hidden="true"></span></a></div>'."\n";
+        }
         if ($page)
             $buffer .= $this->paginator ($pages, $page)."\n";
         $buffer .= parent::generate ($data, $this->options['thead']);
