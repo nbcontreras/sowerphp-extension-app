@@ -86,4 +86,23 @@ class Model_Usuarios extends \Model_Plural_App
         ', [':grupo'=>$grupo]);
     }
 
+    /**
+     * Método que entrega una estadística mensual con los usuarios que iniciaron
+     * sesión por última vez
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-01-04
+     */
+    public function getStatsLogin($limit = 12)
+    {
+        $mes = $this->db->config['type']=='PostgreSQL' ? 'TO_CHAR(ultimo_ingreso_fecha_hora, \'YYYY-MM\')' : 'DATE_FORMAT(ultimo_ingreso_fecha_hora, "%Y-%m")';
+        return $this->db->getTable('
+            SELECT '.$mes.' AS mes, COUNT(*) AS usuarios
+            FROM usuario
+            WHERE ultimo_ingreso_fecha_hora IS NOT NULL
+            GROUP BY '.$mes.'
+            ORDER BY '.$mes.'
+            LIMIT '.$limit.'
+        ');
+    }
+
 }
