@@ -21,6 +21,6 @@
         "vendor-dir": "Vendor"
     },
     "require": {
-        "php": "~5.5"
+        "php": ">=5.5"
     }
 }
