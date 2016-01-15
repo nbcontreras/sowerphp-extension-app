@@ -550,7 +550,7 @@ class Model_Usuario extends \Model_App
      * permisos para acceder.
      * @return Arreglo asociativo con el GID como clave y el nombre del grupo como valor
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-09-30
+     * @version 2016-01-15
      */
     public function auths()
     {
@@ -558,8 +558,8 @@ class Model_Usuario extends \Model_App
             $this->auths = $this->db->getCol('
                 SELECT a.recurso
                 FROM auth AS a, usuario_grupo AS ug, grupo AS g
-                WHERE ug.usuario = :usuario AND a.grupo = ug.grupo AND ug.grupo = g.id AND g.activo = true
-            ', [':usuario'=>$this->id]);
+                WHERE ug.usuario = :usuario AND a.grupo = ug.grupo AND ug.grupo = g.id AND g.activo = :activo
+            ', [':usuario'=>$this->id, ':activo'=>true]);
         }
         return $this->auths;
     }
