@@ -245,9 +245,9 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que realiza el login del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-04-28
+     * @version 2016-01-16
      */
-    public function login ($usuario, $contrasenia)
+    public function login($usuario, $contrasenia)
     {
         // crear objeto del usuario con el nombre de usuario entregado
         $this->User = new $this->settings['model']($usuario);
@@ -279,20 +279,16 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         // si ya hubo un intento de login fallido entonces se pedirá captcha
         $private_key = \sowerphp\core\Configure::read('recaptcha.private_key');
         if ($this->settings['maxLoginAttempts'] and $this->User->contrasenia_intentos<$this->settings['maxLoginAttempts'] and $private_key!==null) {
-            if (empty($_POST['recaptcha_challenge_field']) or empty($_POST['recaptcha_response_field'])) {
+            if (empty($_POST['g-recaptcha-response'])) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     sprintf($this->settings['messages']['error']['recaptcha_required'], $usuario),
                     'warning'
                 );
                 return;
             }
-            $resp = recaptcha_check_answer(
-                $private_key,
-                $_SERVER['REMOTE_ADDR'],
-                $_POST['recaptcha_challenge_field'],
-                $_POST['recaptcha_response_field']
-            );
-            if (!$resp->is_valid) {
+            $recaptcha = new \ReCaptcha\ReCaptcha($private_key);
+            $resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+            if (!$resp->isSuccess()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     sprintf($this->settings['messages']['error']['recaptcha_invalid'], $usuario),
                     'error'

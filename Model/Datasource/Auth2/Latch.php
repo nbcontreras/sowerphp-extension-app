@@ -24,16 +24,11 @@
 // namespace del modelo
 namespace sowerphp\app;
 
-// Incluir biblioteca
-\sowerphp\core\App::import('Vendor/elevenpaths/latch-sdk-php/src/Latch');
-\sowerphp\core\App::import('Vendor/elevenpaths/latch-sdk-php/src/Response');
-\sowerphp\core\App::import('Vendor/elevenpaths/latch-sdk-php/src/Error');
-
 /**
  * Wrapper para la autorización secundaria usando Latch
  * Requiere (en Debian GNU/Linux) paquete: php5-curl
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-12-29
+ * @version 2016-01-16
  */
 class Model_Datasource_Auth2_Latch
 {

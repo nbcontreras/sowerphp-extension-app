@@ -60,7 +60,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * Acción para que un usuario ingrese al sistema (inicie sesión)
      * @param redirect Ruta (en base64) de hacia donde hay que redireccionar una vez se autentica el usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-11-19
+     * @version 2016-01-16
      */
     public function ingresar ($redirect = null)
     {
@@ -78,6 +78,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         $this->set([
             'redirect' => $redirect ? base64_decode ($redirect) : null,
             'self_register' => (boolean)\sowerphp\core\Configure::read('app.self_register'),
+            'language' => \sowerphp\core\Configure::read('language'),
         ]);
         // procesar inicio de sesión
         if (isset($_POST['submit'])) {
@@ -90,9 +91,6 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             // realizar proceso de validación de datos
             else {
                 $public_key = \sowerphp\core\Configure::read('recaptcha.public_key');
-                if ($public_key) {
-                    \sowerphp\core\App::import('Vendor/google/recaptcha/recaptchalib');
-                }
                 $this->Auth->login($_POST['usuario'], $_POST['contrasenia']);
                 if ($this->Auth->User->contrasenia_intentos and $this->Auth->User->contrasenia_intentos<$this->Auth->settings['maxLoginAttempts']) {
                     $this->set('public_key', $public_key);
@@ -585,7 +583,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción que permite registrar un nuevo usuario en la aplicación
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-09-07
+     * @version 2016-01-16
      */
     public function registrar()
     {
@@ -612,8 +610,10 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         // colocar variable para captcha (si está configurado)
         $public_key = \sowerphp\core\Configure::read('recaptcha.public_key');
         if ($public_key) {
-            \sowerphp\core\App::import('Vendor/google/recaptcha/recaptchalib');
-            $this->set('public_key', $public_key);
+            $this->set([
+                'public_key' => $public_key,
+                'language' => \sowerphp\core\Configure::read('language'),
+            ]);
         }
         // si se envió formulario se procesa
         if (isset($_POST['submit'])) {
@@ -645,20 +645,16 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             // si existe la configuración para recaptcha se debe validar
             $private_key = \sowerphp\core\Configure::read('recaptcha.private_key');
             if ($private_key) {
-                if (empty($_POST['recaptcha_challenge_field']) or empty($_POST['recaptcha_response_field'])) {
+                if (empty($_POST['g-recaptcha-response'])) {
                     \sowerphp\core\Model_Datasource_Session::message(
                         'Se requiere Captcha para poder registrar un nuevo usuario',
                         'warning'
                     );
                     return;
                 }
-                $resp = recaptcha_check_answer(
-                    $private_key,
-                    $_SERVER['REMOTE_ADDR'],
-                    $_POST['recaptcha_challenge_field'],
-                    $_POST['recaptcha_response_field']
-                );
-                if (!$resp->is_valid) {
+                $recaptcha = new \ReCaptcha\ReCaptcha($private_key);
+                $resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+                if (!$resp->isSuccess()) {
                     \sowerphp\core\Model_Datasource_Session::message(
                         'Captcha incorrecto', 'error'
                     );

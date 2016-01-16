@@ -22,10 +22,12 @@ echo $form->input([
     'help'=>'La contraseña será enviada a su email'
 ]);
 if (!empty($public_key)) {
+    $captcha = '<div class="g-recaptcha" data-sitekey="'.$public_key.'"></div>';
+    $captcha .= '<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl='.$language.'"></script>';
     echo $form->input([
         'type'=>'div',
         'label'=>'Captcha',
-        'value'=>recaptcha_get_html($public_key, null, true),
+        'value'=>$captcha,
         'check'=>'notempty',
     ]);
 }
