@@ -26,11 +26,11 @@
     '/enlaces/listar' => array(
         'name' => 'Enlaces',
         'desc' => 'Mantenedor de enlaces',
-        'imag' => '/sistema/enlaces/img/icons/48x48/enlaces.png',
+        'icon' => 'fa fa-link',
     ),
     '/enlace_categorias/listar' => array(
         'name' => 'Categorías de enlaces',
         'desc' => 'Mantenedor de categorías de enlaces',
-        'imag' => '/sistema/enlaces/img/icons/48x48/enlaces.png',
+        'icon' => 'fa fa-list',
     ),
 ));

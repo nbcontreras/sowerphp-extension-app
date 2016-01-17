@@ -26,6 +26,6 @@
     '/usuarios' => array(
         'name' => 'Usuarios',
         'desc' => 'Mantenedor de usuarios y grupos del sistema',
-        'imag' => '/sistema/usuarios/img/icons/48x48/grupo.png',
+        'icon' => 'fa fa-users',
     ),
 ));

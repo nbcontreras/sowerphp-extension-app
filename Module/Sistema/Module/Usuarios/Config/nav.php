@@ -26,26 +26,26 @@
     '/usuarios/listar?search=activo:1' => array(
         'name' => 'Usuarios',
         'desc' => 'Usuarios del sistema',
-        'imag' => '/sistema/usuarios/img/icons/48x48/usuario.png',
+        'icon' => 'fa fa-user',
     ),
     '/grupos/listar' => array(
         'name' => 'Grupos',
         'desc' => 'Grupos del sistema',
-        'imag' => '/sistema/usuarios/img/icons/48x48/grupo.png',
+        'icon' => 'fa fa-users',
     ),
     '/usuario_grupos/listar' => array(
         'name' => 'Usuarios y grupos',
         'desc' => 'Pertenencia de usuarios a grupos',
-        'imag' => '/sistema/usuarios/img/icons/48x48/grupo.png',
+        'icon' => 'fa fa-users',
     ),
     '/auths/listar' => array(
         'name' => 'Autorización',
         'desc' => 'Autorización y control de acceso sobre recursos',
-        'imag' => '/sistema/usuarios/img/icons/48x48/auth.png',
+        'icon' => 'fa fa-lock',
     ),
     '/email/grupos' => array(
         'name' => 'Enviar email a grupos',
         'desc' => 'Enviar correo electrónico a todos los usuarios de uno o varios grupos',
-        'imag' => '/sistema/usuarios/img/icons/48x48/email.png',
+        'icon' => 'fa fa-send',
     ),
 ));

@@ -25,14 +25,14 @@
 Configure::write('nav.module', array(
     '/comunas/listar' => array(
         'name' => 'Comunas',
-        'imag' => '/sistema/general/division_geopolitica/img/icons/48x48/comuna.png',
+        'icon' => 'fa fa-map-marker',
     ),
     '/provincias/listar' => array(
         'name' => 'Provincias',
-        'imag' => '/sistema/general/division_geopolitica/img/icons/48x48/provincia.png',
+        'icon' => 'fa fa-map',
     ),
     '/regiones/listar' => array(
         'name' => 'Regiones',
-        'imag' => '/sistema/general/division_geopolitica/img/icons/48x48/region.png',
+        'icon' => 'fa fa-globe',
     ),
 ));

@@ -24,7 +24,7 @@
 /**
  * @file core.php
  * Configuración del módulo
- * @version 2014-08-05
+ * @version 2016-01-17
  */
 
 // Menú para el módulo
@@ -32,21 +32,21 @@
     '/bd/tablas' => array(
         'name' => 'Listado de tablas',
         'desc' => 'Información de las tablas de la base de datos',
-        'imag' => '/dev/img/icons/48x48/database.png',
+        'icon' => 'fa fa-database',
     ),
     '/bd/poblar' => array(
         'name' => 'Poblar tablas',
         'desc' => 'Cargar datos a tablas de la base de datos',
-        'imag' => '/img/icons/48x48/subir.png',
+        'icon' => 'fa fa-upload',
     ),
     '/bd/descargar' => array(
         'name' => 'Descargar datos de tablas',
         'desc' => 'Descargar datos de tablas de la base de datos',
-        'imag' => '/img/icons/48x48/descargar.png',
+        'icon' => 'fa fa-download',
     ),
     '/bd/consulta' => array(
         'name' => 'Ejecutar consulta',
         'desc' => 'Ejecutar consulta SQL en la base de datos',
-        'imag' => '/dev/img/icons/48x48/sql.png',
+        'icon' => 'fa fa-code',
     ),
 ));
