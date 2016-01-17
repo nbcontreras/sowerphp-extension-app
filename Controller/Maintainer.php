@@ -292,7 +292,7 @@ class Controller_Maintainer extends \Controller_App
      * Acción para eliminar un registro de la tabla
      * @param pk Parámetro que representa la PK, pueden ser varios parámetros los pasados
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-09-15
+     * @version 2016-01-16
      */
     public function eliminar ($pk)
     {
@@ -316,10 +316,16 @@ class Controller_Maintainer extends \Controller_App
                 $this->module_url.$this->request->params['controller'].'/listar'.$filterListar
             );
         }
-        $Obj->delete();
-        \sowerphp\core\Model_Datasource_Session::message(
-            'Registro ('.implode(', ', func_get_args()).') eliminado', 'ok'
-        );
+        try {
+            $Obj->delete();
+            \sowerphp\core\Model_Datasource_Session::message(
+                'Registro ('.implode(', ', func_get_args()).') eliminado', 'ok'
+            );
+        } catch (\sowerphp\core\Exception_Model_Datasource_Database $e) {
+            \sowerphp\core\Model_Datasource_Session::message(
+                'No se pudo eliminar el registro ('.implode(', ', func_get_args()).'): '.$e->getMessage(), 'error'
+            );
+        }
         $this->redirect(
             $this->module_url.$this->request->params['controller'].'/listar'.$filterListar
         );
