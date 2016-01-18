@@ -14,7 +14,9 @@ $(function() {
         <li role="presentation" class="active"><a href="#datos" aria-controls="datos" role="tab" data-toggle="tab">Datos personales</a></li>
         <li role="presentation"><a href="#contrasenia" aria-controls="contrasenia" role="tab" data-toggle="tab">Contraseña</a></li>
         <li role="presentation"><a href="#grupos" aria-controls="grupos" role="tab" data-toggle="tab">Grupos</a></li>
+<?php if ($auth2) : ?>
         <li role="presentation"><a href="#auth2" aria-controls="auth2" role="tab" data-toggle="tab">Auth2</a></li>
+<?php endif; ?>
         <li role="presentation"><a href="#qr" aria-controls="qr" role="tab" data-toggle="tab">QR</a></li>
     </ul>
     <div class="tab-content">
@@ -134,9 +136,9 @@ if ($grupos) {
 }
 ?>
         </div>
-        <div role="tabpanel" class="tab-pane" id="auth2">
 <?php
 if ($auth2) {
+    echo '<div role="tabpanel" class="tab-pane" id="auth2">',"\n";
     if (!isset($_Auth->User->token[0])) {
         echo '<p>Aquí podrá crear su token para autorizar el ingreso a la aplicación con el sistema secundario <a href="',$auth2['url'],'" target="_blank">',$auth2['name'],'</a>.</p>',"\n";
         echo $form->begin([
@@ -163,9 +165,9 @@ if ($auth2) {
             'value' => 'Destruir token',
         ]);
     }
+    echo '</div>',"\n";
 }
 ?>
-        </div>
         <div role="tabpanel" class="tab-pane" id="qr">
             <p>El siguiente código QR provee la dirección de la aplicación junto con su <em>hash</em> de usuario para autenticación.</p>
             <div style="text-align:center">
