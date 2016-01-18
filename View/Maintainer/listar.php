@@ -103,6 +103,6 @@ $maintainer = new \sowerphp\app\View_Helper_Maintainer ([
     'linkEnd' => $linkEnd,
     'listarFilterUrl' => $listarFilterUrl
 ]);
-$maintainer->setId($model);
+$maintainer->setId($models);
 $maintainer->setColsWidth($colsWidth);
 echo $maintainer->listar ($data, $pages, $page);
