@@ -63,13 +63,13 @@ class View_Helper_Maintainer extends \sowerphp\general\View_Helper_Table
      * @param page Página que se está revisando o 0 para no usar el paginador
      * @param create =true se agrega icono para crear registro
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-01-04
+     * @version 2016-01-17
      */
     public function listar ($data, $pages = 1, $page = 1, $create = true)
     {
         $buffer = $this->form->begin(array('onsubmit'=>'buscar(this)'))."\n";
         if ($create) {
-            $buffer .= '<div style="float:left"><a href="'.$this->options['link'].'/crear'.$this->options['listarFilterUrl'].'" title="Crear nuevo registro" style="font-size:16px"><span class="glyphicon glyphicon-plus btn btn-default" aria-hidden="true"></span></a></div>'."\n";
+            $buffer .= '<div style="float:left"><a href="'.$this->options['link'].'/crear'.$this->options['listarFilterUrl'].'" title="Crear nuevo registro"><span class="fa fa-plus btn btn-default" aria-hidden="true"></span></a></div>'."\n";
         }
         if ($page)
             $buffer .= $this->paginator ($pages, $page)."\n";
@@ -92,7 +92,7 @@ class View_Helper_Maintainer extends \sowerphp\general\View_Helper_Table
      * @param page Página que se está revisando o 0 para no usar el paginador
      * @param groupOfPages De a cuantas páginas se mostrará en el paginador
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-01-04
+     * @version 2016-01-17
      */
     private function paginator ($pages, $page, $groupOfPages = 10)
     {
@@ -105,13 +105,13 @@ class View_Helper_Maintainer extends \sowerphp\general\View_Helper_Table
         // crear enlaces para paginador
         $buffer = '<div style="float:left;margin-left:20%;width:50%;text-align:center"><nav><ul class="pagination">'."\n";
         if ($page==1)
-            $buffer .= '<li class="disabled"><span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span></li>';
+            $buffer .= '<li class="disabled"><span class="fa fa-fast-backward" aria-hidden="true"></span></li>';
         else
-            $buffer .= '<li><a href="'.$this->options['link'].'/listar/1'.$this->options['linkEnd'].'" title="Ir a la primera página"><span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span></a></li>';
+            $buffer .= '<li><a href="'.$this->options['link'].'/listar/1'.$this->options['linkEnd'].'" title="Ir a la primera página"><span class="fa fa-fast-backward" aria-hidden="true"></span></a></li>';
         if ($group==1)
-            $buffer .= '<li class="disabled"><span class="glyphicon glyphicon-backward" aria-hidden="true"></span></li>';
+            $buffer .= '<li class="disabled"><span class="fa fa-backward" aria-hidden="true"></span></li>';
         else
-            $buffer .= '<li><a href="'.$this->options['link'].'/listar/'.($from-1).$this->options['linkEnd'].'" title="Ir al grupo de páginas anterior (página '.($from-1).')"><span class="glyphicon glyphicon-backward" aria-hidden="true"></span></a></li>';
+            $buffer .= '<li><a href="'.$this->options['link'].'/listar/'.($from-1).$this->options['linkEnd'].'" title="Ir al grupo de páginas anterior (página '.($from-1).')"><span class="fa fa-backward" aria-hidden="true"></span></a></li>';
         for ($i=$from; $i<=$to; $i++) {
             if ($page==$i)
                 $buffer .= '<li class="active"><a href="#" onclick="return false">'.$i.'</a></li>';
@@ -119,13 +119,13 @@ class View_Helper_Maintainer extends \sowerphp\general\View_Helper_Table
                 $buffer .= '<li><a href="'.$this->options['link'].'/listar/'.$i.$this->options['linkEnd'].'" title="Ir a la página '.$i.'">'.$i.'</a></li>';
         }
         if ($group==ceil($pages/$groupOfPages))
-            $buffer .= '<li class="disabled"><span class="glyphicon glyphicon-forward" aria-hidden="true"></span></li>';
+            $buffer .= '<li class="disabled"><span class="fa fa-forward" aria-hidden="true"></span></li>';
         else
-            $buffer .= '<li><a href="'.$this->options['link'].'/listar/'.($to+1).$this->options['linkEnd'].'" title="Ir al grupo de páginas siguiente (página '.($to+1).')"><span class="glyphicon glyphicon-forward" aria-hidden="true"></span></a></li>';
+            $buffer .= '<li><a href="'.$this->options['link'].'/listar/'.($to+1).$this->options['linkEnd'].'" title="Ir al grupo de páginas siguiente (página '.($to+1).')"><span class="fa fa-forward" aria-hidden="true"></span></a></li>';
         if ($page==$pages)
-            $buffer .= '<li class="disabled"><span class="glyphicon glyphicon-fast-forward" aria-hidden="true"></span></li>';
+            $buffer .= '<li class="disabled"><span class="fa fa-fast-forward" aria-hidden="true"></span></li>';
         else
-            $buffer .= '<li><a href="'.$this->options['link'].'/listar/'.$pages.$this->options['linkEnd'].'" title="Ir a la última página"><span class="glyphicon glyphicon-fast-forward" aria-hidden="true"></span></a></li>';
+            $buffer .= '<li><a href="'.$this->options['link'].'/listar/'.$pages.$this->options['linkEnd'].'" title="Ir a la última página"><span class="fa fa-fast-forward" aria-hidden="true"></span></a></li>';
         $buffer .= '</ul></nav></div>'."\n";
         // retornar enlaces
         return $buffer;
