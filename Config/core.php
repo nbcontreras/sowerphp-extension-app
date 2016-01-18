@@ -22,11 +22,11 @@
  */
 
 // Si es ambiente de desarrollo se carga módulo de desarrollo
-if (defined('ENVIRONMENT_DEV')) \sowerphp\core\Module::uses('Dev');
+if (defined('ENVIRONMENT_DEV'))
+    \sowerphp\core\Module::uses('Dev');
 
 // Módulos que usará esta aplicación
 \sowerphp\core\Module::uses(array(
-    'Exportar',
     'Sistema',
     'Sistema.Usuarios' => array('autoLoad' => true),
 ));
