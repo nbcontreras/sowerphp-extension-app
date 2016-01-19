@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Clase que implementa los métodos básicos de un mantenedor, métodos CRUD.
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-12-19
+ * @version 2016-01-19
  */
 class Controller_Maintainer extends \Controller_App
 {
@@ -36,6 +36,8 @@ class Controller_Maintainer extends \Controller_App
     protected $module_url; ///< Atributo con la url para acceder el módulo
     protected $deleteRecord = true; ///< Indica si se permite o no borrar registros
     protected $contraseniaNames = ['contrasenia', 'clave', 'password', 'pass']; ///< Posibles nombres de campo tipo contraseña
+    protected $actionsColsWidth = 100; ///< Ancho de la columna de acciónes en acción listar
+    protected $extraActions = []; ///< iconos extra para la columna de acciones
 
     /**
      * Constructor del controlador
@@ -105,7 +107,7 @@ class Controller_Maintainer extends \Controller_App
     /**
      * Acción para listar los registros de la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-04-24
+     * @version 2016-01-19
      */
     public function listar ($page = 1, $orderby = null, $order = 'A')
     {
@@ -187,6 +189,8 @@ class Controller_Maintainer extends \Controller_App
             'comment' => $model::$tableComment,
             'listarFilterUrl' => '?listar='.base64_encode('/'.$page.($orderby ? '/'.$orderby.'/'.$order : '').$searchUrl),
             'deleteRecord' => $this->deleteRecord,
+            'actionsColsWidth' => $this->actionsColsWidth,
+            'extraActions' => $this->extraActions,
         ));
         // renderizar
         $this->renderView('listar');
