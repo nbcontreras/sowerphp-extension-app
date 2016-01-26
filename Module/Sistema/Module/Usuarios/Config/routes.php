@@ -62,3 +62,15 @@
     'controller' => 'usuarios',
     'action' => 'registrar',
 ));
+
+\sowerphp\core\Routing_Router::connect('/usuarios/preauth', array(
+    'module' => 'Sistema.Usuarios',
+    'controller' => 'usuarios',
+    'action' => 'preauth',
+));
+
+\sowerphp\core\Routing_Router::connect('/usuarios/preauth/*', array(
+    'module' => 'Sistema.Usuarios',
+    'controller' => 'usuarios',
+    'action' => 'preauth',
+));

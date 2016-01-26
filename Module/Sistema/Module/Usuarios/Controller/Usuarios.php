@@ -47,11 +47,11 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * Permitir ciertas acciones y luego ejecutar verificar permisos con
      * parent::beforeFilter()
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-11-18
+     * @version 2016-01-21
      */
     public function beforeFilter ()
     {
-        $this->Auth->allow('ingresar', 'salir', 'contrasenia_recuperar', 'registrar');
+        $this->Auth->allow('ingresar', 'salir', 'contrasenia_recuperar', 'registrar', 'preauth');
         $this->Auth->allowWithLogin('perfil');
         parent::beforeFilter();
     }
@@ -704,6 +704,52 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             }
             $this->redirect('/usuarios/ingresar');
         }
+    }
+
+    /**
+     * Acción que permite ingresar a la aplicación con un usuario ya autenticado
+     * a través de un token provisto
+     * @param token Token de pre autenticación para validar la sesión
+     * @param usuario Usuario con el que se desea ingresar
+     * @param url URL a la cual redireccionar el usuario una vez ha iniciado sesión
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-01-25
+     */
+    public function preauth($token = null, $usuario = null, $url = null)
+    {
+        // si se pasaron datos por POST tienen preferencia
+        if (!empty($_POST['token'])) {
+            $token = $_POST['token'];
+            $usuario = !empty($_POST['usuario']) ? $_POST['usuario'] : null;
+            $url = !empty($_POST['url']) ? $_POST['url'] : null;
+        }
+        // buscar clave de preauth, si no existe se indica que la
+        // preautenticación no está disponible
+        if ($usuario) {
+            $key = \sowerphp\core\Configure::read('preauth.key');
+            if (!$key) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'La preautenticación no está disponible', 'warning'
+                );
+                $this->redirect('/usuarios/ingresar');
+            }
+        }
+        // definir url
+        $url = $url ? base64_decode($url) : $this->Auth->settings['redirect']['login'];
+        // si ya está logueado se redirecciona de forma silenciosa
+        if ($this->Auth->logged()) {
+            $this->redirect($url);
+        }
+        // procesar inicio de sesión con preauth, si no se puede autenticar se
+        // genera un error
+        if (!$this->Auth->preauth($token, $usuario)) {
+            \sowerphp\core\Model_Datasource_Session::message(
+                'La preautenticación del usuario falló', 'error'
+            );
+            $this->redirect('/usuarios/ingresar');
+        }
+        // todo ok -> redirigir
+        $this->redirect($url);
     }
 
     /**

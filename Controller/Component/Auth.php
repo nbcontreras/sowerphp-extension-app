@@ -245,7 +245,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que realiza el login del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-01-16
+     * @version 2016-01-25
      */
     public function login($usuario, $contrasenia)
     {
@@ -330,18 +330,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         } else {
             $lastlogin = '';
         }
-        $hash = $this->User->updateLastLogin($this->ip(true));
-        if ($this->settings['maxLoginAttempts']) {
-            $this->User->savePasswordRetry($this->settings['maxLoginAttempts']);
-        }
-        // crear info de la sesión
-        $this->session =  array(
-            'id' => $this->User->id,
-            'hash' => $hash,
-        );
-        \sowerphp\core\Model_Datasource_Session::write(
-            $this->settings['session']['key'], $this->session
-        );
+        $this->createSession();
         // mensaje para mostrar
         $msg = sprintf(
             $this->settings['messages']['ok']['login'],
@@ -354,6 +343,58 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             $this->controller->redirect($_POST['redirect']);
         else
             $this->controller->redirect($this->settings['redirect']['login']);
+    }
+
+    /**
+     * Método que crea la sesión del usuario registrado en la autenticación
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-01-25
+     */
+    private function createSession()
+    {
+        $hash = $this->User->updateLastLogin($this->ip(true));
+        if ($this->settings['maxLoginAttempts']) {
+            $this->User->savePasswordRetry($this->settings['maxLoginAttempts']);
+        }
+        $this->session =  [
+            'id' => $this->User->id,
+            'hash' => $hash,
+        ];
+        \sowerphp\core\Model_Datasource_Session::write(
+            $this->settings['session']['key'], $this->session
+        );
+    }
+
+    /**
+     * Método que realiza el login del usuario a través de preautenticación
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-01-26
+     */
+    public function preauth($token, $usuario = null)
+    {
+        // autenticar sólo con token (este será el hash del usuario)
+        if (!$usuario) {
+            $this->User = new $this->settings['model']($token);
+        }
+        // autenticar con los datos del token
+        else {
+            $key = \sowerphp\core\Configure::read('preauth.key');
+            if (!$key)
+                return false;
+            $real_token = md5($usuario.date('Ymd').$key);
+            if ($token != $real_token)
+                return false;
+            $this->User = new $this->settings['model']($usuario);
+        }
+        // si el usuario no existe error
+        if (!$this->User->exists())
+            return false;
+        // verificar token de autenticación secundaria
+        if ($this->settings['auth2'] !== null and !$this->User->checkToken())
+            return false;
+        // crear sesión
+        $this->createSession();
+        return true;
     }
 
     /**
