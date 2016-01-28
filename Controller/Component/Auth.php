@@ -368,7 +368,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que realiza el login del usuario a través de preautenticación
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-01-26
+     * @version 2016-01-28
      */
     public function preauth($token, $usuario = null)
     {
@@ -387,7 +387,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             $this->User = new $this->settings['model']($usuario);
         }
         // si el usuario no existe error
-        if (!$this->User->exists())
+        if (!$this->User->exists() or !$this->User->isActive())
             return false;
         // verificar token de autenticación secundaria
         if ($this->settings['auth2'] !== null and !$this->User->checkToken())

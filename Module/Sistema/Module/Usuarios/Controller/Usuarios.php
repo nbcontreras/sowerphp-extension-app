@@ -713,7 +713,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * @param usuario Usuario con el que se desea ingresar
      * @param url URL a la cual redireccionar el usuario una vez ha iniciado sesión
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-01-25
+     * @version 2016-01-28
      */
     public function preauth($token = null, $usuario = null, $url = null)
     {
@@ -725,11 +725,18 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         }
         // buscar clave de preauth, si no existe se indica que la
         // preautenticación no está disponible
+        $enabled = \sowerphp\core\Configure::read('preauth.enabled');
+        if (!$enabled) {
+            \sowerphp\core\Model_Datasource_Session::message(
+                'La preautenticación no está disponible', 'error'
+            );
+            $this->redirect('/usuarios/ingresar');
+        }
         if ($usuario) {
             $key = \sowerphp\core\Configure::read('preauth.key');
             if (!$key) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'La preautenticación no está disponible', 'warning'
+                    'No hay clave global para preautenticación', 'error'
                 );
                 $this->redirect('/usuarios/ingresar');
             }
