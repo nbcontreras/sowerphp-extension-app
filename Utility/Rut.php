@@ -26,10 +26,27 @@ namespace sowerphp\app;
 /**
  * Clase para trabajar con RUTs (y RUNs) de Chile
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-11-01
+ * @version 2016-01-30
  */
 class Utility_Rut
 {
+
+    /**
+     * Método que valida el RUT ingresado
+     * @param rut RUT con dígito verificador (puntos son opcionales)
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2016-01-30
+     */
+    public static function check($rut)
+    {
+        if (!strpos($rut, '-'))
+            return false;
+        list($rut, $dv) = explode('-', str_replace('.', '', $rut));
+        if (!is_numeric($rut) or !is_numeric($dv))
+            return false;
+        $real_dv = self::dv($rut);
+        return $dv == $real_dv ? $rut : false;
+    }
 
     /**
      * Calcula el dígito verificador de un RUT
