@@ -108,53 +108,57 @@ abstract class Model_Plural
      * Ingresa las columnas que se seleccionarán en el select
      * @param selectStatement Arreglo con la(s) columna(s) que se desea seleccionar de la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-02
+     * @version 2016-02-03
      */
-    public function setSelectStatement ($selectStatement)
+    public function setSelectStatement (array $selectStatement)
     {
         $this->selectStatement = implode(',', $selectStatement);
+        return $this;
     }
 
     /**
      * Ingresa las condiciones para utilizar en el where de la consulta sql
      * @param whereStatement Condiciones para el where de la consulta sql
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-20
+     * @version 2016-02-03
      */
-    public function setWhereStatement($whereStatement, $whereVars = [])
+    public function setWhereStatement(array $whereStatement, array $whereVars = [])
     {
         $this->whereStatement = ' WHERE '.implode(' AND ', $whereStatement);
         $this->queryVars = array_merge($this->queryVars, $whereVars);
+        return $this;
     }
 
     /**
      * Ingresa las columnas por las que se agrupara la consulta
      * @param groupByStatement Arreglo con la(s) columna(s) por la(s) que se desea agrupar la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-02
+     * @version 2016-02-03
      */
-    public function setGroupByStatement ($groupByStatement)
+    public function setGroupByStatement (array $groupByStatement)
     {
         $this->groupByStatement = ' GROUP BY '.implode(', ', $groupByStatement);
+        return $this;
     }
 
     /**
      * Ingresa las condiciones para utilizar en el having de la consulta sql
      * @param havingStatement Condiciones para el having de la consulta sql
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-02
+     * @version 2016-02-03
      */
-    public function setHavingStatement ($havingStatement, $havingVars = [])
+    public function setHavingStatement (array $havingStatement, array $havingVars = [])
     {
         $this->havingStatement = ' HAVING '.implode(' AND ', $havingStatement);
         $this->queryVars = array_merge($this->queryVars, $havingVars);
+        return $this;
     }
 
     /**
      * Ingresa los campos por los que se deberá ordenar
      * @param orderByStatement Columna/s de la tabla por la cual se ordenará
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-11-08
+     * @version 2016-02-03
      */
     public function setOrderByStatement ($orderByStatement)
     {
@@ -166,6 +170,7 @@ abstract class Model_Plural
         } else {
             $this->orderByStatement = ' ORDER BY '.$orderByStatement;
         }
+        return $this;
     }
 
     /**
@@ -173,7 +178,7 @@ abstract class Model_Plural
      * @param records Cantidad de filas a mostrar (mayor que 0)
      * @param offset Desde que registro se seleccionara (default: 0)
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-02
+     * @version 2016-02-03
      */
     public function setLimitStatement ($records, $offset = 0)
     {
@@ -181,6 +186,7 @@ abstract class Model_Plural
             $this->limitStatementRecords = +$records;
             $this->limitStatementOffset = +$offset;
         }
+        return $this;
     }
 
     /**
@@ -189,7 +195,7 @@ abstract class Model_Plural
      * havingStatement
      * @return integer Cantidad de registros encontrados
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-10-07
+     * @version 2016-02-03
      */
     public function count ()
     {
@@ -204,7 +210,7 @@ abstract class Model_Plural
             $query = "SELECT COUNT(*) FROM ($query) AS t";
         }
         // entregar resultados
-        return $this->db->getValue($query, $this->queryVars);
+        return (int)$this->db->getValue($query, $this->queryVars);
     }
 
     /**
