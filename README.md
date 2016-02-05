@@ -1,6 +1,9 @@
 Extensión: app
 ==============
 
+[![Dependency Status](https://www.versioneye.com/user/projects/56b439d90a0ff50035ba7e4b/badge.svg)](https://www.versioneye.com/user/projects/56b439d90a0ff50035ba7e4b)
+[![License](https://poser.pugx.org/sowerphp/app/license)](https://packagist.org/packages/sowerphp/app)
+
 Extensión con funcionalidades básicas para una aplicación web. Implementa
 código general que pueda servir para generar una aplicación web.
 
