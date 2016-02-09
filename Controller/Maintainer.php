@@ -91,9 +91,9 @@ class Controller_Maintainer extends \Controller_App
      * @param view Vista que se desea renderizar
      * @param location No se utiliza, esta por compatibilidad con método padre
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-04-24
+     * @version 2016-02-09
      */
-    private function renderView($view = null, $location = null)
+    protected function renderView($view = null, $location = null)
     {
         $this->autoRender = false;
         $ControllerName = str_replace($this->namespace.'\Controller_', '', get_class($this));
