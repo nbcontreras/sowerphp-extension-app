@@ -105,6 +105,34 @@ class Controller_Maintainer extends \Controller_App
     }
 
     /**
+     * Método que permite forzar las opciones de búsqueda para la acción listar
+     * esto permite a cierto usuario mostrar sólo cierto listado de registros
+     * y no todos, esto evita tener que reprogramar la acción listar :-)
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-02-09
+     */
+    protected function forceSearch(array $data)
+    {
+        // se asignan datos forzados para búsqueda
+        $search = [];
+        foreach ($data as $var => $val) {
+            $search[] = $var.':'.$val;
+        }
+        // se copian filtros extras, menos los forzados
+        if (!empty($_GET['search'])) {
+            $vars = array_keys($data);
+            $filters = explode(',', $_GET['search']);
+            foreach ($filters as &$filter) {
+                list($var, $val) = explode(':', $filter);
+                if (!in_array($var, $vars))
+                    $search[] = $var.':'.$val;
+            }
+        }
+        // se vuelve a armar la búsqueda
+        $_GET['search'] = implode(',', $search);
+    }
+
+    /**
      * Acción para listar los registros de la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2016-01-19
