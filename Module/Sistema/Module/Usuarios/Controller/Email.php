@@ -37,7 +37,7 @@ class Controller_Email extends \Controller_App
      * Acción que permite enviar correos masivos a los usuarios de ciertos
      * grupos de la aplicación
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-04-03
+     * @version 2016-02-18
      */
     public function grupos()
     {
@@ -56,6 +56,7 @@ class Controller_Email extends \Controller_App
                 $emails = $Grupos->emails($_POST['grupos']);
                 if(($key = array_search($this->Auth->User->email, $emails)) !== false) {
                     unset($emails[$key]);
+                    sort($emails);
                 }
                 $n_emails = count($emails);
                 if (!$n_emails) {
@@ -75,21 +76,50 @@ class Controller_Email extends \Controller_App
                     ));
                     $msg = $this->render('Email/grupos_email')->body();
                     $this->layout = $layout;
-                    // enviar email
-                    $email = new \sowerphp\core\Network_Email();
-                    $email->from($this->Auth->User->email, $this->Auth->User->nombre);
-                    $email->replyTo($this->Auth->User->email, $this->Auth->User->nombre);
-                    $email->to($this->Auth->User->email);
-                    if ($_POST['enviar_como']=='cc') {
-                        $email->cc($emails);
+                    // agrupar
+                    if ($_POST['agrupar']) {
+                        $grupo = -1;
+                        $destinatarios = [];
+                        for ($i=0; $i<$n_emails; $i++) {
+                            if ($i%$_POST['agrupar']==0) {
+                                $destinatarios[++$grupo] = [];
+                            }
+                            $destinatarios[$grupo][] = $emails[$i];
+                        }
                     } else {
-                        $email->bcc($emails);
+                        $destinatarios = [$emails];
                     }
-                    $email->subject('['.$page_title.'] '.$_POST['asunto']);
-                    $status = $email->send($msg);
+                    // enviar email
+                    foreach ($destinatarios as $correos) {
+                        $email = new \sowerphp\core\Network_Email();
+                        $email->from($this->Auth->User->email, $this->Auth->User->nombre);
+                        $email->replyTo($this->Auth->User->email, $this->Auth->User->nombre);
+                        $email->to($this->Auth->User->email);
+                        if ($_POST['enviar_como']=='cc') {
+                            $email->cc($correos);
+                        } else {
+                            $email->bcc($correos);
+                        }
+                        $email->subject('['.$page_title.'] '.$_POST['asunto']);
+                        // adjuntar archivos si se pasaron
+                        $n_adjuntos = !empty($_FILES['adjuntos']) ? count($_FILES['adjuntos']['name']) : 0;
+                        for ($i=0; $i<$n_adjuntos; $i++) {
+                            if (!$_FILES['adjuntos']['error'][$i]) {
+                                $email->attach([
+                                    'tmp_name' => $_FILES['adjuntos']['tmp_name'][$i],
+                                    'name' => $_FILES['adjuntos']['name'][$i],
+                                    'type' => $_FILES['adjuntos']['type'][$i],
+                                ]);
+                            }
+                        }
+                        // enviar archivo
+                        $status = $email->send($msg);
+                        if ($status!==true)
+                            break;
+                    }
                     if ($status===true) {
                         \sowerphp\core\Model_Datasource_Session::message(
-                            'Mensaje envíado a '.$n_emails.' usuarios', 'ok'
+                            'Mensaje envíado a '.num($n_emails).' usuarios', 'ok'
                         );
                     } else {
                         \sowerphp\core\Model_Datasource_Session::message(

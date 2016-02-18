@@ -1,6 +1,6 @@
 <?=$mensaje."\n"?>
 
-Este mensaje ha sido enviado de forma masiva a <?=$n_emails?> usuarios de los grupos:
+Este mensaje ha sido enviado de forma masiva a <?=num($n_emails)?> usuarios activos de los grupos:
   - <?=implode("\n  - ", $grupos)."\n"?>
 
 -- 
