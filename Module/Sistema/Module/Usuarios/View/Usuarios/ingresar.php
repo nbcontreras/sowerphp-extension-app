@@ -4,7 +4,7 @@ $form = new sowerphp\general\View_Helper_Form();
 echo $form->begin(array('focus'=>'usuarioField', 'onsubmit'=>'Form.check()'));
 echo $form->input([
     'name'=>'usuario',
-    'label'=>'Usuario',
+    'label'=>'Usuario o email',
     'check'=>'notempty',
 ]);
 echo $form->input([
