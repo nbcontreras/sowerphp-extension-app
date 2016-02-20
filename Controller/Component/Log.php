@@ -346,11 +346,14 @@ class Controller_Component_Log extends \sowerphp\core\Controller_Component
      * @param facility Origen del envío
      * @param severity Gravedad del registro
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-06-28
+     * @version 2016-02-20
      */
     private function reportFile($message, $facility, $severity)
     {
         $log = TMP.'/log_'.$this->getFacility($facility).'_'.$this->getSeverity($severity).'_'.date('Ymd').'.log';
+        if (is_array($message) or is_object($message) or is_bool($message)) {
+            $message = json_encode($message);
+        }
         file_put_contents($log, $message."\n", FILE_APPEND);
     }
 
