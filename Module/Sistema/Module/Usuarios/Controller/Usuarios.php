@@ -31,14 +31,14 @@ namespace sowerphp\app\Sistema\Usuarios;
  * Esta clase permite controlar las acciones entre el modelo y vista para la
  * tabla usuario
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-12-09
+ * @version 2016-02-22
  */
 class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
 {
 
     protected $namespace = __NAMESPACE__; ///< Namespace del controlador y modelos asociados
     protected $columnsView = [
-        'listar'=>['id', 'nombre', 'usuario', 'activo', 'ultimo_ingreso_fecha_hora']
+        'listar'=>['id', 'nombre', 'usuario', 'email', 'activo', 'ultimo_ingreso_fecha_hora']
     ]; ///< Columnas que se deben mostrar en las vistas
     protected $deleteRecord = false; ///< Indica si se permite o no borrar registros
     protected $changeUsername = true; ///< Indica si se permite que se cambie el nombre de usuario
