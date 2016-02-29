@@ -28,7 +28,6 @@ if (!empty($public_key)) {
         'type'=>'div',
         'label'=>'Captcha',
         'value'=>$captcha,
-        'check'=>'notempty',
     ]);
 }
 echo $form->end('Registrar');
