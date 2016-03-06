@@ -90,11 +90,15 @@ class Controller_Email extends \Controller_App
                         $destinatarios = [$emails];
                     }
                     // enviar email
+                    $primero = true;
                     foreach ($destinatarios as $correos) {
                         $email = new \sowerphp\core\Network_Email();
                         $email->from($this->Auth->User->email, $this->Auth->User->nombre);
                         $email->replyTo($this->Auth->User->email, $this->Auth->User->nombre);
-                        $email->to($this->Auth->User->email);
+                        if ($primero) {
+                            $email->to($this->Auth->User->email);
+                            $primero = false;
+                        }
                         if ($_POST['enviar_como']=='cc') {
                             $email->cc($correos);
                         } else {
