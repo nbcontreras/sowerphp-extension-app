@@ -160,7 +160,7 @@ class Controller_Maintainer extends \Controller_App
                 }
                 // si es un tipo fecha con hora se usará like
                 else if (in_array($model::$columnsInfo[$var]['type'], ['timestamp', 'timestamp without time zone'])) {
-                    $where[] = $var.' LIKE :'.$var;
+                    $where[] = 'CAST('.$var.' AS TEXT) LIKE :'.$var;
                     $vars[':'.$var] = $val.' %';
                 }
                 // si es cualquier otro caso se comparará con una igualdad

@@ -23,7 +23,7 @@
 
 // Menú para el módulo
 \sowerphp\core\Configure::write('nav.module', array(
-    '/usuarios/listar?search=activo:1' => array(
+    '/usuarios/listar/1/ultimo_ingreso_fecha_hora/D?search=activo:1' => array(
         'name' => 'Usuarios',
         'desc' => 'Usuarios del sistema',
         'icon' => 'fa fa-user',
