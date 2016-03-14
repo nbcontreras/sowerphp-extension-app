@@ -454,7 +454,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para mostrar y editar el perfil del usuario que esta autenticado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-03-23
+     * @version 2016-03-14
      */
     public function perfil()
     {
@@ -469,10 +469,11 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 $this->redirect('/usuarios/perfil');
             }
             $this->Auth->User->nombre = $_POST['nombre'];
-            if ($this->changeUsername)
+            if ($this->changeUsername and !empty($_POST['usuario']))
                 $this->Auth->User->usuario = $_POST['usuario'];
             $this->Auth->User->email = strtolower($_POST['email']);
-            $this->Auth->User->hash = $_POST['hash'];
+            if (isset($_POST['hash']))
+                $this->Auth->User->hash = $_POST['hash'];
             if ($this->Auth->User->checkIfUserAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario '.$_POST['usuario'].' ya está en uso',
