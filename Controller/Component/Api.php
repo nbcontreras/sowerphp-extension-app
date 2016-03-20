@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Componente para proveer una API para funciones de los controladores
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2015-01-31
+ * @version 2016-03-20
  */
 class Controller_Component_Api extends \sowerphp\core\Controller_Component
 {
@@ -43,6 +43,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
             ]
         ]
     ];
+    protected $User = null; ///< Usuario que se ha autenticado en la API
 
     /**
      * Método para inicializar la función de la API que se está ejecutando
@@ -143,45 +144,61 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * controlador y devuelve el usuario que se autenticó
      * @return Objeto con usuario autenticado o string con el error si hubo uno
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-01-31
+     * @version 2016-03-20
      */
     public function getAuthUser()
     {
+        if ($this->User!==null) {
+            return $this->User;
+        }
         $auth = isset($this->headers['Authorization']) ? $this->headers['Authorization'] : false;
-        if ($auth===false) return $this->settings['messages']['error']['auth-miss'];
+        if ($auth===false) {
+            $this->User = $this->settings['messages']['error']['auth-miss'];
+            return $this->User;
+        }
         list($basic, $user_pass) = explode(' ', $auth);
         list($user, $pass) = explode(':', base64_decode($user_pass));
         // crear objeto del usuario
         $User = new \sowerphp\app\Sistema\Usuarios\Model_Usuario($user);
         // si el usuario no existe -> error
-        if (!$User->exists())
-            return $this->controller->Auth->settings['messages']['error']['invalid'];
+        if (!$User->exists()) {
+            $this->User = $this->controller->Auth->settings['messages']['error']['invalid'];
+            return $this->User;
+        }
         // si el usuario está inactivo -> error
-        if (!$User->isActive())
-            return $this->controller->Auth->settings['messages']['error']['inactive'];
+        if (!$User->isActive()) {
+            $this->User = $this->controller->Auth->settings['messages']['error']['inactive'];
+            return $this->User;
+        }
         // solo hacer las validaciones de contraseña y auth2 si se está
         // autenticando con usuario y contraseña, si se autentica con el hash
         // ignorar estas validaciones
         if ($user != $User->hash) {
             // si el usuario tiene bloqueada su cuenta por intentos máximos -> error
-            if (!$User->contrasenia_intentos)
-                return $this->controller->Auth->settings['messages']['error']['login_attempts_exceeded'];
+            if (!$User->contrasenia_intentos) {
+                $this->User = $this->controller->Auth->settings['messages']['error']['login_attempts_exceeded'];
+                return $this->User;
+            }
             // si la contraseña no es correcta -> error
             if (!$User->checkPassword($this->controller->Auth->hash($pass))) {
                 $User->setContraseniaIntentos($User->contrasenia_intentos-1);
                 if ($User->contrasenia_intentos) {
-                    return $this->controller->Auth->settings['messages']['error']['invalid'];
+                    $this->User = $this->controller->Auth->settings['messages']['error']['invalid'];
                 } else {
-                    return $this->controller->Auth->settings['messages']['error']['login_attempts_exceeded'];
+                    $this->User = $this->controller->Auth->settings['messages']['error']['login_attempts_exceeded'];
                 }
+                return $this->User;
             }
             // verificar token en sistema secundario de autorización
-            if ($this->controller->Auth->settings['auth2'] !== null and !$User->checkToken())
-                return $this->controller->Auth->settings['messages']['error']['token'];
+            if ($this->controller->Auth->settings['auth2'] !== null and !$User->checkToken()) {
+                $this->User = $this->controller->Auth->settings['messages']['error']['token'];
+                return $this->User;
+            }
             // actualizar intentos de contraseña
             $User->setContraseniaIntentos($this->controller->Auth->settings['maxLoginAttempts']);
         }
-        return $User;
+        $this->User = $User;
+        return $this->User;
     }
 
 }

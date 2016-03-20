@@ -39,7 +39,7 @@ namespace sowerphp\app;
  *  - LOG_LOCAL0 a LOG_LOCAL7: se dejarán para ser utilizados por cada aplicación
  *
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2015-06-28
+ * @version 2016-03-20
  */
 class Controller_Component_Log extends \sowerphp\core\Controller_Component
 {
@@ -69,6 +69,7 @@ class Controller_Component_Log extends \sowerphp\core\Controller_Component
         'syslog_facility' => LOG_LOCAL7,
     ]; ///< Opciones por defecto del componente
     protected $Log = null; ///< Objeto para escribir eventos en la base de datos
+    protected $User = null;
 
     /**
      * Se registran automáticamente eventos que ocurrieron durante la ejecución
@@ -166,8 +167,8 @@ class Controller_Component_Log extends \sowerphp\core\Controller_Component
         }
         // agregar datos de URL, usuario e IP
         $message .= ' in '.$this->getURL().'';
-        if ($this->controller->Auth->User)
-            $message .= ' by '.$this->controller->Auth->User->usuario;
+        if ($this->getUser())
+            $message .= ' by '.$this->getUser()->usuario;
         $message .= ' from '.$this->controller->Auth->ip(true);
         // enviar mensaje a syslog
         openlog(
@@ -190,8 +191,8 @@ class Controller_Component_Log extends \sowerphp\core\Controller_Component
     private function reportEmail($message, $facility, $severity)
     {
         $email = new \sowerphp\core\Network_Email();
-        if ($this->controller->Auth->User) {
-            $email->replyTo($this->controller->Auth->User->email, $this->controller->Auth->User->nombre);
+        if ($this->getUser()) {
+            $email->replyTo($this->getUser()->email, $this->getUser()->nombre);
         }
         $Grupos = new \sowerphp\app\Sistema\Usuarios\Model_Grupos();
         $email->to($Grupos->emails($Grupos->getIDs($this->settings['report_email']['groups'])));
@@ -202,12 +203,12 @@ class Controller_Component_Log extends \sowerphp\core\Controller_Component
         $msg = "Estimad@s,\n\nSe ha registrado el siguiente evento en la aplicación:\n\n";
         // usuario
         $msg .= str_repeat('=', 80)."\n";
-        if ($this->controller->Auth->User) {
+        if ($this->getUser()) {
             $msg .= 'USUARIO AUTENTICADO:'."\n\n";
-            $msg .= 'Nombre: '.$this->controller->Auth->User->nombre."\n";
-            $msg .= 'Usuario: '.$this->controller->Auth->User->usuario.' ('.$this->controller->Auth->User->id.')'."\n";
-            $msg .= 'Grupos: '.implode(', ', $this->controller->Auth->User->groups())."\n";
-            $msg .= 'Email: '.$this->controller->Auth->User->email."\n";
+            $msg .= 'Nombre: '.$this->getUser()->nombre."\n";
+            $msg .= 'Usuario: '.$this->getUser()->usuario.' ('.$this->getUser()->id.')'."\n";
+            $msg .= 'Grupos: '.implode(', ', $this->getUser()->groups())."\n";
+            $msg .= 'Email: '.$this->getUser()->email."\n";
         } else {
             $msg .= 'USUARIO NO AUTENTICADO:'."\n\n";
         }
@@ -228,8 +229,8 @@ class Controller_Component_Log extends \sowerphp\core\Controller_Component
         }
         // firma
         $msg .= "-- \n";
-        if ($this->controller->Auth->User) {
-            $msg .= $this->controller->Auth->User->nombre."\n".$this->controller->Auth->User->email."\n";
+        if ($this->getUser()) {
+            $msg .= $this->getUser()->nombre."\n".$this->getUser()->email."\n";
         }
         $msg .= $this->controller->request->url;
         // si no se deben adjuntar archivos enviar email
@@ -327,7 +328,7 @@ class Controller_Component_Log extends \sowerphp\core\Controller_Component
         $this->Log->identificador = get_class($this->controller);
         $this->Log->origen = $facility;
         $this->Log->gravedad = $severity;
-        $this->Log->usuario = $this->controller->Auth->User ? $this->controller->Auth->User->id : null;
+        $this->Log->usuario = $this->getUser() ? $this->getUser()->id : null;
         $this->Log->ip = $this->controller->Auth->ip(true);
         $this->Log->solicitud = $this->getURL();
         if (is_array($message)) {
@@ -383,6 +384,26 @@ class Controller_Component_Log extends \sowerphp\core\Controller_Component
         if (!$this->openlog())
             return $severity;
         return $this->Log->getSeverity($severity)->glosa;
+    }
+
+    /**
+     * Método que obtiene el usuario que está reportando el log, si es que
+     * existe uno
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-03-20
+     */
+    protected function getUser()
+    {
+        if ($this->User===null) {
+            // usuario autenticado en el controlador de la aplicación web
+            if ($this->controller->Auth->User) {
+                $this->User = $this->controller->Auth->User;
+            } else {
+                $User = $this->controller->Api->getAuthUser();
+                $this->User = is_object($User) ? $User : false;
+            }
+        }
+        return $this->User;
     }
 
 }
