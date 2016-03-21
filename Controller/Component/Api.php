@@ -35,13 +35,14 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
     public $headers; ///< Cabeceras HTTP de la solicitud que se hizo a la API
     public $data; ///< Datos que se han pasado a la función de la API
     public $settings = [
+        'log' => false,
         'messages' => [
             'error' => [
                 'not-found' => 'Recurso %s a través de %s no existe en la API %s',
                 'args-miss' => 'Argumentos insuficientes para el recurso %s(%s) a través de %s en la API %s',
                 'auth-miss' => 'Cabecera _Authorization_ no fue recibida',
             ]
-        ]
+        ],
     ];
     protected $User = null; ///< Usuario que se ha autenticado en la API
 
@@ -101,6 +102,10 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
             );
         }
         unset($reflectionMethod);
+        // hacer log de la llamada a la API
+        if ($this->settings['log']) {
+            $this->controller->Log->write($this->getResource(), LOG_INFO, $this->settings['log']);
+        }
         // ejecutar función de la API
         if ($n_args)
             $data = call_user_func_array([$this->controller, $method], array_slice(func_get_args(), 1));
@@ -109,6 +114,18 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         // si se llegó hasta acá es porque no se envió respuesta desde la
         // función en la API
         $this->send($data, 200);
+    }
+
+    /**
+     * Método que entrega el recurso que se está accediendo a través de la API
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-03-20
+     */
+    public function getResource()
+    {
+        $find = '/'.$this->controller->request->params['controller'].'/'.$this->controller->request->params['pass'][0];
+        $pos = strrpos($this->controller->request->request, $find)+strlen($find);
+        return substr($this->controller->request->request, 0, $pos);
     }
 
     /**
