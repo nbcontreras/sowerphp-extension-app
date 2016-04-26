@@ -139,11 +139,11 @@ class Controller_Component_Log extends \sowerphp\core\Controller_Component
      * Método que entrega la URL completa que gatilló el regitro
      * @return URL completa (incluyendo parámetros por GET)
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-04-24
+     * @version 2016-04-26
      */
     private function getURL()
     {
-        $get = !empty($_GET) ? ('?'.implode('&', $_GET)) : '';
+        $get = strpos($_SERVER['QUERY_STRING'], '&') ? ('?'.substr($_SERVER['QUERY_STRING'], strpos($_SERVER['QUERY_STRING'], '&')+1)) : '';
         return $this->controller->request->url.$this->controller->request->request.$get;
     }
 
