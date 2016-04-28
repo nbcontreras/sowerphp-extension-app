@@ -161,7 +161,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * controlador y devuelve el usuario que se autenticó
      * @return Objeto con usuario autenticado o string con el error si hubo uno
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-03-20
+     * @version 2016-04-28
      */
     public function getAuthUser()
     {
@@ -176,7 +176,12 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         list($basic, $user_pass) = explode(' ', $auth);
         list($user, $pass) = explode(':', base64_decode($user_pass));
         // crear objeto del usuario
-        $User = new \sowerphp\app\Sistema\Usuarios\Model_Usuario($user);
+        try {
+            $User = new \sowerphp\app\Sistema\Usuarios\Model_Usuario($user);
+        } catch (\sowerphp\core\Exception_Model_Datasource_Database $e) {
+            $this->User = $e->getMessage();
+            return $this->User;
+        }
         // si el usuario no existe -> error
         if (!$User->exists()) {
             $this->User = $this->controller->Auth->settings['messages']['error']['invalid'];
