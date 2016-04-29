@@ -161,7 +161,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * controlador y devuelve el usuario que se autenticó
      * @return Objeto con usuario autenticado o string con el error si hubo uno
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-04-28
+     * @version 2016-04-29
      */
     public function getAuthUser()
     {
@@ -202,7 +202,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
                 return $this->User;
             }
             // si la contraseña no es correcta -> error
-            if (!$User->checkPassword($this->controller->Auth->hash($pass))) {
+            if (!$User->checkPassword($pass)) {
                 $User->setContraseniaIntentos($User->contrasenia_intentos-1);
                 if ($User->contrasenia_intentos) {
                     $this->User = $this->controller->Auth->settings['messages']['error']['invalid'];
