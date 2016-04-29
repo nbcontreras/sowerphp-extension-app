@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Componente para proveer una API para funciones de los controladores
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2016-03-20
+ * @version 2016-04-29
  */
 class Controller_Component_Api extends \sowerphp\core\Controller_Component
 {
@@ -40,7 +40,8 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
             'error' => [
                 'not-found' => 'Recurso %s a través de %s no existe en la API %s',
                 'args-miss' => 'Argumentos insuficientes para el recurso %s(%s) a través de %s en la API %s',
-                'auth-miss' => 'Cabecera _Authorization_ no fue recibida',
+                'auth-miss' => 'Cabecera Authorization no fue recibida',
+                'auth-bad' => 'Cabecera Authorization es incorrecta',
             ]
         ],
     ];
@@ -173,8 +174,18 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
             $this->User = $this->settings['messages']['error']['auth-miss'];
             return $this->User;
         }
-        list($basic, $user_pass) = explode(' ', $auth);
-        list($user, $pass) = explode(':', base64_decode($user_pass));
+        $aux = explode(' ', $auth);
+        if (!isset($aux[1])) {
+            $this->User = $this->settings['messages']['error']['auth-bad'];
+            return $this->User;
+        }
+        list($basic, $user_pass) = $aux;
+        $aux = explode(':', (string)base64_decode($user_pass));
+        if (!isset($aux[1])) {
+            $this->User = $this->settings['messages']['error']['auth-bad'];
+            return $this->User;
+        }
+        list($user, $pass) = $aux;
         // crear objeto del usuario
         try {
             $User = new \sowerphp\app\Sistema\Usuarios\Model_Usuario($user);
@@ -184,7 +195,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         }
         // si el usuario no existe -> error
         if (!$User->exists()) {
-            $this->User = $this->controller->Auth->settings['messages']['error']['invalid'];
+            $this->User = sprintf($this->controller->Auth->settings['messages']['error']['invalid'], $User->usuario);
             return $this->User;
         }
         // si el usuario está inactivo -> error
@@ -205,7 +216,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
             if (!$User->checkPassword($pass)) {
                 $User->setContraseniaIntentos($User->contrasenia_intentos-1);
                 if ($User->contrasenia_intentos) {
-                    $this->User = $this->controller->Auth->settings['messages']['error']['invalid'];
+                    $this->User = sprintf($this->controller->Auth->settings['messages']['error']['invalid'], $User->usuario);
                 } else {
                     $this->User = $this->controller->Auth->settings['messages']['error']['login_attempts_exceeded'];
                 }

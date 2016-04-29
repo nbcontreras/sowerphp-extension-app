@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Componente para proveer de un sistema de autenticación y autorización
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2015-04-28
+ * @version 2016-04-29
  */
 class Controller_Component_Auth extends \sowerphp\core\Controller_Component
 {
@@ -52,7 +52,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             'error' => [
                 'nologin' => 'Debe iniciar sesión para tratar de acceder a <em>%s</em>',
                 'auth' => 'Usuario <em>%s</em> no dispone de permisos para acceder a <em>%s</em>',
-                'invalid' => 'Clave del usuario <em>%s</em> inválida',
+                'invalid' => 'Credenciales del usuario <em>%s</em> son inválidas',
                 'notexist' => 'Usuario <em>%s</em> no existe',
                 'inactive' => 'Cuenta de usuario <em>%s</em> no activa',
                 'newlogin' => 'Sesión cerrada. Usuario <em>%s</em> tiene una más nueva en otro lugar',
