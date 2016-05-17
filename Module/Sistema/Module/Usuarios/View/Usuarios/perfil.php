@@ -36,6 +36,7 @@ echo $form->input(array(
     'value' => $_Auth->User->nombre,
     'help' => 'Nombre real del usuario',
     'check' => 'notempty',
+    'attr' => 'maxlength="50"',
 ));
 if ($changeUsername) {
     echo $form->input(array(
@@ -44,6 +45,7 @@ if ($changeUsername) {
         'value' => $_Auth->User->usuario,
         'help' => 'Nombre de usuario',
         'check' => 'notempty',
+        'attr' => 'maxlength="30"',
     ));
 }
 echo $form->input(array(
@@ -52,12 +54,14 @@ echo $form->input(array(
     'value' => $_Auth->User->email,
     'help' => 'Correo electrónico para uso dentro del sistema',
     'check' => 'notempty email',
+    'attr' => 'maxlength="50"',
 ));
 echo $form->input(array(
     'name' => 'hash',
     'label' => 'Hash',
     'value' => $_Auth->User->hash,
     'help' => 'Hash único para identificar el usuario (32 caracteres).<br />Si desea uno nuevo, borrar este y automáticamente se generará uno nuevo al guardar los cambios',
+    'attr' => 'maxlength="32"',
 ));
 if ($_Auth->User->getLdapPerson() and $_Auth->User->getLdapPerson()->uid != $_Auth->User->usuario) {
     echo $form->input(array(
