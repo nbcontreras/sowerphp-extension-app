@@ -108,10 +108,16 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
             $this->controller->Log->write($this->getResource(), LOG_INFO, $this->settings['log']);
         }
         // ejecutar función de la API
-        if ($n_args)
-            $data = call_user_func_array([$this->controller, $method], array_slice(func_get_args(), 1));
-        else
-            $data = $this->controller->$method();
+        try {
+            if ($n_args)
+                $data = call_user_func_array([$this->controller, $method], array_slice(func_get_args(), 1));
+            else
+                $data = $this->controller->$method();
+        } catch (\Exception $e) {
+            $this->send($e->getMessage(), 500);
+        } catch (\Error $e) {
+            $this->send($e->getMessage(), 500);
+        }
         // si se llegó hasta acá es porque no se envió respuesta desde la
         // función en la API
         $this->send($data, 200);
