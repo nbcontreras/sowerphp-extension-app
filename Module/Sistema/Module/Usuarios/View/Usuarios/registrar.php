@@ -21,6 +21,16 @@ echo $form->input([
     'attr'=>'maxlength="50"',
     'help'=>'La contraseña será enviada a su email'
 ]);
+if (isset($terms)) {
+    echo $form->input([
+        'type'=>'checkbox',
+        'name'=>'terms_ok',
+        'label'=>'Términos',
+        'check'=>'notempty',
+        'help'=>'Acepto los <a href="'.$terms.'" target="_blank">términos y condiciones de uso</a> del servicio',
+        'attr'=>'onclick="this.value = this.checked ? 1 : 0"',
+    ]);
+}
 if (!empty($public_key)) {
     $captcha = '<div class="g-recaptcha" data-sitekey="'.$public_key.'"></div>';
     $captcha .= '<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl='.$language.'"></script>';

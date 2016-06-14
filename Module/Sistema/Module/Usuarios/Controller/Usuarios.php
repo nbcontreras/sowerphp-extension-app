@@ -584,7 +584,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción que permite registrar un nuevo usuario en la aplicación
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-01-16
+     * @version 2016-06-14
      */
     public function registrar()
     {
@@ -616,12 +616,23 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 'language' => \sowerphp\core\Configure::read('language'),
             ]);
         }
+        // colocar variable para terminos si está configurado
+        if (!empty($config['terms'])) {
+            $this->set('terms', $config['terms']);
+        }
         // si se envió formulario se procesa
         if (isset($_POST['submit'])) {
             // verificar que campos no sean vacios
             if (empty($_POST['nombre']) or empty($_POST['usuario']) or empty($_POST['email'])) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Debe completar todos los campos del formulario', 'warning'
+                );
+                return;
+            }
+            // si existen términos y no se aceptaron se redirecciona
+            if (!empty($config['terms']) and empty($_POST['terms_ok'])) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Debe aceptar los términos y condiciones', 'warning'
                 );
                 return;
             }
