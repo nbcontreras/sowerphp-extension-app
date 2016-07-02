@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Componente para proveer una API para funciones de los controladores
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2016-04-29
+ * @version 2016-07-02
  */
 class Controller_Component_Api extends \sowerphp\core\Controller_Component
 {
@@ -237,6 +237,27 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         }
         $this->User = $User;
         return $this->User;
+    }
+
+    /**
+     * Método que entrega los valores de los parámetros solicitados si es que
+     * están presentes en la query de la URL hecha a la API
+     * @param params Arreglo con los parámetros, si se manda param => value, value será el valor por defecto (sino será null)
+     * @return Arreglo con los parámetros y sus valores
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-07-02
+     */
+    public function getQuery(array $params)
+    {
+        $vars = [];
+        foreach ($params as $param => $default) {
+            if (is_int($param)) {
+                $param = $default;
+                $default = null;
+            }
+            $vars[$param] = isset($_GET[$param]) ? $_GET[$param] : $default;
+        }
+        return $vars;
     }
 
 }
