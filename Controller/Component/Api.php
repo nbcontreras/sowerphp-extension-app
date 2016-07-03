@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Componente para proveer una API para funciones de los controladores
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2016-07-02
+ * @version 2016-07-03
  */
 class Controller_Component_Api extends \sowerphp\core\Controller_Component
 {
@@ -38,7 +38,8 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         'log' => false,
         'messages' => [
             'error' => [
-                'not-found' => 'Recurso %s a través de %s no existe en la API %s',
+                'not-found' => 'Recurso %s no soporta el método %s en la API %s',
+                'methods-miss' => 'El recurso %s no tiene métodos asociados en la API %s',
                 'args-miss' => 'Argumentos insuficientes para el recurso %s(%s) a través de %s en la API %s',
                 'auth-miss' => 'Cabecera Authorization no fue recibida',
                 'auth-bad' => 'Cabecera Authorization es incorrecta',
@@ -66,12 +67,36 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * solicitó la ejecución. Este método es el que controla las funciones del
      * controlador que se está ejecutando.
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-01-31
+     * @version 2016-07-03
      */
     public function run($resource, $args = null)
     {
         // inicializar api
         $this->init();
+        // si se solicitan opciones se buscan para el recurso
+        if ($this->method=='OPTIONS') {
+            $resources = $this->resources();
+            $methods = ['OPTIONS'];
+            foreach ($resources as $r) {
+                $method = substr($r, strrpos($r, '_')+1);
+                if ($r == $resource.'_'.$method) {
+                    $methods[] = $method;
+                }
+            }
+            if (isset($methods[1])) {
+                $this->controller->response->header('Allow', implode(',', $methods));
+                $this->send($methods);
+            } else {
+                $this->send(
+                    sprintf(
+                        $this->settings['messages']['error']['methods-miss'],
+                        $resource,
+                        get_class($this->controller)
+                    ),
+                    404
+                );
+            }
+        }
         // verificar que la función de la API del controlador exista
         $method = '_api_'.$resource.'_'.$this->method;
         if (!method_exists($this->controller, $method)) {
@@ -139,14 +164,16 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * Método que lista los recursos disponibles de la API en el controlador
      * que se está ejecutando
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-02
+     * @version 2016-07-03
      */
     public function resources()
     {
         $resources = [];
-        foreach(get_class_methods($this->controller) as $action)
-            if (substr($action, 0, 12)=='_api_' && $action!=__FUNCTION__)
-                $resources[] = substr($action, 12);
+        foreach(get_class_methods($this->controller) as $action) {
+            if (substr($action, 0, 5)=='_api_' && $action!=__FUNCTION__) {
+                $resources[] = substr($action, 5);
+            }
+        }
         return $resources;
     }
 
