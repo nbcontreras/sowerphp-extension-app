@@ -232,7 +232,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         }
         // si el usuario está inactivo -> error
         if (!$User->isActive()) {
-            $this->User = $this->controller->Auth->settings['messages']['error']['inactive'];
+            $this->User = sprintf($this->controller->Auth->settings['messages']['error']['inactive'], $User->usuario);
             return $this->User;
         }
         // solo hacer las validaciones de contraseña y auth2 si se está
@@ -241,7 +241,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         if ($user != $User->hash) {
             // si el usuario tiene bloqueada su cuenta por intentos máximos -> error
             if (!$User->contrasenia_intentos) {
-                $this->User = $this->controller->Auth->settings['messages']['error']['login_attempts_exceeded'];
+                $this->User = sprintf($this->controller->Auth->settings['messages']['error']['login_attempts_exceeded'], $User->usuario);
                 return $this->User;
             }
             // si la contraseña no es correcta -> error
@@ -250,13 +250,13 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
                 if ($User->contrasenia_intentos) {
                     $this->User = sprintf($this->controller->Auth->settings['messages']['error']['invalid'], $User->usuario);
                 } else {
-                    $this->User = $this->controller->Auth->settings['messages']['error']['login_attempts_exceeded'];
+                    $this->User = sprintf($this->controller->Auth->settings['messages']['error']['login_attempts_exceeded'], $User->usuario);
                 }
                 return $this->User;
             }
             // verificar token en sistema secundario de autorización
             if ($this->controller->Auth->settings['auth2'] !== null and !$User->checkToken()) {
-                $this->User = $this->controller->Auth->settings['messages']['error']['token'];
+                $this->User = sprintf($this->controller->Auth->settings['messages']['error']['token'], $User->usuario);
                 return $this->User;
             }
             // actualizar intentos de contraseña
