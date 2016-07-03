@@ -195,14 +195,14 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * controlador y devuelve el usuario que se autenticó
      * @return Objeto con usuario autenticado o string con el error si hubo uno
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-07-02
+     * @version 2016-07-03
      */
     public function getAuthUser()
     {
         if ($this->User!==null) {
             return $this->User;
         }
-        $auth = isset($this->headers['Authorization']) ? trim($this->headers['Authorization']) : false;
+        $auth = isset($this->headers['Authorization']) ? trim($this->headers['Authorization']) : (isset($this->headers['authorization']) ? trim($this->headers['authorization']) : false);
         if ($auth===false) {
             $this->User = $this->settings['messages']['error']['auth-miss'];
             return $this->User;
