@@ -98,4 +98,31 @@ class Model_MonedaCambio extends \Model_App
 
     public static $fkNamespace = array(); ///< Namespaces que utiliza esta clase
 
+    private static $monedas_aduana = [
+        'DOLAR USA' => 'USD',
+        'EURO' => 'EUR',
+    ]; ///< Conversión entre el nombre de la moneda de Aduana de Chile y el código internacional
+
+    /**
+     * Constructor del tipo de cambio
+     * Permite utilizar como desde el nombre de la moneda en el formato de la
+     * aduana de Chile
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-07-31
+     */
+    public function __construct($desde = null, $a = null, $fecha = null)
+    {
+        if ($desde and $a) {
+            if (isset(self::$monedas_aduana[$desde])) {
+                $desde = self::$monedas_aduana[$desde];
+            }
+            if (!$fecha) {
+                $fecha = date('Y-m-d');
+            }
+            parent::__construct($desde, $a, $fecha);
+        } else {
+            parent::__construct();
+        }
+    }
+
 }
