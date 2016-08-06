@@ -46,6 +46,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
                 'not-auth' => 'No está autorizado a acceder al recurso %s a través del método %s en la API %s',
             ]
         ],
+        'localhost' => ['::1', '127.0.0.1'],
     ];
     protected $User = null; ///< Usuario que se ha autenticado en la API
 
@@ -136,7 +137,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
             if (is_string($User)) {
                 $this->send($User, 401);
             }
-            if (!$User->auth($recurso)) {
+            if (!in_array($this->controller->Auth->ip(), $this->settings['localhost']) and !$User->auth($recurso)) {
                 $this->send(
                     sprintf(
                         $this->settings['messages']['error']['not-auth'],
