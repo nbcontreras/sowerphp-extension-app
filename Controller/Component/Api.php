@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Componente para proveer una API para funciones de los controladores
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2016-07-03
+ * @version 2016-08-06
  */
 class Controller_Component_Api extends \sowerphp\core\Controller_Component
 {
@@ -43,6 +43,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
                 'args-miss' => 'Argumentos insuficientes para el recurso %s(%s) a través de %s en la API %s',
                 'auth-miss' => 'Cabecera Authorization no fue recibida',
                 'auth-bad' => 'Cabecera Authorization es incorrecta',
+                'not-auth' => 'No está autorizado a acceder al recurso %s a través del método %s en la API %s',
             ]
         ],
     ];
@@ -67,7 +68,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * solicitó la ejecución. Este método es el que controla las funciones del
      * controlador que se está ejecutando.
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-07-03
+     * @version 2016-08-06
      */
     public function run($resource, $args = null)
     {
@@ -128,9 +129,27 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
             );
         }
         unset($reflectionMethod);
+        // si se requiere autenticación se valida con el usuario que se haya pasado
+        $recurso = $this->getResource();
+        if (\sowerphp\core\Configure::read('api.auth')) {
+            $User = $this->getAuthUser();
+            if (is_string($User)) {
+                $this->send($User, 401);
+            }
+            if (!$User->auth($recurso)) {
+                $this->send(
+                    sprintf(
+                        $this->settings['messages']['error']['not-auth'],
+                        $resource,
+                        $this->method,
+                        get_class($this->controller)
+                    ), 403
+                );
+            }
+        }
         // hacer log de la llamada a la API
         if ($this->settings['log']) {
-            $this->controller->Log->write($this->getResource(), LOG_INFO, $this->settings['log']);
+            $this->controller->Log->write($recurso, LOG_INFO, $this->settings['log']);
         }
         // ejecutar función de la API
         try {
@@ -195,13 +214,20 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * controlador y devuelve el usuario que se autenticó
      * @return Objeto con usuario autenticado o string con el error si hubo uno
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-07-03
+     * @version 2016-08-06
      */
     public function getAuthUser()
     {
+        // si ya se determinó el usuario se entrega
         if ($this->User!==null) {
             return $this->User;
         }
+        // si hay un usuario con sesión iniciada se usa ese
+        if ($this->controller->Auth->User) {
+            $this->User = $this->controller->Auth->User;
+            return $this->User;
+        }
+        // buscar datos del usuario
         $auth = isset($this->headers['Authorization']) ? trim($this->headers['Authorization']) : (isset($this->headers['authorization']) ? trim($this->headers['authorization']) : false);
         if ($auth===false) {
             $this->User = $this->settings['messages']['error']['auth-miss'];
