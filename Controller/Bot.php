@@ -62,6 +62,17 @@ abstract class Controller_Bot extends \Controller_App
     ]; ///< Layouts de teclados
 
     /**
+     * Método para permitir acceder a la API sin estar autenticado
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2016-08-23
+     */
+    public function beforeFilter()
+    {
+        $this->Auth->allow('_api_telegram_POST');
+        parent::beforeFilter();
+    }
+
+    /**
      * Acción principal de la API, se encargará de llamar los comandos del Bot
      * @param id_bot ID del Bot de Telegram, permite validar que es Telegram quien escribe al Bot
      * @return Entrega el retorno entregado por el método del bot ejecutado
