@@ -28,7 +28,7 @@ namespace sowerphp\app;
  * Para usar con Telegram se debe configurar el webhook en la URL:
  *   https://api.telegram.org/bot<token>/setWebhook?url=https://example.com/api/bot/telegram
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2015-07-08
+ * @version 2018-08-23
  */
 abstract class Controller_Bot extends \Controller_App
 {
@@ -100,7 +100,7 @@ abstract class Controller_Bot extends \Controller_App
      * @param command String completo con el comando y sus argumentos
      * @return Entrega el retorno entregado por el método del bot ejecutado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-09-28
+     * @version 2016-08-23
      */
     protected function run($command)
     {
@@ -125,7 +125,7 @@ abstract class Controller_Bot extends \Controller_App
             }
         }
         if ($argv[0][0]!='/') {
-            return $this->Bot->send(__($this->messages['doNotUnderstand']));
+            return $this->defaultCommand($command);
         }
         if (in_array($argv[0], ['/', '/ayuda'])) {
             $argv[0] = '/help';
@@ -170,6 +170,16 @@ abstract class Controller_Bot extends \Controller_App
             }
         }
         return $results;
+    }
+
+    /**
+     * Comando que se ejecutará por defecto al no encontrar un comando válido
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-08-23
+     */
+    protected function defaultCommand($command)
+    {
+        return $this->Bot->send(__($this->messages['doNotUnderstand']));
     }
 
     /**
