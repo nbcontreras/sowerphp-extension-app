@@ -90,7 +90,7 @@ class Model_Usuarios extends \Model_Plural_App
      * Método que entrega una estadística mensual con los usuarios que iniciaron
      * sesión por última vez
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-01-04
+     * @version 2016-09-21
      */
     public function getStatsLogin($limit = 12)
     {
@@ -100,7 +100,7 @@ class Model_Usuarios extends \Model_Plural_App
             FROM usuario
             WHERE ultimo_ingreso_fecha_hora IS NOT NULL
             GROUP BY '.$mes.'
-            ORDER BY '.$mes.'
+            ORDER BY '.$mes.' DESC
             LIMIT '.$limit.'
         ');
     }
