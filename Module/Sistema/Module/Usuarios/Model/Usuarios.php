@@ -96,12 +96,16 @@ class Model_Usuarios extends \Model_Plural_App
     {
         $mes = $this->db->config['type']=='PostgreSQL' ? 'TO_CHAR(ultimo_ingreso_fecha_hora, \'YYYY-MM\')' : 'DATE_FORMAT(ultimo_ingreso_fecha_hora, "%Y-%m")';
         return $this->db->getTable('
-            SELECT '.$mes.' AS mes, COUNT(*) AS usuarios
-            FROM usuario
-            WHERE ultimo_ingreso_fecha_hora IS NOT NULL
-            GROUP BY '.$mes.'
-            ORDER BY '.$mes.' DESC
-            LIMIT '.$limit.'
+            SELECT mes, usuarios
+            FROM (
+                SELECT '.$mes.' AS mes, COUNT(*) AS usuarios
+                FROM usuario
+                WHERE ultimo_ingreso_fecha_hora IS NOT NULL
+                GROUP BY '.$mes.'
+                ORDER BY '.$mes.' DESC
+                LIMIT '.$limit.'
+            ) AS e
+            ORDER BY mes
         ');
     }
 
