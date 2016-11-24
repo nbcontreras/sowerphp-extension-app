@@ -121,9 +121,9 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * Acción para recuperar la contraseña
      * @param usuario Usuario al que se desea recuperar su contraseña
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-26
+     * @version 2016-11-24
      */
-    public function contrasenia_recuperar ($usuario = null)
+    public function contrasenia_recuperar ($usuario = null, $codigo = null)
     {
         $this->autoRender = false;
         // pedir correo
@@ -162,15 +162,17 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 $this->redirect ('/usuarios/contrasenia/recuperar');
             }
             if (!isset($_POST['submit'])) {
-                $this->set('usuario', $usuario);
+                $this->set([
+                    'usuario' => $usuario,
+                    'codigo' => $codigo,
+                ]);
                 $this->render ('Usuarios/contrasenia_recuperar_step2');
             } else {
                 if ($_POST['codigo']!=md5(hash('sha256', $Usuario->contrasenia))) {
                     \sowerphp\core\Model_Datasource_Session::message (
-                        'Código ingresado no es válido para el usuario', 'error'
+                        'El enlace para recuperar su contraseña no es válido, solicite uno nuevo por favor', 'error'
                     );
-                    $this->set('usuario', $usuario);
-                    $this->render ('Usuarios/contrasenia_recuperar_step2');
+                    $this->redirect('/usuarios/contrasenia/recuperar');
                 }
                 else if (empty ($_POST['contrasenia1']) || empty ($_POST['contrasenia2']) || $_POST['contrasenia1']!=$_POST['contrasenia2']) {
                     \sowerphp\core\Model_Datasource_Session::message (

@@ -1,12 +1,12 @@
 <h1>Recuperación de contraseña del usuario <em><?=$usuario?></em></h1>
-<p>A continuación ingrese el código que le fue enviado por correo electrónico y su nueva contraseña.</p>
+<p>Aquí podrá crear una nueva contraseña para su cuenta de usuario.</p>
 <?php
 $f = new \sowerphp\general\View_Helper_Form ();
 echo $f->begin(array('focus'=>'codigoField', 'onsubmit'=>'Form.check()'));
 echo $f->input (array(
+    'type'=>'hidden',
     'name'=>'codigo',
-    'label'=>'Código',
-    'check'=>'notempty'
+    'value'=>$codigo,
 ));
 echo $f->input (array(
     'type'=>'password',
