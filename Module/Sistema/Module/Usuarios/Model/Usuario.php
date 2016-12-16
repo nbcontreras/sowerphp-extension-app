@@ -474,11 +474,11 @@ class Model_Usuario extends \Model_App
      * Método que entrega el listado de grupos a los que pertenece el usuario
      * @return Arreglo asociativo con el GID como clave y el nombre del grupo como valor
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-14
+     * @version 2016-12-16
      */
-    public function groups()
+    public function groups($forceGet = false)
     {
-        if ($this->groups===null) {
+        if ($this->groups===null or $forceGet) {
             $this->groups = $this->db->getAssociativeArray('
                 SELECT g.id, g.grupo
                 FROM grupo AS g, usuario_grupo AS ug
