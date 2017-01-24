@@ -84,7 +84,7 @@ class Controller_Bd extends \Controller_App
      * Acción que permite poblar datos en tablas de una BD
      * @todo Poblar tablas con PK autoincrementales (idea, actualizar serie)
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-02-04
+     * @version 2017-01-24
      */
     public function poblar ()
     {
@@ -161,8 +161,19 @@ class Controller_Bd extends \Controller_App
                 }
                 // alterar secuencia
                 if (in_array('id', $info['pk']) && $id>0) {
-                    if ($db=='PostgreSQL') {
-                        $db->query('SELECT SETVAL (\''.$table.'_id_seq\', '.$id.');')->errorCode();
+                    $es_serial = false;
+                    foreach ($info['columns'] as $columna) {
+                        if ($columna['name']=='id') {
+                            if ($columna['auto']) {
+                                $es_serial = true;
+                            }
+                            break;
+                        }
+                    }
+                    if ($es_serial) {
+                        if ($db=='PostgreSQL') {
+                            $db->query('SELECT SETVAL (\''.$table.'_id_seq\', '.$id.');')->errorCode();
+                        }
                     }
                 }
                 // crear mensaje para esta tabla
