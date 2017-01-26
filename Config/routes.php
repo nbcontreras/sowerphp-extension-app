@@ -43,3 +43,9 @@
     'module' => 'Sistema.Usuarios',
     'action' => 'api',
 ]);
+if (\sowerphp\core\Module::loaded('Dev')) {
+    \sowerphp\core\Routing_Router::connect('/api/dev/:controller/*', [
+        'module' => 'Dev',
+        'action' => 'api',
+    ]);
+}
