@@ -74,7 +74,7 @@ class Controller_Maintainer extends \Controller_App
      * @param modulo Nombre del módulo donde se generarán los archivos
      * @return URL que se usa para acceder al módulo
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-22
+     * @version 2017-03-15
      */
     private function setModuleUrl ($modulo = '')
     {
@@ -83,7 +83,7 @@ class Controller_Maintainer extends \Controller_App
         foreach ($partes as &$p) {
             $module_url .= \sowerphp\core\Utility_Inflector::underscore($p).'/';
         }
-        return '/'.$module_url;
+        return $module_url!='/' ? ('/'.$module_url) : $module_url;
     }
 
     /**
