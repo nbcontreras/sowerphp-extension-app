@@ -56,7 +56,7 @@ abstract class Model_Plural
     /**
      * Constructor de la clase abstracta
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-03-09
+     * @version 2017-03-15
      */
     public function __construct ()
     {
@@ -67,9 +67,9 @@ abstract class Model_Plural
         // setear nombre de la clase y de la tabla según la clase que se está usando
         if (empty($this->_class)) {
             $this->_class = \sowerphp\core\Utility_Inflector::singularize(get_class($this));
-            if (!class_exists($this->_class)) {
+            /*if (!class_exists($this->_class)) {
                 throw new \Exception('Clase '.$this->_class.' no existe (especificar singular de '.get_class($this).' manualmente)');
-            }
+            }*/
         }
         if (empty($this->_table)) {
             $this->_table = \sowerphp\core\Utility_Inflector::underscore (
