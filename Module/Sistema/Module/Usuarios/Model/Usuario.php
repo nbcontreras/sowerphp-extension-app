@@ -759,4 +759,21 @@ class Model_Usuario extends \Model_App
         return 'https://gravatar.com/avatar/'.md5(strtolower(trim($this->email))).'?size='.(int)$size;
     }
 
+    /**
+     * Método que envía un correo al usuario
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-03-15
+     */
+    public function email($subject, $msg, $replyTo = null)
+    {
+        $email = new \sowerphp\core\Network_Email();
+        if ($replyTo) {
+            $email->replyTo($replyTo);
+        }
+        $email->to($this->email);
+        $email->subject('['.\sowerphp\core\Configure::read('page.body.title').'] '.$subject);
+        $msg = $msg."\n\n".'-- '."\n".\sowerphp\core\Configure::read('page.body.title');
+        return $email->send($msg);
+    }
+
 }
