@@ -112,6 +112,9 @@ class Model_MonedaCambio extends \Model_App
      */
     public function __construct($desde = null, $a = null, $fecha = null)
     {
+        if (is_array($desde)) {
+            list($desde, $a, $fecha) = $desde;
+        }
         // buscar moneda
         if ($desde and $a) {
             if (isset(self::$monedas_aduana[$desde])) {
