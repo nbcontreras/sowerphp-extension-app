@@ -127,7 +127,7 @@ class Model_MonedaCambio extends \Model_App
             $a = strtoupper($a);
             parent::__construct($desde, $a, $fecha);
             // si no existe el tipo de cambio, buscar si existe "a" USD y luego desde USD a la moneda $a original
-            /*if (!$this->valor) {
+            if (!$this->valor and $a!='USD') {
                 $MonedaCambioUSD = (new Model_MonedaCambios)->get($desde, 'USD', $fecha);
                 if ($MonedaCambioUSD->valor) {
                     $USD = (new Model_MonedaCambios)->get('USD', $a, $fecha);
@@ -136,7 +136,7 @@ class Model_MonedaCambio extends \Model_App
                         $this->save();
                     }
                 }
-            }*/
+            }
         } else {
             parent::__construct();
         }
