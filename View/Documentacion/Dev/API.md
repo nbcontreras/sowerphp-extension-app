@@ -59,6 +59,9 @@ Las funcionalidades de la API que requieran autenticación estarán asociadas a
 la cuenta del usuario que se use para autenticar y los permisos estarán
 limitados a los que el usuario disponga en la aplicación.
 
+Adicionalmente se puede especificar el hash del usuario en la llamada a la API
+usando el parámetro GET *api\_hash*
+
 Solicitudes
 -----------
 
