@@ -490,6 +490,16 @@ class Model_Usuario extends \Model_App
     }
 
     /**
+     * Método que fuerza los grupos de un usuario
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-06-11
+     */
+    public function setGroups(array $groups = [])
+    {
+        $this->groups = $groups ? $groups : null;
+    }
+
+    /**
      * Método que permite determinar si un usuario pertenece a cierto grupo.
      * Además se revisará si pertenece al grupo sysadmin, en cuyo caso también
      * entregará true
@@ -550,20 +560,52 @@ class Model_Usuario extends \Model_App
     /**
      * Método que entrega el listado de recursos sobre los que el usuario tiene
      * permisos para acceder.
-     * @return Arreglo asociativo con el GID como clave y el nombre del grupo como valor
+     * @return Listado de recursos a los que el usuario tiene acceso
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-01-15
+     * @version 2017-06-11
      */
-    public function auths()
+    public function auths($forceGet = false)
     {
-        if ($this->auths===null) {
-            $this->auths = $this->db->getCol('
-                SELECT a.recurso
-                FROM auth AS a, usuario_grupo AS ug, grupo AS g
-                WHERE ug.usuario = :usuario AND a.grupo = ug.grupo AND ug.grupo = g.id AND g.activo = :activo
-            ', [':usuario'=>$this->id, ':activo'=>true]);
+        if ($this->auths===null or $forceGet) {
+            $this->auths = $this->getAuths();
         }
         return $this->auths;
+    }
+
+    /**
+     * Método que entrega los recursos a los que tiene acceso el usuario dado determinados grupos
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-06-11
+     */
+    public function getAuths(array $groups = [])
+    {
+        $where = ['ug.usuario = :usuario', 'g.activo = :activo'];
+        $vars = [':usuario'=>$this->id, ':activo'=>true];
+        if ($groups) {
+            $grupos = [];
+            $i = 1;
+            foreach ($groups as $g) {
+                $grupos[] = ':grupo'.$i;
+                $vars[':grupo'.$i] = $g;
+                $i++;
+            }
+            $where[] = 'g.grupo IN ('.implode(', ', $grupos).')';
+        }
+        return $this->db->getCol('
+            SELECT a.recurso
+            FROM auth AS a, usuario_grupo AS ug, grupo AS g
+            WHERE a.grupo = ug.grupo AND ug.grupo = g.id AND '.implode(' AND ', $where).'
+        ', $vars);
+    }
+
+    /**
+     * Método que asigna manualmente un listado de recursos a los que el usuario tiene acceso
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-06-11
+     */
+    public function setAuths(array $auths = [])
+    {
+        $this->auths = $auths ? $auths : null;
     }
 
     /**

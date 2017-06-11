@@ -98,7 +98,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
 
     /**
      * Método que actualiza el usuario autenticado en la caché
-     *@ author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-10-23
      */
     public function saveCache()
