@@ -137,10 +137,15 @@ echo $form->end(array(
 <?php
 $grupos = $_Auth->User->groups();
 if ($grupos) {
-    echo '<p>Los siguientes son los grupos a los que usted pertenece.</p>',"\n";
+    echo '<p>Los siguientes son los grupos a los que usted pertenece:</p>',"\n";
     echo '<ul>',"\n";
     foreach ($grupos as &$grupo)
         echo '<li>',$grupo,'</li>';
+    echo '</ul>',"\n";
+    echo '<p>A través de esos grupos, tiene acceso a los siguientes recursos:</p>',"\n";
+    echo '<ul>',"\n";
+    foreach ($_Auth->User->auths() as &$auth)
+        echo '<li>',$auth,'</li>';
     echo '</ul>',"\n";
 } else {
     echo '<p>No pertenece a ningún grupo.</p>',"\n";
