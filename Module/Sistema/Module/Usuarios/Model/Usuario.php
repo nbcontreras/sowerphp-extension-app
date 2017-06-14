@@ -558,6 +558,32 @@ class Model_Usuario extends \Model_App
     }
 
     /**
+     * Método que entrega los grupos a los que realmente pertenece un usuario dado determinados grupos
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-06-14
+     */
+    public function getGroups(array $groups = [])
+    {
+        $where = ['ug.usuario = :usuario', 'g.activo = :activo'];
+        $vars = [':usuario'=>$this->id, ':activo'=>true];
+        if ($groups) {
+            $grupos = [];
+            $i = 1;
+            foreach ($groups as $g) {
+                $grupos[] = ':grupo'.$i;
+                $vars[':grupo'.$i] = $g;
+                $i++;
+            }
+            $where[] = 'g.grupo IN ('.implode(', ', $grupos).')';
+        }
+        return $this->db->getAssociativeArray('
+            SELECT g.id, g.grupo
+            FROM usuario_grupo AS ug JOIN grupo AS g ON ug.grupo = g.id
+            WHERE '.implode(' AND ', $where).'
+        ', $vars);
+    }
+
+    /**
      * Método que entrega el listado de recursos sobre los que el usuario tiene
      * permisos para acceder.
      * @return Listado de recursos a los que el usuario tiene acceso
