@@ -186,11 +186,17 @@ class Controller_Component_Log extends \sowerphp\core\Controller_Component
      * @param facility Origen del envío
      * @param severity Gravedad del registro
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-05-04
+     * @version 2017-06-15
      */
     private function reportEmail($message, $facility, $severity)
     {
-        $email = new \sowerphp\core\Network_Email();
+        // verificar que exista soporte para correo
+        $config = \sowerphp\core\Configure::read('email.default');
+        if (!$config) {
+            return false;
+        }
+        // crear reporte
+        $email = new \sowerphp\core\Network_Email($config);
         if ($this->getUser()) {
             $email->replyTo($this->getUser()->email, $this->getUser()->nombre);
         }
