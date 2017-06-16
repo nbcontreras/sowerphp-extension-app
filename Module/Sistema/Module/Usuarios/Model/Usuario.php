@@ -601,7 +601,7 @@ class Model_Usuario extends \Model_App
     /**
      * Método que entrega los recursos a los que tiene acceso el usuario dado determinados grupos
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-06-11
+     * @version 2017-06-16
      */
     public function getAuths(array $groups = [])
     {
@@ -616,6 +616,9 @@ class Model_Usuario extends \Model_App
                 $i++;
             }
             $where[] = 'g.grupo IN ('.implode(', ', $grupos).')';
+        }
+        if ($this->db===null) {
+            $this->db = \sowerphp\core\Model_Datasource_Database::get($this->_database);
         }
         return $this->db->getCol('
             SELECT a.recurso
