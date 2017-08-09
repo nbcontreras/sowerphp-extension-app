@@ -23,6 +23,6 @@
     "require": {
         "php": ">=5.5",
         "elevenpaths/latch-sdk-php": "dev-master",
-        "google/recaptcha": "1.1.2"
+        "google/recaptcha": "1.1.3"
     }
 }
