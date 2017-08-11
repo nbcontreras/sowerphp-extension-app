@@ -117,6 +117,38 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         }
     }
 
+     /**
+     * Acción que fuerza el cierre de sesión de un usuario eliminando su hash
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-08-11
+     */
+    public function salir_forzar($id)
+    {
+        $Usuario = new Model_Usuario($id);
+        if(!$Usuario->exists()) {
+            \sowerphp\core\Model_Datasource_Session::message(
+                'Usuario no existe, no se puede forzar el cierre de la sesión',
+                'error'
+            );
+            $this->redirect('/sistema/usuarios/usuarios/listar');
+        }
+        $Usuario->ultimo_ingreso_hash = null;
+        try {
+            $Usuario->save();
+            (new \sowerphp\core\Cache())->delete($this->Auth->settings['session']['key'].$id);
+            \sowerphp\core\Model_Datasource_Session::message(
+                'Sesión del usuario '.$Usuario->usuario.' cerrada',
+                'ok'
+            );
+        } catch (\Exception $e) {
+            \sowerphp\core\Model_Datasource_Session::message(
+                'No fue posible forzar el cierre de la sesión: '.$e->getMessage(),
+                'error'
+            );
+        }
+        $this->redirect('/sistema/usuarios/usuarios/editar/'.$id);
+    }
+
     /**
      * Acción para recuperar la contraseña
      * @param usuario Usuario al que se desea recuperar su contraseña

@@ -1,7 +1,14 @@
+<?php if (isset($Obj)) : ?>
+<ul class="nav nav-pills pull-right">
+    <li>
+        <a href="<?=$_base?>/sistema/usuarios/usuarios/salir_forzar/<?=$Obj->id?>" title="Forzar el cierre de la sesión del usuario">
+            <span class="fa fa-sign-out"></span> Cerrar sesión
+        </a>
+    </li>
+</ul>
+<?php endif; ?>
 <h1><?=$accion?> <?=$model?></h1>
-
 <?php
-
 // crear formulario
 $form = new \sowerphp\general\View_Helper_Form();
 echo $form->begin(array('onsubmit'=>'Form.check()'));
