@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Componente para proveer una API para funciones de los controladores
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2016-08-06
+ * @version 2017-08-16
  */
 class Controller_Component_Api extends \sowerphp\core\Controller_Component
 {
@@ -47,19 +47,26 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
             ]
         ],
         'localhost' => ['::1', '127.0.0.1'],
+        'data' => [
+            'keep-raw' => false, // por defecto los datos de entrada por POST se asumen JSON y se parsean como tal
+        ],
     ];
     protected $User = null; ///< Usuario que se ha autenticado en la API
 
     /**
      * Método para inicializar la función de la API que se está ejecutando
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-02
+     * @version 2017-08-16
      */
     private function init()
     {
         $this->method = strtoupper($_SERVER['REQUEST_METHOD']);
         $this->headers = $this->controller->request->header();
-        $this->data = json_decode(file_get_contents('php://input'), true);
+        if ($this->settings['data']['keep-raw']) {
+            $this->data = file_get_contents('php://input');
+        } else {
+            $this->data = json_decode(file_get_contents('php://input'), true);
+        }
         $this->controller->response->type('application/json');
     }
 
@@ -320,6 +327,17 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
             $vars[$param] = isset($_GET[$param]) ? $_GET[$param] : $default;
         }
         return $vars;
+    }
+
+    /**
+     * Método que permite mantener los datos crudos y no convertirlos a JSON
+     * @param keep =true (por defecto) para mantener datos en crudo
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-08-16
+     */
+    public function setKeepRawData($keep = true)
+    {
+        $this->settings['data']['keep-raw'] = $keep;
     }
 
 }
