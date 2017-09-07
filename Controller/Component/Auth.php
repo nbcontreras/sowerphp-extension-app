@@ -52,7 +52,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             'error' => [
                 'nologin' => 'Debe iniciar sesión para tratar de acceder a <em>%s</em>',
                 'auth' => 'Usuario <em>%s</em> no dispone de permisos para acceder a <em>%s</em>',
-                'invalid' => 'Credenciales del usuario <em>%s</em> son inválidas',
+                'invalid' => 'Credenciales del usuario son inválidas',
                 'notexist' => 'Usuario <em>%s</em> no existe',
                 'inactive' => 'Cuenta de usuario <em>%s</em> no activa',
                 'newlogin' => 'Sesión cerrada. Usuario <em>%s</em> tiene una más nueva en otro lugar',
@@ -305,7 +305,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
                 $this->User->savePasswordRetry($this->User->contrasenia_intentos-1);
             }
             if ($this->User->contrasenia_intentos) {
-                $msg = sprintf($this->settings['messages']['error']['invalid'], $usuario);
+                $msg = $this->settings['messages']['error']['invalid'];
                 \sowerphp\core\Model_Datasource_Session::message($msg, 'error');
             } else {
                 $msg = sprintf($this->settings['messages']['error']['login_attempts_exceeded'], $usuario);
