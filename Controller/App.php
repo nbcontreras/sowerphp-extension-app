@@ -27,7 +27,7 @@ namespace sowerphp\app;
  * Clase que sirve para extender la clase Controller, este archivo
  * deberá ser sobreescrito en cada una de las aplicaciones
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2015-04-28
+ * @version 2017-10-10
  */
 class Controller_App extends \sowerphp\core\Controller
 {
@@ -71,6 +71,43 @@ class Controller_App extends \sowerphp\core\Controller
     public function api($resource, $args = null)
     {
         call_user_func_array([$this->Api, 'run'], func_get_args());
+    }
+
+    /**
+     * Método que permite consumir por POST o GET un recurso de la misma aplicación
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2017-08-04
+     */
+    protected function consume($recurso, $datos = [], $assoc = true)
+    {
+        $rest = new \sowerphp\core\Network_Http_Rest();
+        $rest->setAuth($this->Auth->User ? $this->Auth->User->hash : \sowerphp\core\Configure::read('api.default.token'));
+        $rest->setAssoc($assoc);
+        if ($datos) {
+            return $rest->post($this->request->url.$recurso, $datos);
+        } else {
+            return $rest->get($this->request->url.$recurso);
+        }
+    }
+
+    /**
+     * Método que permite ejecutar un comando en la terminal
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2017-03-15
+     */
+    protected function shell($cmd, &$output = [])
+    {
+        if ($cmd[0]!='/') {
+            $cmd = DIR_PROJECT.'/website/Shell/shell.php '.$cmd;
+            if (defined('ENVIRONMENT_DEV') and ENVIRONMENT_DEV) {
+                $cmd .= ' --dev';
+            }
+        }
+        $rc = 0;
+        $output = [];
+        exec('screen -dm '.$cmd, $output, $rc);
+        $output = implode("\n", $output);
+        return $rc;
     }
 
 }
