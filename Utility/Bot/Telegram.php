@@ -193,6 +193,26 @@ class Utility_Bot_Telegram
     }
 
     /**
+     * Método que envía un documento al usuario
+     * @param document file_id del documento en servidor de telegram o bien una URL HTTP con el documento a descargar (gif, pdf o zip)
+     * @param caption Texto a enviar junto con el documento
+     * @param chat_id Identificador del chat al que se envía el mensaje
+     * @param reply_to_message_id ID de a quien se le está respondiendo
+     * @param reply_markup Opciones a enviar en el mensaje al usuario
+     * @return Retorno de Network_Http_Socket::post()
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-10-11
+     */
+    public function sendDocument($document, $caption = null, $chat_id = null, $reply_to_message_id = null, $reply_markup = null)
+    {
+        $this->sendChatAction('upload_document', $chat_id);
+        if (is_array($document)) {
+            return $this->__call('sendDocument', $document);
+        }
+        return $this->uploadFile('sendDocument', compact('document', 'caption', 'chat_id', 'reply_to_message_id', 'reply_markup'));
+    }
+
+    /**
      * Método que envía una fotografía al usuario
      * @param photo Ruta absoluta de la imagen que se desea enviar
      * @param caption Texto a enviar junto con la imagen
