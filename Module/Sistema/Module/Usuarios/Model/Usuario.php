@@ -308,7 +308,7 @@ class Model_Usuario extends \Model_App
             $c = substr($key, 0, strpos($key, '_'));
             $v = substr($key, strpos($key, '_')+1);
             if (!isset($this->config[$c][$v])) {
-                return isset(self::$config_default[$c.'_'.$v]) ? self::$config_default[$c.'_'.$v] : null;
+                return isset(get_called_class()::$config_default[$c.'_'.$v]) ? get_called_class()::$config_default[$c.'_'.$v] : null;
             }
             $this->$name = $this->config[$c][$v];
             return $this->$name;
