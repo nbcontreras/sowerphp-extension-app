@@ -87,6 +87,20 @@ CREATE TABLE auth (
 		MATCH FULL ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB COMMENT = 'Permisos de grupos para acceder a recursos';
 
+-- tabla para los datos extra del usuario (api, configuraciones, etc, propias de la aplicación)
+DROP TABLE IF EXISTS usuario_config CASCADE;
+CREATE TABLE usuario_config (
+    usuario INTEGER UNSIGNED NOT NULL,
+    configuracion VARCHAR(32) NOT NULL,
+    variable VARCHAR(64) NOT NULL,
+    valor TEXT,
+    json BOOLEAN NOT NULL DEFAULT false,
+    CONSTRAINT usuario_config_pkey PRIMARY KEY (usuario, configuracion, variable),
+    CONSTRAINT usuario_config_usuario_fk FOREIGN KEY (usuario)
+                REFERENCES usuario (id) MATCH FULL
+                ON UPDATE CASCADE ON DELETE CASCADE
+);
+
 SET FOREIGN_KEY_CHECKS=1;
 
 -- DATOS PARA EL MÓDULO: Sistema.Usuarios

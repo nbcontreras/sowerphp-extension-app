@@ -11,13 +11,9 @@ $(function() {
 
 <div role="tabpanel">
     <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active"><a href="#datos" aria-controls="datos" role="tab" data-toggle="tab">Datos personales</a></li>
+        <li role="presentation" class="active"><a href="#datos" aria-controls="datos" role="tab" data-toggle="tab">Datos básicos</a></li>
         <li role="presentation"><a href="#contrasenia" aria-controls="contrasenia" role="tab" data-toggle="tab">Contraseña</a></li>
-        <li role="presentation"><a href="#grupos" aria-controls="grupos" role="tab" data-toggle="tab">Grupos</a></li>
-<?php if ($auth2) : ?>
-        <li role="presentation"><a href="#auth2" aria-controls="auth2" role="tab" data-toggle="tab">Auth2</a></li>
-<?php endif; ?>
-        <li role="presentation"><a href="#qr" aria-controls="qr" role="tab" data-toggle="tab">QR</a></li>
+        <li role="presentation"><a href="#auth" aria-controls="auth" role="tab" data-toggle="tab">Auth</a></li>
     </ul>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="datos">
@@ -61,14 +57,14 @@ echo $form->input(array(
     'label' => 'Hash',
     'value' => $_Auth->User->hash,
     'help' => 'Hash único para identificar el usuario (32 caracteres).<br />Si desea uno nuevo, borrar este y automáticamente se generará uno nuevo al guardar los cambios',
-    'attr' => 'maxlength="32" onclick="this.select()"',
+    'attr' => 'maxlength="32" onclick="this.select()" onmouseover="this.type=\'text\'" onmouseout="this.type=\'password\'"',
 ));
 echo $form->input(array(
     'name' => 'api_key',
     'label' => 'API key',
     'value' => base64_encode($_Auth->User->hash.':X'),
     'help' => 'Valor de la cabecera Authorization de HTTP para autenticar en la API usando sólo la API key, la cual está basada en el hash del usuario',
-    'attr' => 'readonly="readonly" onclick="this.select()"',
+    'attr' => 'readonly="readonly" onclick="this.select()" onmouseover="this.type=\'text\'" onmouseout="this.type=\'password\'"',
 ));
 if ($_Auth->User->getLdapPerson() and $_Auth->User->getLdapPerson()->uid != $_Auth->User->usuario) {
     echo $form->input(array(
@@ -93,9 +89,12 @@ echo $form->end(array(
 ?>
                 </div>
                 <div class="col-sm-3">
-                    <a href="https://gravatar.com" title="Imagen en Gravatar">
+                    <a href="https://gravatar.com" title="Cambiar imagen en Gravatar" target="_blank">
                         <img src="<?=$_Auth->User->getAvatar(200)?>" alt="Avatar" class="center img-responsive thumbnail" />
                     </a>
+                    <div class="text-center small" style="margin-top:0.5em">
+                        <a href="https://gravatar.com" title="Cambiar imagen en Gravatar" target="_blank">[cambiar imagen]</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -133,28 +132,12 @@ echo $form->end(array(
 ));
 ?>
         </div>
-        <div role="tabpanel" class="tab-pane" id="grupos">
+        <div role="tabpanel" class="tab-pane" id="auth">
+<?php if ($auth2) : ?>
+            <div class="panel panel-default">
+                <div class="panel-heading">Autenticación secundaria con <?=$auth2['name']?></div>
+                <div class="panel-body">
 <?php
-$grupos = $_Auth->User->groups();
-if ($grupos) {
-    echo '<p>Los siguientes son los grupos a los que usted pertenece:</p>',"\n";
-    echo '<ul>',"\n";
-    foreach ($grupos as &$grupo)
-        echo '<li>',$grupo,'</li>';
-    echo '</ul>',"\n";
-    echo '<p>A través de esos grupos, tiene acceso a los siguientes recursos:</p>',"\n";
-    echo '<ul>',"\n";
-    foreach ($_Auth->User->auths() as &$auth)
-        echo '<li>',$auth,'</li>';
-    echo '</ul>',"\n";
-} else {
-    echo '<p>No pertenece a ningún grupo.</p>',"\n";
-}
-?>
-        </div>
-<?php
-if ($auth2) {
-    echo '<div role="tabpanel" class="tab-pane" id="auth2">',"\n";
     if (!isset($_Auth->User->token[0])) {
         echo '<p>Aquí podrá crear su token para autorizar el ingreso a la aplicación con el sistema secundario <a href="',$auth2['url'],'" target="_blank">',$auth2['name'],'</a>.</p>',"\n";
         echo $form->begin([
@@ -181,14 +164,49 @@ if ($auth2) {
             'value' => 'Destruir token',
         ]);
     }
-    echo '</div>',"\n";
+?>
+                </div>
+            </div>
+<?php endif; ?>
+            <div class="panel panel-default">
+                <div class="panel-heading">Código QR autenticación</div>
+                <div class="panel-body">
+                    <p>El siguiente código QR provee la dirección de la aplicación junto con su <em>hash</em> de usuario para autenticación.</p>
+                    <img src="<?=$_base?>/exportar/qrcode/<?=$qrcode?>" alt="auth_qr" class="center img-responsive thumbnail" style="display:none" id="auth_qr" />
+                    <a href="#" onclick="$('#auth_qr').show(); $('#auth_qr_show').hide(); $('#auth_qr_hide').show(); return false;" class="btn btn-default" id="auth_qr_show">Ver código QR</a>
+                    <a href="#" onclick="$('#auth_qr').hide(); $('#auth_qr_hide').hide(); $('#auth_qr_show').show(); return false;" class="btn btn-default" style="display:none" id="auth_qr_hide">Ocultar código QR</a>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">Grupos y permisos</div>
+                <div class="panel-body">
+<?php
+$grupos = $_Auth->User->groups();
+if ($grupos) {
+    echo '<p>Los siguientes son los grupos a los que usted pertenece:</p>',"\n";
+    echo '<ul>',"\n";
+    foreach ($grupos as &$grupo)
+        echo '<li>',$grupo,'</li>';
+    echo '</ul>',"\n";
+    echo '<p>A través de estos grupos, tiene acceso a los siguientes recursos:</p>',"\n";
+    echo '<ul>',"\n";
+    foreach ($_Auth->User->auths() as &$auth)
+        echo '<li>',$auth,'</li>';
+    echo '</ul>',"\n";
+} else {
+    echo '<p>No pertenece a ningún grupo.</p>',"\n";
 }
 ?>
-        <div role="tabpanel" class="tab-pane" id="qr">
-            <p>El siguiente código QR provee la dirección de la aplicación junto con su <em>hash</em> de usuario para autenticación.</p>
-            <div style="text-align:center">
-                <img src="<?=$_base?>/exportar/qrcode/<?=$qrcode?>" alt="hash" />
+                </div>
             </div>
         </div>
-  </div>
+
+    </div>
 </div>
+
+<script>
+$(function() {
+    $('#hashField').attr('type', 'password');
+    $('#api_keyField').attr('type', 'password');
+});
+</script>

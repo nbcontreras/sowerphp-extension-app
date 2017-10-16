@@ -98,6 +98,20 @@ COMMENT ON COLUMN auth.id IS 'Identificador (serial)';
 COMMENT ON COLUMN auth.grupo IS 'Grupo al que se le concede el permiso';
 COMMENT ON COLUMN auth.recurso IS 'Recurso al que el grupo tiene acceso';
 
+-- tabla para los datos extra del usuario (api, configuraciones, etc, propias de la aplicación)
+DROP TABLE IF EXISTS usuario_config CASCADE;
+CREATE TABLE usuario_config (
+    usuario INTEGER NOT NULL,
+    configuracion VARCHAR(32) NOT NULL,
+    variable VARCHAR(64) NOT NULL,
+    valor TEXT,
+    json BOOLEAN NOT NULL DEFAULT false,
+    CONSTRAINT usuario_config_pkey PRIMARY KEY (usuario, configuracion, variable),
+    CONSTRAINT usuario_config_usuario_fk FOREIGN KEY (usuario)
+                REFERENCES usuario (id) MATCH FULL
+                ON UPDATE CASCADE ON DELETE CASCADE
+);
+
 -- DATOS PARA EL MÓDULO: Sistema.Usuarios
 
 INSERT INTO grupo (grupo) VALUES

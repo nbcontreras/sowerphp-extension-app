@@ -212,6 +212,11 @@ class Model_Usuario extends \Model_App
     protected $auths = null; ///< Permisos que tiene el usuario
     protected $LdapPerson = null; ///< Caché para objeto Model_Datasource_Ldap_Person (y para Model_Datasource_Zimbra_Account)
 
+    // configuración asociada a la tabla usuario_config (configuración extendida y personalizada según la app)
+    public static $config_encrypt = []; ///< columnas de la configuración que se deben encriptar para guardar en la base de datos
+    public static $config_default = []; ///< valores por defecto para columnas de la configuración en caso que no estén especificadas
+    private $config = null; ///< Caché para configuraciones
+
     /**
      * Constructor de la clase usuario
      * Permite crear el objeto usuario ya sea recibiendo el id del usuario, el
@@ -249,6 +254,126 @@ class Model_Usuario extends \Model_App
             }
         }
         parent::__construct($id);
+    }
+
+    /**
+     * Método que entrega las configuraciones y parámetros extras para el
+     * usuario
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2017-10-16
+     */
+    public function getConfig()
+    {
+        if ($this->config===false or !$this->id or !class_exists('\sowerphp\app\Sistema\Usuarios\Model_UsuarioConfig')) {
+            return null;
+        }
+        if ($this->config===null) {
+            $config = $this->db->getAssociativeArray('
+                SELECT configuracion, variable, valor, json
+                FROM usuario_config
+                WHERE usuario = :id
+            ', [':id' => $this->id]);
+            if (!$config) {
+                $this->config = false;
+                return null;
+            }
+            foreach ($config as $configuracion => $datos) {
+                if (!isset($datos[0])) {
+                    $datos = [$datos];
+                }
+                $this->config[$configuracion] = [];
+                foreach ($datos as $dato) {
+                    if (in_array($configuracion.'_'.$dato['variable'], self::$config_encrypt)) {
+                        $dato['valor'] = \sowerphp\core\Utility_Data::decrypt($dato['valor'], \sowerphp\core\Configure::read('app.pkey'));
+                    }
+                    $this->config[$configuracion][$dato['variable']] =
+                        $dato['json'] ? json_decode($dato['valor']) : $dato['valor']
+                    ;
+                }
+            }
+        }
+        return $this->config;
+    }
+
+    /**
+     * Método mágico para obtener configuraciones del usuario
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2017-10-16
+     */
+    public function __get($name)
+    {
+        if (strpos($name, 'config_')===0 and class_exists('\sowerphp\app\Sistema\Usuarios\Model_UsuarioConfig')) {
+            $this->getConfig();
+            $key = str_replace('config_', '', $name);
+            $c = substr($key, 0, strpos($key, '_'));
+            $v = substr($key, strpos($key, '_')+1);
+            if (!isset($this->config[$c][$v])) {
+                return isset(self::$config_default[$c.'_'.$v]) ? self::$config_default[$c.'_'.$v] : null;
+            }
+            $this->$name = $this->config[$c][$v];
+            return $this->$name;
+        } else {
+            throw new \Exception(
+                'Atributo '.$name.' del usuario no existe (no se puede obtener)'
+            );
+        }
+    }
+
+    /**
+     * Método mágico para asignar una configuración del usuario
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2017-10-16
+     */
+    public function __set($name, $value)
+    {
+        if (strpos($name, 'config_')===0 and class_exists('\sowerphp\app\Sistema\Usuarios\Model_UsuarioConfig')) {
+            $key = str_replace('config_', '', $name);
+            $c = substr($key, 0, strpos($key, '_'));
+            $v = substr($key, strpos($key, '_')+1);
+            $value = ($value===false or $value===0) ? '0' : ((!is_array($value) and !is_object($value)) ? (string)$value : ((is_array($value) and empty($value))?null:$value));
+            $this->config[$c][$v] = (!is_string($value) or isset($value[0])) ? $value : null;
+            $this->$name = $this->config[$c][$v];
+        } else {
+            throw new \Exception(
+                'Atributo '.$name.' del usuario no existe (no se puede asignar)'
+            );
+        }
+    }
+
+    /**
+     * Método que guarda el usuario y su configuración personalizada si existe
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2017-10-16
+     */
+    public function save()
+    {
+        // guardar usuario
+        if (!parent::save()) {
+            return false;
+        }
+        // guardar configuración
+        if ($this->config and class_exists('\sowerphp\app\Sistema\Usuarios\Model_UsuarioConfig')) {
+            foreach ($this->config as $configuracion => $datos) {
+                foreach ($datos as $variable => $valor) {
+                    $Config = new Model_UsuarioConfig($this->id, $configuracion, $variable);
+                    if (!is_array($valor) and !is_object($valor)) {
+                        $Config->json = 0;
+                    } else {
+                        $valor = json_encode($valor);
+                        $Config->json = 1;
+                    }
+                    if (in_array($configuracion.'_'.$variable, self::$config_encrypt) and $valor!==null) {
+                        $valor = Utility_Data::encrypt($valor);
+                    }
+                    $Config->valor = $valor;
+                    if ($valor!==null) {
+                        $Config->save();
+                    } else {
+                        $Config->delete();
+                    }
+                }
+            }
+        }
     }
 
     /**

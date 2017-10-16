@@ -62,6 +62,20 @@ CREATE TABLE auth (
 		MATCH FULL ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+-- tabla para los datos extra del usuario (api, configuraciones, etc, propias de la aplicación)
+DROP TABLE IF EXISTS usuario_config CASCADE;
+CREATE TABLE usuario_config (
+    usuario INTEGER NOT NULL,
+    configuracion VARCHAR(32) NOT NULL,
+    variable VARCHAR(64) NOT NULL,
+    valor TEXT,
+    json INTEGER NOT NULL DEFAULT 0,
+    CONSTRAINT usuario_config_pkey PRIMARY KEY (usuario, configuracion, variable),
+    CONSTRAINT usuario_config_usuario_fk FOREIGN KEY (usuario)
+                REFERENCES usuario (id) MATCH FULL
+                ON UPDATE CASCADE ON DELETE CASCADE
+);
+
 -- DATOS PARA EL MODULO: Sistema.Usuarios
 
 INSERT INTO grupo (grupo) VALUES
