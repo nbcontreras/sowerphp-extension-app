@@ -488,10 +488,21 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para mostrar y editar el perfil del usuario que esta autenticado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-03-14
+     * @version 2017-10-16
      */
     public function perfil()
     {
+        // si hay cualquier campo que empiece por 'config_' se quita ya que son
+        // configuraciones reservadas para los administradores de la APP y no pueden
+        // ser asignadas por los usuarios (esto evita que envién "a la mala" una
+        // configuración). Si se desea que el usuario pueda configurar alguna
+        // configuración personalizada en el perfil del usuario, se deberá enviar a una
+        // acción diferente en un Controlador de usuarios personalizado (que herede este)
+        foreach ($_POST as $var => $val) {
+            if (strpos($var, 'config_')===0) {
+                unset($_POST[$var]);
+            }
+        }
         // procesar datos personales
         if (isset($_POST['datosUsuario'])) {
             // actualizar datos generales
