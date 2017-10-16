@@ -283,7 +283,7 @@ class Model_Usuario extends \Model_App
                 }
                 $this->config[$configuracion] = [];
                 foreach ($datos as $dato) {
-                    if (in_array($configuracion.'_'.$dato['variable'], self::$config_encrypt)) {
+                    if (in_array($configuracion.'_'.$dato['variable'], get_called_class()::$config_encrypt)) {
                         $dato['valor'] = \sowerphp\core\Utility_Data::decrypt($dato['valor'], \sowerphp\core\Configure::read('app.pkey'));
                     }
                     $this->config[$configuracion][$dato['variable']] =
@@ -362,7 +362,7 @@ class Model_Usuario extends \Model_App
                         $valor = json_encode($valor);
                         $Config->json = 1;
                     }
-                    if (in_array($configuracion.'_'.$variable, self::$config_encrypt) and $valor!==null) {
+                    if (in_array($configuracion.'_'.$variable, get_called_class()::$config_encrypt) and $valor!==null) {
                         if (!\sowerphp\core\Configure::read('app.pkey')) {
                             throw new \Exception(
                                 'No está definida la configuración app.pkey para encriptar configuración del usuario'
