@@ -268,6 +268,9 @@ class Model_Usuario extends \Model_App
             return null;
         }
         if ($this->config===null) {
+            if (!$this->db) {
+                $this->db = \sowerphp\core\Model_Datasource_Database::get($this->_database);
+            }
             $config = $this->db->getAssociativeArray('
                 SELECT configuracion, variable, valor, json
                 FROM usuario_config
