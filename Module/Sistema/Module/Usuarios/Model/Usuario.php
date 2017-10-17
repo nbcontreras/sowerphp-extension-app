@@ -287,7 +287,8 @@ class Model_Usuario extends \Model_App
                 }
                 $this->config[$configuracion] = [];
                 foreach ($datos as $dato) {
-                    if (in_array($configuracion.'_'.$dato['variable'], get_called_class()::$config_encrypt)) {
+                    $class = get_called_class();
+                    if (in_array($configuracion.'_'.$dato['variable'], $class::$config_encrypt)) {
                         $dato['valor'] = \sowerphp\core\Utility_Data::decrypt($dato['valor'], \sowerphp\core\Configure::read('app.pkey'));
                     }
                     $this->config[$configuracion][$dato['variable']] =
@@ -312,7 +313,8 @@ class Model_Usuario extends \Model_App
             $c = substr($key, 0, strpos($key, '_'));
             $v = substr($key, strpos($key, '_')+1);
             if (!isset($this->config[$c][$v])) {
-                return isset(get_called_class()::$config_default[$c.'_'.$v]) ? get_called_class()::$config_default[$c.'_'.$v] : null;
+                $class = get_called_class();
+                return isset($class::$config_default[$c.'_'.$v]) ? $class::$config_default[$c.'_'.$v] : null;
             }
             $this->$name = $this->config[$c][$v];
             return $this->$name;
@@ -382,7 +384,8 @@ class Model_Usuario extends \Model_App
                         $valor = json_encode($valor);
                         $Config->json = 1;
                     }
-                    if (in_array($configuracion.'_'.$variable, get_called_class()::$config_encrypt) and $valor!==null) {
+                    $class = get_called_class();
+                    if (in_array($configuracion.'_'.$variable, $class::$config_encrypt) and $valor!==null) {
                         if (!\sowerphp\core\Configure::read('app.pkey')) {
                             throw new \Exception(
                                 'No está definida la configuración app.pkey para encriptar configuración del usuario'
