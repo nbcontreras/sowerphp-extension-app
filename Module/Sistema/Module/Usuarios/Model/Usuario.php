@@ -344,6 +344,22 @@ class Model_Usuario extends \Model_App
     }
 
     /**
+     * Método para setear los atributos del usuario
+     * @param array Arreglo con los datos que se deben asignar
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2017-10-16
+     */
+    public function set($array)
+    {
+        parent::set($array);
+        foreach($array as $name => $value) {
+            if (strpos($name, 'config_')===0) {
+                $this->__set($name, $value);
+            }
+        }
+    }
+
+    /**
      * Método que guarda el usuario y su configuración personalizada si existe
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
      * @version 2017-10-16
