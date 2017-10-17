@@ -832,8 +832,10 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             }
             // se encontró el usuario, entonces guardar los datos del usuario de Telegram en el usuario de la aplicación web
             else {
-                $this->Auth->User->config_telegram_id = $telegram_user['id'];
-                $this->Auth->User->config_telegram_username = $telegram_user['username'];
+                $this->Auth->User->set([
+                    'config_telegram_id' => $telegram_user['id'],
+                    'config_telegram_username' => $telegram_user['username'],
+                ]);
                 try {
                     $this->Auth->User->save();
                     $this->Auth->saveCache();
@@ -843,6 +845,27 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     \sowerphp\core\Model_Datasource_Session::message('Ocurrió un error al parear con Telegram: '.$e->getMessage(), 'error');
                 }
             }
+        }
+        $this->redirect('/usuarios/perfil#apps');
+    }
+
+    /**
+     * Acción que desparea al usuario de Telegram
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-10-16
+     */
+    public function telegram_desparear()
+    {
+        $this->Auth->User->set([
+            'config_telegram_id' => null,
+            'config_telegram_username' => null,
+        ]);
+        try {
+            $this->Auth->User->save();
+            $this->Auth->saveCache();
+            \sowerphp\core\Model_Datasource_Session::message('Su cuenta ya no está asociada a Telegram', 'ok');
+        } catch (\Exception $e) {
+            \sowerphp\core\Model_Datasource_Session::message('Ocurrió un error al eliminar su cuenta de Telegram: '.$e->getMessage(), 'error');
         }
         $this->redirect('/usuarios/perfil#apps');
     }

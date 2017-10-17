@@ -222,7 +222,7 @@ class Model_Usuario extends \Model_App
      * Permite crear el objeto usuario ya sea recibiendo el id del usuario, el
      * email, el nombre de usuario o el hash de usuario.
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-05-19
+     * @version 2017-10-16
      */
     public function __construct ($id = null)
     {
@@ -254,6 +254,7 @@ class Model_Usuario extends \Model_App
             }
         }
         parent::__construct($id);
+        $this->getConfig();
     }
 
     /**

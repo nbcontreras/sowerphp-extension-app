@@ -436,8 +436,10 @@ abstract class Controller_Bot extends \Controller_App
         if (!$Usuario = $this->getAuthUser()) {
             return false;
         }
-        $Usuario->config_telegram_id = null;
-        $Usuario->config_telegram_username = null;
+        $Usuario->set([
+            'config_telegram_id' => null,
+            'config_telegram_username' => null,
+        ]);
         $Usuario->save();
         $this->Bot->Send(__($this->messages['auth']['logout'], $this->Bot->getFrom()->username));
     }
