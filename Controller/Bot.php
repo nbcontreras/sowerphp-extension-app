@@ -28,7 +28,7 @@ namespace sowerphp\app;
  * Para usar con Telegram se debe configurar el webhook en la URL:
  *   https://api.telegram.org/bot<token>/setWebhook?url=https://example.com/api/bot/telegram
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2017-10-16
+ * @version 2017-10-17
  */
 abstract class Controller_Bot extends \Controller_App
 {
@@ -65,6 +65,7 @@ abstract class Controller_Bot extends \Controller_App
         'numbers' => [['1','2','3'], ['4','5','6'], ['7','8','9'], ['0']],
         'like' => [["\xF0\x9F\x91\x8D", "\xF0\x9F\x91\x8E"]],
     ]; ///< Layouts de teclados
+    private $Usuario; ///< Usuario autenticado (asociado a la aplicación web)
 
     /**
      * Método para permitir acceder a la API sin estar autenticado
@@ -429,7 +430,7 @@ abstract class Controller_Bot extends \Controller_App
     /**
      * Comando del Bot que cierra la sesión (desparea) al usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-10-16
+     * @version 2017-10-17
      */
     protected function _bot_logout()
     {
@@ -441,24 +442,27 @@ abstract class Controller_Bot extends \Controller_App
             'config_telegram_username' => null,
         ]);
         $Usuario->save();
+        $this->Usuario = null;
         $this->Bot->Send(__($this->messages['auth']['logout'], $this->Bot->getFrom()->username));
     }
 
     /**
      * Método del Bot que permite obtener el usuario autenticado (si es que está pareado)
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-10-16
+     * @version 2017-10-17
      */
     protected function getAuthUser()
     {
-        $Usuario = (new \sowerphp\app\Sistema\Usuarios\Model_Usuarios())->getUserByTelegramID(
-            $this->Bot->getFrom()->id, $this->Auth->settings['model']
-        );
-        if (!$Usuario) {
-            $this->Bot->Send(__($this->messages['auth']['invalid'], $this->Bot->getFrom()->username));
-            return false;
+        if (!isset($this->Usuario)) {
+            $this->Usuario = (new \sowerphp\app\Sistema\Usuarios\Model_Usuarios())->getUserByTelegramID(
+                $this->Bot->getFrom()->id, $this->Auth->settings['model']
+            );
+            if (!$this->Usuario) {
+                $this->Bot->Send(__($this->messages['auth']['invalid'], $this->Bot->getFrom()->username));
+                return false;
+            }
         }
-        return $Usuario;
+        return $this->Usuario;
     }
 
 }
