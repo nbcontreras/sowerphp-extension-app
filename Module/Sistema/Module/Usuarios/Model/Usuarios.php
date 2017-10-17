@@ -109,4 +109,19 @@ class Model_Usuarios extends \Model_Plural_App
         ');
     }
 
+    /**
+     * Método que entrega el objeto del Usuario a partir del ID de telegram
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-10-16
+     */
+    public function getUserByTelegramID($telegram_id, $model)
+    {
+        $id = $this->db->getValue('
+            SELECT usuario
+            FROM usuario_config
+            WHERE configuracion = \'telegram\' AND variable = \'id\' AND valor = :telegram_id
+        ', ['telegram_id'=>$telegram_id]);
+        return $id ? new $model($id) : false;
+    }
+
 }

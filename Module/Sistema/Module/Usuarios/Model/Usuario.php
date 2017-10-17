@@ -398,6 +398,8 @@ class Model_Usuario extends \Model_App
                 }
             }
         }
+        // todo ok
+        return true;
     }
 
     /**

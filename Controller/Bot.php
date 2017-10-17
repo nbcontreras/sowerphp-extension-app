@@ -28,7 +28,7 @@ namespace sowerphp\app;
  * Para usar con Telegram se debe configurar el webhook en la URL:
  *   https://api.telegram.org/bot<token>/setWebhook?url=https://example.com/api/bot/telegram
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2018-08-23
+ * @version 2017-10-16
  */
 abstract class Controller_Bot extends \Controller_App
 {
@@ -44,6 +44,11 @@ abstract class Controller_Bot extends \Controller_App
         'doNotKnow' => "No sé que me estás pidiendo, no sé nada sobre /%s \xF0\x9F\x98\x95",
         'argsMiss' => "Por favor háblame claro \xF0\x9F\x98\x91 Dime lo que necesitas así:\n/%s %s",
         'whoami' => "%s \nUsuario: %s\nID: %s",
+        'token' => 'Tu token para pareo es: %d',
+        'auth' => [
+            'invalid' => "@%s no te conozco \xF0\x9F\x98\x9E",
+            'logout' => '¡Hasta pronto @%s!',
+        ],
         'settings' => [
             'select' => 'Dime qué opción quieres configurar',
             'miss' => "No tengo opciones que se puedan configurar \xF0\x9F\x98\x9E",
@@ -403,6 +408,55 @@ abstract class Controller_Bot extends \Controller_App
                 $this->Bot->Send(__($this->messages['support']['bad']));
             }
         }
+    }
+
+    /**
+     * Comando del Bot que solicita un token para parear la cuenta de usuario con la de Telegram
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-10-16
+     */
+    protected function _bot_token()
+    {
+        // obtener token y verificar que no esté ya en la cache
+        do {
+            $token = rand(111111, 999999);
+        } while ($this->Cache->get('telegram.pairing.'.$token));
+        // escribir token en la cache para recordar
+        $this->Cache->set('telegram.pairing.'.$token, ['id'=>$this->Bot->getFrom()->id, 'username'=>$this->Bot->getFrom()->username]);
+        $this->Bot->Send(__($this->messages['token'], $token));
+    }
+
+    /**
+     * Comando del Bot que cierra la sesión (desparea) al usuario
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-10-16
+     */
+    protected function _bot_logout()
+    {
+        if (!$Usuario = $this->getAuthUser()) {
+            return false;
+        }
+        $Usuario->config_telegram_id = null;
+        $Usuario->config_telegram_username = null;
+        $Usuario->save();
+        $this->Bot->Send(__($this->messages['auth']['logout'], $this->Bot->getFrom()->username));
+    }
+
+    /**
+     * Método del Bot que permite obtener el usuario autenticado (si es que está pareado)
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-10-16
+     */
+    protected function getAuthUser()
+    {
+        $Usuario = (new \sowerphp\app\Sistema\Usuarios\Model_Usuarios())->getUserByTelegramID(
+            $this->Bot->getFrom()->id, $this->Auth->settings['model']
+        );
+        if (!$Usuario) {
+            $this->Bot->Send(__($this->messages['auth']['invalid'], $this->Bot->getFrom()->username));
+            return false;
+        }
+        return $Usuario;
     }
 
 }

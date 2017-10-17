@@ -52,7 +52,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     public function beforeFilter ()
     {
         $this->Auth->allow('ingresar', 'salir', 'contrasenia_recuperar', 'registrar', 'preauth');
-        $this->Auth->allowWithLogin('perfil');
+        $this->Auth->allowWithLogin('perfil', 'telegram_parear');
         parent::beforeFilter();
     }
 
@@ -814,6 +814,37 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         }
         // todo ok -> redirigir
         $this->redirect($url);
+    }
+
+    /**
+     * Acción que verifica el token ingresado y hace el pareo con telegram
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-10-16
+     */
+    public function telegram_parear()
+    {
+        if (!empty($_POST['telegram_token'])) {
+            $token = $_POST['telegram_token'];
+            $telegram_user = $this->Cache->get('telegram.pairing.'.$token);
+            // si no se encontró el usuario el token no es válido o expiró
+            if (!$telegram_user) {
+                \sowerphp\core\Model_Datasource_Session::message('Token no válido o expiró, por favor, solicite uno nuevo al Bot con <strong><em>/token</em></strong>', 'error');
+            }
+            // se encontró el usuario, entonces guardar los datos del usuario de Telegram en el usuario de la aplicación web
+            else {
+                $this->Auth->User->config_telegram_id = $telegram_user['id'];
+                $this->Auth->User->config_telegram_username = $telegram_user['username'];
+                try {
+                    $this->Auth->User->save();
+                    $this->Auth->saveCache();
+                    $this->Cache->delete('telegram.pairing.'.$token);
+                    \sowerphp\core\Model_Datasource_Session::message('Usuario @'.$telegram_user['username'].' pareado con éxito', 'ok');
+                } catch (\Exception $e) {
+                    \sowerphp\core\Model_Datasource_Session::message('Ocurrió un error al parear con Telegram: '.$e->getMessage(), 'error');
+                }
+            }
+        }
+        $this->redirect('/usuarios/perfil#apps');
     }
 
     /**
