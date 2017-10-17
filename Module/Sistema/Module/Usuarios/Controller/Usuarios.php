@@ -124,7 +124,8 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      */
     public function salir_forzar($id)
     {
-        $Usuario = new $this->Auth->settings['model']($id);
+        $class = $this->Auth->settings['model'];
+        $Usuario = new $class($id);
         if(!$Usuario->exists()) {
             \sowerphp\core\Model_Datasource_Session::message(
                 'Usuario no existe, no se puede forzar el cierre de la sesión',
@@ -158,12 +159,13 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     public function contrasenia_recuperar ($usuario = null, $codigo = null)
     {
         $this->autoRender = false;
+        $class = $this->Auth->settings['model'];
         // pedir correo
         if ($usuario == null) {
             if (!isset($_POST['submit'])) {
                 $this->render ('Usuarios/contrasenia_recuperar_step1');
             } else {
-                $Usuario = new $this->Auth->settings['model']($_POST['id']);
+                $Usuario = new $class($_POST['id']);
                 if (!$Usuario->exists()) {
                     \sowerphp\core\Model_Datasource_Session::message (
                         'Usuario o email inválido', 'error'
@@ -186,7 +188,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         }
         // cambiar contraseña
         else {
-            $Usuario = new $this->Auth->settings['model']($usuario);
+            $Usuario = new $class($usuario);
             if (!$Usuario->exists()) {
                 \sowerphp\core\Model_Datasource_Session::message (
                     'Usuario inválido', 'error'
@@ -265,9 +267,10 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             $filterListarUrl = '';
             $filterListar = '';
         }
+        $class = $this->Auth->settings['model'];
         // si se envió el formulario se procesa
         if (isset($_POST['submit'])) {
-            $Usuario = new $this->Auth->settings['model']();
+            $Usuario = $class();
             $Usuario->set($_POST);
             $Usuario->email = strtolower($Usuario->email);
             $ok = true;
@@ -345,11 +348,11 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             }
         }
         // setear variables
-        $this->Auth->settings['model']::$columnsInfo['contrasenia']['null'] = true;
-        $this->Auth->settings['model']::$columnsInfo['hash']['null'] = true;
+        $class::$columnsInfo['contrasenia']['null'] = true;
+        $class::$columnsInfo['hash']['null'] = true;
         $this->set(array(
             'accion' => 'Crear',
-            'columns' => $this->Auth->settings['model']::$columnsInfo,
+            'columns' => $class::$columnsInfo,
             'grupos_asignados' => (isset($_POST['grupos'])?$_POST['grupos']:[]),
             'listarUrl'=>'/sistema/usuarios/usuarios/listar'.$filterListar,
             'ldap' => \sowerphp\core\Configure::read('ldap.default'),
@@ -373,7 +376,8 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             $filterListarUrl = '';
             $filterListar = '';
         }
-        $Usuario = new $this->Auth->settings['model']($id);
+        $class = $this->Auth->settings['model'];
+        $Usuario = new $class($id);
         // si el registro que se quiere editar no existe error
         if(!$Usuario->exists()) {
             \sowerphp\core\Model_Datasource_Session::message(
@@ -384,13 +388,13 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         }
         // si no se ha enviado el formulario se mostrará
         if(!isset($_POST['submit'])) {
-            $this->Auth->settings['model']::$columnsInfo['contrasenia']['null'] = true;
+            $class::$columnsInfo['contrasenia']['null'] = true;
             $grupos_asignados = $Usuario->groups();
             $this->setGruposAsignables();
             $this->set(array(
                 'accion' => 'Editar',
                 'Obj' => $Usuario,
-                'columns' => $this->Auth->settings['model']::$columnsInfo,
+                'columns' => $class::$columnsInfo,
                 'grupos_asignados' => array_keys($grupos_asignados),
                 'listarUrl'=>'/sistema/usuarios/usuarios/listar'.$filterListar,
                 'ldap' => \sowerphp\core\Configure::read('ldap.default'),
@@ -682,7 +686,8 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 return;
             }
             // validar que el usuario y/o correo no exista previamente
-            $Usuario = new $this->Auth->settings['model']();
+            $class = $this->Auth->settings['model'];
+            $Usuario = new $class();
             $Usuario->nombre = $_POST['nombre'];
             $Usuario->usuario = $_POST['usuario'];
             $Usuario->email = strtolower($_POST['email']);
