@@ -824,7 +824,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción que verifica el token ingresado y hace el pareo con telegram
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-10-16
+     * @version 2017-10-18
      */
     public function telegram_parear()
     {
@@ -837,17 +837,28 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             }
             // se encontró el usuario, entonces guardar los datos del usuario de Telegram en el usuario de la aplicación web
             else {
-                $this->Auth->User->set([
-                    'config_telegram_id' => $telegram_user['id'],
-                    'config_telegram_username' => $telegram_user['username'],
-                ]);
-                try {
-                    $this->Auth->User->save();
-                    $this->Auth->saveCache();
-                    $this->Cache->delete('telegram.pairing.'.$token);
-                    \sowerphp\core\Model_Datasource_Session::message('Usuario @'.$telegram_user['username'].' pareado con éxito', 'ok');
-                } catch (\Exception $e) {
-                    \sowerphp\core\Model_Datasource_Session::message('Ocurrió un error al parear con Telegram: '.$e->getMessage(), 'error');
+                // verificar que no exista ya el usuario
+                $Usuario = (new \sowerphp\app\Sistema\Usuarios\Model_Usuarios())->getUserByTelegramID(
+                    $telegram_user['id'], $this->Auth->settings['model']
+                );
+                // cuenta de telegram ya está pareada
+                if ($Usuario) {
+                    \sowerphp\core\Model_Datasource_Session::message('La cuenta de Telegram ya está pareada al usuario '.$Usuario->usuario.' del sistema, primero debe cerrar la sesión de dicha cuenta', 'error');
+                }
+                // cuenta de telegram no está pareada, guardar
+                else {
+                    $this->Auth->User->set([
+                        'config_telegram_id' => $telegram_user['id'],
+                        'config_telegram_username' => $telegram_user['username'],
+                    ]);
+                    try {
+                        $this->Auth->User->save();
+                        $this->Auth->saveCache();
+                        $this->Cache->delete('telegram.pairing.'.$token);
+                        \sowerphp\core\Model_Datasource_Session::message('Usuario @'.$telegram_user['username'].' pareado con éxito', 'ok');
+                    } catch (\Exception $e) {
+                        \sowerphp\core\Model_Datasource_Session::message('Ocurrió un error al parear con Telegram: '.$e->getMessage(), 'error');
+                    }
                 }
             }
         }
