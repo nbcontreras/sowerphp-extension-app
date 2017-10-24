@@ -84,7 +84,7 @@ abstract class Controller_Bot extends \Controller_App
      * @param id_bot ID del Bot de Telegram, permite validar que es Telegram quien escribe al Bot
      * @return Entrega el retorno entregado por el método del bot ejecutado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-09-28
+     * @version 2017-10-24
      */
     public function _api_telegram_POST($id_bot)
     {
@@ -99,7 +99,11 @@ abstract class Controller_Bot extends \Controller_App
         if (!$config)
             $this->Api->send('ID del Bot de Telegram incorrecto', 401);
         $this->Bot = new \sowerphp\app\Utility_Bot_Telegram($config);
-        return $this->run($this->Bot->getCommand());
+        $command = $this->Bot->getCommand();
+        $this->beforeRun($command);
+        $rc = $this->run($command);
+        $this->afterRun($command);
+        return $rc;
     }
 
     /**
@@ -107,21 +111,23 @@ abstract class Controller_Bot extends \Controller_App
      * @param command String completo con el comando y sus argumentos
      * @return Entrega el retorno entregado por el método del bot ejecutado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-08-23
+     * @version 2017-10-24
      */
     protected function run($command)
     {
-        if (!$command)
+        if (!$command) {
             return false;
+        }
         $argv = $this->string2argv($command);
         $next_command = $this->getNextCommand();
         if ($next_command) {
-            if (!isset($argv[0]) or $argv[0][0]!='/')
+            if (!isset($argv[0]) or $argv[0][0]!='/') {
                 array_unshift($argv, '/'.$next_command);
-            else {
+            } else {
                 if ($argv[0]=='/cancel') {
                     $this->setNextCommand();
-                    return $this->Bot->send(__($this->messages['canceled']));
+                    $this->Bot->send(__($this->messages['canceled']));
+                    return;
                 }
                 else if ($argv[0]=='/start') {
                     $this->setNextCommand();
@@ -152,10 +158,7 @@ abstract class Controller_Bot extends \Controller_App
             $this->Bot->send(__($this->messages['argsMiss'], $command, implode(' ', $args)));
             return;
         }
-        $this->beforeRun($command);
-        $result = call_user_func_array([$this, $method], $argv);
-        $this->afterRun($command);
-        return $result;
+        return call_user_func_array([$this, $method], $argv);
     }
 
     /**
