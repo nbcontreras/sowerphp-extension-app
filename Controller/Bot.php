@@ -459,7 +459,7 @@ abstract class Controller_Bot extends \Controller_App
     /**
      * Método del Bot que permite obtener el usuario autenticado (si es que está pareado)
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-10-18
+     * @version 2017-10-24
      */
     protected function getAuthUser($mensaje = true)
     {
@@ -467,7 +467,7 @@ abstract class Controller_Bot extends \Controller_App
             $this->Usuario = (new \sowerphp\app\Sistema\Usuarios\Model_Usuarios())->getUserByTelegramID(
                 $this->Bot->getFrom()->id, $this->Auth->settings['model']
             );
-            if (!$this->Usuario) {
+            if (!$this->Usuario or !$this->Usuario->activo) {
                 if ($mensaje) {
                     $this->Bot->Send(__($this->messages['auth']['invalid'], $this->Bot->getFrom()->username));
                 }
