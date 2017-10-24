@@ -270,7 +270,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         $class = $this->Auth->settings['model'];
         // si se envió el formulario se procesa
         if (isset($_POST['submit'])) {
-            $Usuario = $class();
+            $Usuario = new $class();
             $Usuario->set($_POST);
             $Usuario->email = strtolower($Usuario->email);
             $ok = true;
