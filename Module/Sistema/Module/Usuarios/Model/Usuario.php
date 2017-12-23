@@ -850,6 +850,24 @@ class Model_Usuario extends \Model_App
     }
 
     /**
+     * Método que entrega las autenticaciones secundarias que el usuario tiene habilitadas
+     * @return Arreglo con listado de instancias de la auths2 habilitadas
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-12-23
+     */
+    public function getAuth2()
+    {
+        $auths2_usuario = [];
+        $auths2 = \sowerphp\app\Model_Datasource_Auth2::getAll();
+        foreach($auths2 as $Auth2) {
+            if ($this->{'config_auth2_'.$Auth2->getName()}) {
+                $auths2_usuario[] = $Auth2;
+            }
+        }
+        return $auths2_usuario;
+    }
+
+    /**
      * Método que crea el token para el usuario
      * @param codigo Código que se usará para crear el token
      * @return =true si el token pudo ser creado
@@ -887,12 +905,10 @@ class Model_Usuario extends \Model_App
      */
     public function checkAuth2($token)
     {
-        $auths2 = \sowerphp\app\Model_Datasource_Auth2::getAll();
+        $auths2 = $this->getAuth2();
         foreach($auths2 as $Auth2) {
-            if ($this->{'config_auth2_'.$Auth2->getName()}) {
-                $datos = ['token'=>$token] + (array)($this->config['auth2'][$Auth2->getName()]);
-                $Auth2->check($datos);
-            }
+            $datos = ['token'=>$token] + (array)($this->config['auth2'][$Auth2->getName()]);
+            $Auth2->check($datos);
         }
         return true;
     }
