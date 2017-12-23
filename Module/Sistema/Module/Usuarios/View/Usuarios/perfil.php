@@ -133,46 +133,72 @@ echo $form->end(array(
 ?>
         </div>
         <div role="tabpanel" class="tab-pane" id="auth">
-<?php if ($auth2) : ?>
+<?php if ($auths2) : foreach ($auths2 as $Auth2) : ?>
             <div class="panel panel-default">
-                <div class="panel-heading">Autenticación secundaria con <?=$auth2['name']?></div>
+                <div class="panel-heading"><?=$Auth2->getName()?></div>
                 <div class="panel-body">
 <?php
-    if (!isset($_Auth->User->token[0])) {
-        echo '<p>Aquí podrá crear su token para autorizar el ingreso a la aplicación con el sistema secundario <a href="',$auth2['url'],'" target="_blank">',$auth2['name'],'</a>.</p>',"\n";
-        echo $form->begin([
-            'id' => 'crearToken',
-            'onsubmit' => 'Form.check(\'crearToken\')'
-        ]);
+$method = $Auth2->getName();
+if (!$_Auth->User->{'config_auth2_'.$method}) {
+    echo '<p>Aquí podrá activar <a href="',$Auth2->getUrl(),'" target="_blank">',$Auth2->getName(),'</a> para proteger el acceso a su cuenta.</p>',"\n";
+    echo $form->begin([
+        'id' => 'crearToken'.$Auth2->getName(),
+        'onsubmit' => 'Form.check(\'crearToken'.$Auth2->getName().'\')'
+    ]);
+    echo $form->input(array(
+        'type' => 'hidden',
+        'name' => 'auth2',
+        'value' => $Auth2->getName(),
+    ));
+    $secret = $Auth2->createSecret($_Auth->User->usuario);
+    if ($secret) {
         echo $form->input(array(
-            'name' => 'codigo',
-            'label' => 'Código',
-            'help' => 'Código para generar token y parear dispositivo',
-            'check' => 'notempty',
+            'type' => 'hidden',
+            'name' => 'secret',
+            'value' => $secret->text,
         ));
-        echo $form->end([
-            'name' => 'crearToken',
-            'value' => 'Crear token',
-        ]);
-    } else {
-        echo '<p>Aquí podrá eliminar su token de <a href="',$auth2['url'],'" target="_blank">',$auth2['name'],'</a>.</p>',"\n";
-        echo $form->begin([
-            'onsubmit' => 'Form.checkSend(\'¿Está seguro de querer destruir su token?\')'
-        ]);
-        echo $form->end([
-            'name' => 'destruirToken',
-            'value' => 'Destruir token',
-        ]);
+        echo $form->input(array(
+            'type' => 'div',
+            'name' => 'secretDisplay',
+            'label' => 'Código pareo',
+            'value' => '<img src="'.$secret->qr.'" class="img-responsive thumbnail" alt="QR para '.$Auth2->getName().'" />',
+            'help' => 'Escanear el código QR o copiar el siguiente código en '.$Auth2->getName().': '.$secret->text,
+        ));
     }
+    echo $form->input(array(
+        'name' => 'verification',
+        'label' => 'Código verificación',
+        'help' => 'Código de verificación para parear aplicación y proteger con '.$Auth2->getName(),
+        'check' => 'notempty',
+    ));
+    echo $form->end([
+        'name' => 'crearAuth2',
+        'value' => 'Proteger cuenta con '.$Auth2->getName(),
+    ]);
+} else {
+    echo '<p>Aquí podrá desasociar su cuenta de usuario con la protección entregada por <a href="',$Auth2->getUrl(),'" target="_blank">',$Auth2->getName(),'</a>.</p>',"\n";
+    echo $form->begin([
+        'onsubmit' => 'Form.checkSend(\'¿Está seguro de querer eliminar la protección con '.$Auth2->getName().'?\')'
+    ]);
+    echo $form->input(array(
+        'type' => 'hidden',
+        'name' => 'auth2',
+        'value' => $Auth2->getName(),
+    ));
+    echo $form->end([
+        'name' => 'destruirAuth2',
+        'value' => 'Eliminar protección con '.$Auth2->getName(),
+    ]);
+}
 ?>
                 </div>
             </div>
-<?php endif; ?>
+<?php endforeach; endif; ?>
             <div class="panel panel-default">
                 <div class="panel-heading">Código QR autenticación</div>
                 <div class="panel-body">
                     <p>El siguiente código QR provee la dirección de la aplicación junto con su <em>hash</em> de usuario para autenticación.</p>
-                    <img src="<?=$_base?>/exportar/qrcode/<?=$qrcode?>" alt="auth_qr" class="center img-responsive thumbnail" style="display:none" id="auth_qr" />
+                    <img src="<?=$_base?>/exportar/qrcode/<?=$qrcode?>" alt="auth_qr" class="img-responsive thumbnail" style="display:none" id="auth_qr" />
                     <a href="#" onclick="$('#auth_qr').show(); $('#auth_qr_show').hide(); $('#auth_qr_hide').show(); return false;" class="btn btn-default" id="auth_qr_show">Ver código QR</a>
                     <a href="#" onclick="$('#auth_qr').hide(); $('#auth_qr_hide').hide(); $('#auth_qr_show').show(); return false;" class="btn btn-default" style="display:none" id="auth_qr_hide">Ocultar código QR</a>
                 </div>

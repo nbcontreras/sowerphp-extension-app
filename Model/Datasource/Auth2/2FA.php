@@ -25,31 +25,42 @@
 namespace sowerphp\app;
 
 /**
- * Wrapper para la autorización secundaria usando Latch
- * Requiere (en Debian GNU/Linux) paquete: php5-curl
+ * Wrapper para el uso de 2FA
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
  * @version 2017-12-23
  */
-class Model_Datasource_Auth2_Latch extends Model_Datasource_Auth2_Base
+class Model_Datasource_Auth2_2FA extends Model_Datasource_Auth2_Base
 {
 
     /**
      * Constructor de la clase
-     * @param config Configuración de la autorización secundaria
+     * @param config Configuración de la autorización secundaria con 2FA
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-12-23
+     * @version 2017-12-22
      */
     public function __construct($config)
     {
         $this->config = array_merge([
-            'name' => 'Latch',
-            'url' => 'https://latch.elevenpaths.com',
-            'default' => false,
+            'name' => '2FA',
+            'url' => 'https://authy.com',
+            'secret' => true,
         ], $config);
-        $this->Auth2 = new \ElevenPaths\Latch\Latch(
-            $this->config['app_id'],
-            $this->config['app_key']
-        );
+        $this->Auth2 = new \RobThree\Auth\TwoFactorAuth($this->config['app_url']);
+    }
+
+    /**
+     * Método que crea el código secreato para parear la aplicación
+     * @param user Nombre del usuario que se desea parear
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-12-22
+     */
+    public function createSecret($user = null)
+    {
+        $secret = $this->Auth2->createSecret();
+        return (object)[
+            'text' => $secret,
+            'qr' => $this->Auth2->getQRCodeImageAsDataUri($this->config['app_url'].':'.$user, $secret),
+        ];
     }
 
     /**
@@ -59,12 +70,11 @@ class Model_Datasource_Auth2_Latch extends Model_Datasource_Auth2_Base
      */
     public function create(array $data = [])
     {
-        $Response = $this->Auth2->pair($data['verification']);
-        if ($Response->error) {
-            throw new \Exception($Response->error->getMessage());
+        if (!$this->Auth2->verifyCode($data['secret'], $data['verification'])) {
+            throw new \Exception('Token de pareo no válido');
         }
         return [
-            'accountId' => $Response->data->accountId,
+            'secret' => $data['secret'],
         ];
     }
 
@@ -75,10 +85,6 @@ class Model_Datasource_Auth2_Latch extends Model_Datasource_Auth2_Base
      */
     public function destroy(array $data = [])
     {
-        $Response = $this->Auth2->unpair($data['accountId']);
-        if ($Response->error) {
-            throw new \Exception($Response->error->getMessage());
-        }
         return true;
     }
 
@@ -89,19 +95,8 @@ class Model_Datasource_Auth2_Latch extends Model_Datasource_Auth2_Base
      */
     public function check(array $data = [])
     {
-        $Response = $this->Auth2->status($data['accountId']);
-        if ($Response->error || $Response->data===null) {
-            if (!$this->config['default']) {
-                if ($Response->error) {
-                    $msg = $Response->error->getMessage();
-                } else {
-                    $msg = 'No fue posible comunicar con Latch para validar token';
-                }
-                throw new \Exception($msg);
-            }
-        }
-        if ($Response->data->operations->{$this->config['app_id']}->status != 'on') {
-            throw new \Exception('El token de Latch se encuentra bloqueado');
+        if (empty($data['token']) || !$this->Auth2->verifyCode((string)$data['secret'], (string)$data['token'])) {
+            throw new \Exception('Token de 2FA no es válido');
         }
         return true;
     }

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4b27e3b19079978551fd4e2e66f1edb2",
-    "content-hash": "71a1fed94dc6b50ceed5bc24875c507c",
+    "hash": "2eebb2b5d1dd37c0d823779b8a6686ef",
+    "content-hash": "c06d2f17b126a90a8a897a18a406da74",
     "packages": [
         {
             "name": "elevenpaths/latch-sdk-php",
@@ -93,6 +93,57 @@
                 "spam"
             ],
             "time": "2017-03-09 18:44:34"
+        },
+        {
+            "name": "robthree/twofactorauth",
+            "version": "1.6.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/RobThree/TwoFactorAuth.git",
+                "reference": "a77e7d822343bb88112baef808839cfae7bc5abb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/RobThree/TwoFactorAuth/zipball/a77e7d822343bb88112baef808839cfae7bc5abb",
+                "reference": "a77e7d822343bb88112baef808839cfae7bc5abb",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "@stable"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "RobThree\\Auth\\": "lib"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Rob Janssen",
+                    "homepage": "http://robiii.me",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Two Factor Authentication",
+            "homepage": "https://github.com/RobThree/TwoFactorAuth",
+            "keywords": [
+                "Authentication",
+                "MFA",
+                "Multi Factor Authentication",
+                "Two Factor Authentication",
+                "authenticator",
+                "authy",
+                "php",
+                "tfa"
+            ],
+            "time": "2017-11-06 17:55:56"
         }
     ],
     "packages-dev": [],

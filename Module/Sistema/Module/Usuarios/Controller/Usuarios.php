@@ -60,9 +60,9 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * Acción para que un usuario ingrese al sistema (inicie sesión)
      * @param redirect Ruta (en base64) de hacia donde hay que redireccionar una vez se autentica el usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-01-16
+     * @version 2017-12-23
      */
-    public function ingresar ($redirect = null)
+    public function ingresar($redirect = null)
     {
         // si ya está logueado se redirecciona
         if ($this->Auth->logged()) {
@@ -91,7 +91,8 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             // realizar proceso de validación de datos
             else {
                 $public_key = \sowerphp\core\Configure::read('recaptcha.public_key');
-                $this->Auth->login($_POST['usuario'], $_POST['contrasenia']);
+                $auth2_token = !empty($_POST['auth2_token']) ? $_POST['auth2_token'] : null;
+                $this->Auth->login($_POST['usuario'], $_POST['contrasenia'], $auth2_token);
                 if ($this->Auth->User->contrasenia_intentos and $this->Auth->User->contrasenia_intentos<$this->Auth->settings['maxLoginAttempts']) {
                     $this->set('public_key', $public_key);
                 }
@@ -499,7 +500,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para mostrar y editar el perfil del usuario que esta autenticado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-10-16
+     * @version 2017-12-23
      */
     public function perfil()
     {
@@ -598,41 +599,45 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             }
             $this->redirect('/usuarios/perfil');
         }
-        // procesar creación del token
-        else if (isset($_POST['crearToken']) and $this->Auth->settings['auth2'] !== null) {
-            if ($this->Auth->User->createToken($_POST['codigo'])) {
+        // procesar creación de la autenticación secundaria
+        else if (isset($_POST['crearAuth2'])) {
+            unset($_POST['crearAuth2']);
+            try {
+                $this->Auth->User->createAuth2($_POST);
                 $this->Auth->saveCache();
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Token creado, ahora tiene el control usando '.$this->Auth->settings['auth2']['name'],
+                    'Desde ahora la cuenta está protegida con '.$_POST['auth2'],
                     'ok'
                 );
-            } else {
+            } catch (\Exception $e) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'No fue posible crear el token', 'error'
+                    'No fue posible proteger la cuenta con '.$_POST['auth2'].': '.$e->getMessage(), 'error'
                 );
             }
-            $this->redirect('/usuarios/perfil');
+            $this->redirect('/usuarios/perfil#auth');
         }
-        // procesar destrucción del token
-        else if (isset($_POST['destruirToken']) and $this->Auth->settings['auth2'] !== null) {
-            if ($this->Auth->User->destroyToken()) {
+        // procesar destrucción de la autenticación secundaria
+        else if (isset($_POST['destruirAuth2'])) {
+            unset($_POST['destruirAuth2']);
+            try {
+                $this->Auth->User->destroyAuth2($_POST);
                 $this->Auth->saveCache();
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Token destruído', 'ok'
+                    'Su cuenta ya no está protegida con '.$_POST['auth2'], 'ok'
                 );
-            } else {
+            } catch (\Exception $e) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'No fue posible destruir el token', 'error'
+                    'No fue posible eliminar la protección con '.$_POST['auth2'].': '.$e->getMessage(), 'error'
                 );
             }
-            $this->redirect('/usuarios/perfil');
+            $this->redirect('/usuarios/perfil#auth');
         }
         // mostrar formulario para edición
         else {
             $this->set([
                 'changeUsername' => $this->changeUsername,
                 'qrcode' => base64_encode($this->request->url.';'.$this->Auth->User->hash),
-                'auth2' => $this->Auth->settings['auth2'],
+                'auths2' => \sowerphp\app\Model_Datasource_Auth2::getAll(),
             ]);
         }
     }
@@ -782,7 +787,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * @param usuario Usuario con el que se desea ingresar
      * @param url URL a la cual redireccionar el usuario una vez ha iniciado sesión
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-01-28
+     * @version 2017-12-23
      */
     public function preauth($token = null, $usuario = null, $url = null)
     {
@@ -818,7 +823,8 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         }
         // procesar inicio de sesión con preauth, si no se puede autenticar se
         // genera un error
-        if (!$this->Auth->preauth($token, $usuario)) {
+        $auth2_token = !empty($_GET['auth2_token']) ? $_GET['auth2_token'] : null;
+        if (!$this->Auth->preauth($token, $usuario, $auth2_token)) {
             \sowerphp\core\Model_Datasource_Session::message(
                 'La preautenticación del usuario falló', 'error'
             );

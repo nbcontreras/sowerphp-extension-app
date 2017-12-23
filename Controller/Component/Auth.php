@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Componente para proveer de un sistema de autenticación y autorización
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2016-04-29
+ * @version 2017-12-23
  */
 class Controller_Component_Auth extends \sowerphp\core\Controller_Component
 {
@@ -57,7 +57,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
                 'inactive' => 'Cuenta de usuario <em>%s</em> no activa',
                 'newlogin' => 'Sesión cerrada. Usuario <em>%s</em> tiene una más nueva en otro lugar',
                 'login_attempts_exceeded' => 'Número de intentos de sesión excedidos para usuario <em>%s</em>. Cuenta bloqueada, debe recuperar su contraseña.',
-                'token' => 'Token del usuario <em>%s</em> se encuentra bloqueado',
+                'auth2' => 'Autenticación secundaria del usuario <em>%s</em> falló: %s',
                 'recaptcha_required' => 'Se detectaron intentos previos fallidos para el usuario <em>%s</em>. Se requiere Captcha',
                 'recaptcha_invalid' => 'Captcha incorrecto para el usuario <em>%s</em>',
             ],
@@ -72,14 +72,12 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que inicializa el componente y carga la sesión activa
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-23
+     * @version 2017-12-22
      */
     public function __construct(\sowerphp\core\Controller_Component_Collection $Components, $settings = [])
     {
         // ejecutar el constructor padre
         parent::__construct($Components, $settings);
-        // cargar opciones para autorización secundaria
-        $this->settings['auth2'] = \sowerphp\core\Configure::read('auth2');
         // Recuperar sesión
         $this->session = \sowerphp\core\Model_Datasource_Session::read(
             $this->settings['session']['key']
@@ -248,9 +246,9 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que realiza el login del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-01-25
+     * @version 2017-12-23
      */
-    public function login($usuario, $contrasenia)
+    public function login($usuario, $contrasenia, $auth2_token = null)
     {
         // crear objeto del usuario con el nombre de usuario entregado
         $this->User = new $this->settings['model']($usuario);
@@ -315,9 +313,11 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             return;
         }
         // verificar token en sistema secundario de autorización
-        if ($this->settings['auth2'] !== null and !$this->User->checkToken()) {
+        try {
+            $this->User->checkAuth2($auth2_token);
+        } catch (\Exception $e) {
             \sowerphp\core\Model_Datasource_Session::message(
-                sprintf($this->settings['messages']['error']['token'], $usuario), 'error'
+                sprintf($this->settings['messages']['error']['auth2'], $usuario, $e->getMessage()), 'error'
             );
             return;
         }
@@ -371,9 +371,9 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que realiza el login del usuario a través de preautenticación
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-01-28
+     * @version 2017-12-23
      */
-    public function preauth($token, $usuario = null)
+    public function preauth($token, $usuario = null, $auth2_token = null)
     {
         // autenticar sólo con token (este será el hash del usuario)
         if (!$usuario) {
@@ -382,19 +382,25 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         // autenticar con los datos del token
         else {
             $key = \sowerphp\core\Configure::read('preauth.key');
-            if (!$key)
+            if (!$key) {
                 return false;
+            }
             $real_token = md5($usuario.date('Ymd').$key);
-            if ($token != $real_token)
+            if ($token != $real_token) {
                 return false;
+            }
             $this->User = new $this->settings['model']($usuario);
         }
         // si el usuario no existe error
-        if (!$this->User->exists() or !$this->User->isActive())
+        if (!$this->User->exists() or !$this->User->isActive()) {
             return false;
+        }
         // verificar token de autenticación secundaria
-        if ($this->settings['auth2'] !== null and !$this->User->checkToken())
+        try {
+            $this->User->checkAuth2($auth2_token);
+        } catch (\Exception $e) {
             return false;
+        }
         // crear sesión
         $this->createSession();
         return true;

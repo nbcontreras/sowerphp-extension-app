@@ -14,6 +14,12 @@ echo $form->input([
     'check'=>'notempty'
 ]);
 echo $form->input([
+    'type'=>'password',
+    'name'=>'auth2_token',
+    'label'=>'Token 2FA',
+    'help'=>'Ingresar sólo si está configurada la autenticación secundaria',
+]);
+echo $form->input([
     'type'=>'hidden',
     'name'=>'redirect',
     'value'=>$redirect,

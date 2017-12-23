@@ -215,7 +215,7 @@ class Model_Usuario extends \Model_App
     // configuración asociada a la tabla usuario_config (configuración extendida y personalizada según la app)
     public static $config_encrypt = []; ///< columnas de la configuración que se deben encriptar para guardar en la base de datos
     public static $config_default = []; ///< valores por defecto para columnas de la configuración en caso que no estén especificadas
-    private $config = null; ///< Caché para configuraciones
+    protected $config = null; ///< Caché para configuraciones
 
     /**
      * Constructor de la clase usuario
@@ -588,8 +588,9 @@ class Model_Usuario extends \Model_App
      */
     public function isActive()
     {
-        if ($this->getEmailAccount())
+        if ($this->getEmailAccount()) {
             return $this->getEmailAccount()->isActive();
+        }
         return (boolean) $this->activo;
     }
 
@@ -853,62 +854,47 @@ class Model_Usuario extends \Model_App
      * @param codigo Código que se usará para crear el token
      * @return =true si el token pudo ser creado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-05-04
+     * @version 2017-12-23
      */
-    public function createToken($codigo)
+    public function createAuth2(array $data = [])
     {
-        $config = \sowerphp\core\Configure::read('auth2');
-        if ($config===null) return false;
-        $class = '\sowerphp\app\Model_Datasource_Auth2_'.$config['name'];
-        $Auth2 = new $class($config);
-        $token = $Auth2->createToken($codigo);
-        if ($token) {
-            $this->token = $token;
-            $this->db->query(
-                'UPDATE usuario SET token = :token WHERE id = :id'
-            , [':id' => $this->id, ':token' => $token]);
-            return true;
-        } else {
-            return false;
-        }
+        $Auth2 = \sowerphp\app\Model_Datasource_Auth2::get($data['auth2']);
+        $user_data = $Auth2->create($data);
+        $this->config['auth2'][$data['auth2']] = $user_data;
+        return $this->save();
     }
 
     /**
      * Método que destruye el token en la autorización secundaria
      * @return =true si el token pudo ser destruído
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-05-04
+     * @version 2017-12-23
      */
-    public function destroyToken()
+    public function destroyAuth2(array $data = [])
     {
-        $config = \sowerphp\core\Configure::read('auth2');
-        if ($config===null) return true;
-        $class = '\sowerphp\app\Model_Datasource_Auth2_'.$config['name'];
-        $Auth2 = new $class($config);
-        if ($Auth2->destroyToken($this->token)) {
-            $this->token = null;
-            $this->db->query(
-                'UPDATE usuario SET token = NULL WHERE id = :id'
-            , [':id' => $this->id]);
-            return true;
-        } else {
-            return false;
-        }
+        $Auth2 = \sowerphp\app\Model_Datasource_Auth2::get($data['auth2']);
+        $Auth2->destroy($data + (array)($this->config['auth2'][$data['auth2']]));
+        $this->config['auth2'][$data['auth2']] = null;
+        return $this->save();
     }
 
     /**
-     * Método que valida el estado del token con la autorización secundaria
-     * @return =true si el token está liberado
+     * Método que valida el estado de todas las autorizaciones secundarias
+     * que el usuario pudiese tener habilitadas
+     * @return =true si todo está ok o Exception con el error si falla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-05-04
+     * @version 2017-12-23
      */
-    public function checkToken()
+    public function checkAuth2($token)
     {
-        $config = \sowerphp\core\Configure::read('auth2');
-        if ($config===null or !isset($this->token[0])) return true;
-        $class = '\sowerphp\app\Model_Datasource_Auth2_'.$config['name'];
-        $Auth2 = new $class($config);
-        return $Auth2->checkToken($this->token);
+        $auths2 = \sowerphp\app\Model_Datasource_Auth2::getAll();
+        foreach($auths2 as $Auth2) {
+            if ($this->{'config_auth2_'.$Auth2->getName()}) {
+                $datos = ['token'=>$token] + (array)($this->config['auth2'][$Auth2->getName()]);
+                $Auth2->check($datos);
+            }
+        }
+        return true;
     }
 
     /**
@@ -969,8 +955,9 @@ class Model_Usuario extends \Model_App
      */
     public function getEmail()
     {
-        if ($this->getEmailAccount())
+        if ($this->getEmailAccount()) {
             return $this->getEmailAccount()->getEmail();
+        }
         return $this->email;
     }
 
