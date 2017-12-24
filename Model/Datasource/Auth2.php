@@ -38,7 +38,7 @@ class Model_Datasource_Auth2 extends Model_Datasource_Auth2_Base
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2017-12-23
      */
-    public static function get($name = '2FA', $config = [])
+    public static function get($name = '2FA', array $config = [])
     {
         $class = '\Model_Datasource_Auth2_'.$name;
         if (!class_exists($class)) {
@@ -58,11 +58,27 @@ class Model_Datasource_Auth2 extends Model_Datasource_Auth2_Base
     public static function getAll()
     {
         $auths2 = [];
-        $auth2 = \sowerphp\core\Configure::read('auth2');
+        $auth2 = (array)\sowerphp\core\Configure::read('auth2');
         foreach ($auth2 as $name => $config) {
             $auths2[] = self::get($name, $config);
         }
         return $auths2;
+    }
+
+    /**
+     * Método que indica si hay alguna auth2 que use token
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-12-23
+     */
+    public static function tokenEnabled()
+    {
+        $auths2 = self::getAll();
+        foreach ($auths2 as $Auth2) {
+            if ($Auth2->needToken()) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

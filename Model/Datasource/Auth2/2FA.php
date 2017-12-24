@@ -32,6 +32,8 @@ namespace sowerphp\app;
 class Model_Datasource_Auth2_2FA extends Model_Datasource_Auth2_Base
 {
 
+    protected $need_token = true; ///< 2FA asigna un token aleatorio al usuario
+
     /**
      * Constructor de la clase
      * @param config Configuración de la autorización secundaria con 2FA

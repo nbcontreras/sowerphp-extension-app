@@ -27,13 +27,14 @@ namespace sowerphp\app;
 /**
  * Clase base para los sistemas de autenticación secundaria
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2017-12-22
+ * @version 2017-12-23
  */
 abstract class Model_Datasource_Auth2_Base
 {
 
     protected $Auth2; ///< Instancia del objeto con la autenticación secundaria
     protected $config; ///< Configuración de la autenticación secundaria
+    protected $need_token = false; ///< Por defecto los métodos no requieren token, se debe indicar en cada clase
 
     /**
      * Método que entrega todas las autenticaciones secundarias disponibles en la aplicación
@@ -64,6 +65,16 @@ abstract class Model_Datasource_Auth2_Base
     public function createSecret($user = null)
     {
         return false;
+    }
+
+    /**
+     * Método que indica si el método de autenticación secundaria usa o no un token
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2017-12-23
+     */
+    public function needToken()
+    {
+        return $this->need_token;
     }
 
 }

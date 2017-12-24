@@ -13,12 +13,14 @@ echo $form->input([
     'label'=>'Contraseña',
     'check'=>'notempty'
 ]);
-echo $form->input([
-    'type'=>'password',
-    'name'=>'auth2_token',
-    'label'=>'Token 2FA',
-    'help'=>'Ingresar sólo si está configurada la autenticación secundaria',
-]);
+if ($auth2_token_enabled) {
+    echo $form->input([
+        'type'=>'password',
+        'name'=>'auth2_token',
+        'label'=>'Token 2FA',
+        'help'=>'Ingresar sólo si está configurada la autenticación secundaria',
+    ]);
+}
 echo $form->input([
     'type'=>'hidden',
     'name'=>'redirect',
@@ -35,7 +37,6 @@ if (!empty($public_key)) {
 }
 echo $form->end('Ingresar');
 ?>
-
 <?php if ($self_register) : ?>
 <p>¿Desea obtener una cuenta de usuario?, <a href="<?=$_base?>/usuarios/registrar">click aquí para registrarse</a>.</p>
 <?php endif; ?>
