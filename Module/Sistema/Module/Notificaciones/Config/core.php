@@ -26,16 +26,16 @@ Configure::write('nav.module', array(
     '/notificaciones' => array(
         'name' => 'Mis notificaciones',
         'desc' => '',
-        'icon' => 'fa fa-bell-o',
+        'icon' => 'far fa-bell',
     ),
     '/notificaciones/enviar' => array(
         'name' => 'Enviar notificación',
         'desc' => '',
-        'icon' => 'fa fa-bell-o',
+        'icon' => 'far fa-bell',
     ),
     '/notificaciones/listar' => array(
         'name' => 'Mantenedor de notificaciones',
         'desc' => '',
-        'icon' => 'fa fa-bell-o',
+        'icon' => 'far fa-bell',
     ),
 ));

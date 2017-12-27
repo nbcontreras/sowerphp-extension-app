@@ -46,6 +46,6 @@
     '/email/grupos' => array(
         'name' => 'Enviar email a grupos',
         'desc' => 'Enviar correo electrónico a todos los usuarios de uno o varios grupos',
-        'icon' => 'fa fa-send',
+        'icon' => 'fas fa-paper-plane',
     ),
 ));

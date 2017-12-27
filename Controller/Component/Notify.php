@@ -55,7 +55,7 @@ class Controller_Component_Notify extends \sowerphp\core\Controller_Component
         $message = array_merge([
             'fechahora' => date('Y-m-d H:i:s'),
             'gravedad' => LOG_INFO,
-            'icono' => 'fa fa-lightbulb-o',
+            'icono' => 'far fa-lightbulb',
         ], $message);
         if (!is_array($methods)) {
             $methods = [$methods];

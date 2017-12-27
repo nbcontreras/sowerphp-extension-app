@@ -25,7 +25,7 @@
 Configure::write('nav.module', array(
     '/comunas/listar' => array(
         'name' => 'Comunas',
-        'icon' => 'fa fa-map-marker',
+        'icon' => 'fas fa-map-marker-alt',
     ),
     '/provincias/listar' => array(
         'name' => 'Provincias',

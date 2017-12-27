@@ -2,7 +2,7 @@
 <ul class="nav nav-pills pull-right">
     <li>
         <a href="<?=$_base?>/sistema/usuarios/usuarios/salir_forzar/<?=$Obj->id?>" title="Forzar el cierre de la sesión del usuario">
-            <span class="fa fa-sign-out"></span> Cerrar sesión
+            <span class="fas fa-sign-out-alt"></span> Cerrar sesión
         </a>
     </li>
 </ul>
