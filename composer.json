@@ -1,22 +1,4 @@
 {
-    "name": "sowerphp/app",
-    "description": "Extensión app",
-    "type": "library",
-    "keywords": ["sowerphp", "extension"],
-    "homepage": "http://sowerphp.org",
-    "license": "AGPL-3.0+",
-    "authors": [
-        {
-            "name": "Equipo de SowerPHP",
-            "homepage": "https://github.com/sowerphp/extension-app/graphs/contributors"
-        }
-    ],
-    "support": {
-        "issues": "https://github.com/sowerphp/extension-app/issues",
-        "forum": "http://stackoverflow.com/tags/sowerphp",
-        "irc": "irc://irc.freenode.org/#sowerphp",
-        "source": "https://github.com/sowerphp/extension-app"
-    },
     "config": {
         "vendor-dir": "Vendor"
     },
@@ -24,6 +6,7 @@
         "php": ">=5.5",
         "elevenpaths/latch-sdk-php": "dev-master",
         "google/recaptcha": "1.1.3",
-        "robthree/twofactorauth": "1.6.1"
+        "robthree/twofactorauth": "1.6.1",
+        "google/auth": "1.2.0"
     }
 }
