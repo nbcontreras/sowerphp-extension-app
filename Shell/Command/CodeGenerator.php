@@ -30,7 +30,7 @@ define('VERSION', date(\sowerphp\core\Configure::read('time.format')));
 /**
  * Comando para generar código de forma automática
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-04-25
+ * @version 2018-03-19
  */
 class Shell_Command_CodeGenerator extends \Shell_App
 {
@@ -39,49 +39,57 @@ class Shell_Command_CodeGenerator extends \Shell_App
     public static $destination; ///< Destino de los archivos que se generan
     public static $module; ///< Módulo donde se encontrarán los archivos
     public static $module_url; ///< Url para acceder al módulo
-    public static $namespace; /// Namespace en el que se generarán los archivos
+    public static $namespace; ///< Namespace en el que se generarán los archivos
+    public static $extension; //< Extensión donde se generarán los archivos
     private static $tables; ///< Tablas de la base de datos que se estarán procesando
     private static $nTables; ///< Cantidad de tablas que se estarán procesando
 
     /**
      * Método principal del comando
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-03
+     * @version 2018-03-19
      */
-    public function main ()
+    public function main($procesarTablas = null)
     {
         // obtener nombre de la base de datos
         $database = $this->selectDatabase();
         if (!$database) {
             $this->out('<error>No se encontró configuración válida para la base de datos</error>');
-            exit(1);
+            return 1;
         }
         // obtener conexión a la base de datos
         self::$db = &\Model_Datasource_Database::get($database);
         // obtener tablas de la base de datos
         $aux = self::$db->getTables();
-        $tables = array();
+        $tables = [];
         foreach ($aux as &$t) {
             $tables[] = $t['name'];
         }
         // mostrar tablas disponibles para que usuario elija cual quiere procesar
-        $this->out('Tablas disponibles: '.implode(', ', $tables));
-        $procesarTablas = $this->in('Ingresar las tablas que desea procesar [*]: ');
+        if (empty($procesarTablas)) {
+            $this->out('Tablas disponibles: '.implode(', ', $tables));
+            $procesarTablas = $this->in('Ingresar las tablas que desea procesar [*]: ');
+        }
         if (!empty($procesarTablas) && $procesarTablas != '*') {
             if (strpos($procesarTablas, ',')) {
                 $procesarTablas = str_replace (' ', '', $procesarTablas);
-                $tables = explode (',', $procesarTablas);
+                $tables = explode(',', $procesarTablas);
             } else {
-                $tables = explode (' ', $procesarTablas);
+                $tables = explode(' ', $procesarTablas);
             }
         }
         // obtener información de las tablas
-        self::$nTables = count ($tables);
+        self::$nTables = count($tables);
         $nTables = 0;
         $this->out('<info>Recuperando información de las tablas '.round(($nTables/self::$nTables)*100).'%</info>', 0);
-        self::$tables = array();
+        self::$tables = [];
         foreach ($tables as &$table) {
-            self::$tables[$table] = self::$db->getInfoFromTable($table);
+            $table_info = self::$db->getInfoFromTable($table);
+            if (empty($table_info['columns'])) {
+                $this->out("\n".'<error>Tabla \''.$table.'\' no parece ser válida</error>');
+                return 1;
+            }
+            self::$tables[$table] = $table_info;
             $nTables++;
             $this->out("\r".'<info>Recuperando información de las tablas '.round(($nTables/self::$nTables)*100).'%</info>', 0);
         }
@@ -91,10 +99,18 @@ class Shell_Command_CodeGenerator extends \Shell_App
         // obtener destino para los archivos
         self::$destination = $this->selectDestination();
         // determinar namespace
-        self::$namespace = 'website'.(!empty(self::$module)?'\\'.str_replace('.', '\\', self::$module):'');
+        if (empty(self::$extension)) {
+            self::$namespace = 'website'.(!empty(self::$module)?'\\'.str_replace('.', '\\', self::$module):'');
+        } else {
+            self::$namespace = str_replace('/', '\\', self::$extension).(!empty(self::$module)?'\\'.str_replace('.', '\\', self::$module):'');
+        }
         // crear directorios para archivos que se crearán
-        if (!file_exists(self::$destination.'/Model')) mkdir(self::$destination.'/Model');
-        if (!file_exists(self::$destination.'/Controller')) mkdir(self::$destination.'/Controller');
+        if (!file_exists(self::$destination.'/Model')) {
+            mkdir(self::$destination.'/Model');
+        }
+        if (!file_exists(self::$destination.'/Controller')) {
+            mkdir(self::$destination.'/Controller');
+        }
         // generar archivos
         $this->generateModel($database);
         $this->generateController();
@@ -103,9 +119,9 @@ class Shell_Command_CodeGenerator extends \Shell_App
     /**
      * Método para seleccionar una base de datos en caso de existir múltiples configuraciones
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-11-09
+     * @version 2018-03-19
      */
-    private function selectDatabase ()
+    private function selectDatabase()
     {
         $this->out('<info>Seleccionando base de datos para generar código</info>');
         // obtener bases de datos disponibles
@@ -113,9 +129,13 @@ class Shell_Command_CodeGenerator extends \Shell_App
         $keys = array_keys($databases);
         $encontradas = count($keys);
         // si no hay
-        if(!$encontradas) return false;
+        if(!$encontradas) {
+            return false;
+        }
         // si solo hay una
-        else if($encontradas==1) return $keys[0];
+        else if($encontradas==1) {
+            return $keys[0];
+        }
         // si hay más de una se debe elegir una
         else if($encontradas>1) {
             // mostrar bases disponibles
@@ -139,56 +159,77 @@ class Shell_Command_CodeGenerator extends \Shell_App
     /**
      * Seleccionar destino donde se guardarán los archivos generados
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-11-20
+     * @version 2018-03-19
      */
-    private function selectDestination ()
+    private function selectDestination()
     {
-        // buscar directorios de módulos
-        $modulos = $this->getModules();
-        $encontradas = count($modulos) + 1;
-        // mostrar directorio principal
         $this->out('Directorios de destino disponibles:');
-        $this->out('1.- Directorio base de la aplicación');
+        // mostrar directorio principal
+        $this->out('1.- Directorio base de la aplicación: website ');
         // mostrar directorios de módulos disponibles
         $i = 2;
-        foreach($modulos as &$modulo) {
+        $modulos = $this->getModules();
+        foreach($modulos as $modulo) {
             $this->out($i.'.- Módulo '.$modulo);
             ++$i;
         }
+        // mostrar directorios de extensiones
+        $extensiones = $this->getExtensions();
+        $extensiones_modulos = [];
+        foreach($extensiones as $extension => $extension_modulos) {
+            foreach ($extension_modulos as $modulo) {
+                $extensiones_modulos[] = ['extension'=>$extension, 'module'=>$modulo];
+                $this->out($i.'.- Extensión '.$extension.' módulo '.$modulo);
+                ++$i;
+            }
+        }
         // solicitar opción hasta tener una válida
+        $encontradas = $i - 1;
         do {
-            $opcion = $this->in('Seleccionar un directorio para guardar archivos generados: ');
+            $opcion = (int)$this->in('Seleccionar un directorio para guardar archivos generados: ');
         } while($opcion<1 || $opcion>$encontradas);
-        // retornar la ubicación
+        // la ubicación es la base de la aplicación
         if ($opcion == 1) {
             $this->setModuleUrl();
             return DIR_WEBSITE;
-        } else {
+        }
+        // la ubicación es un módulo dentro del proyecto principal
+        else if (isset($modulos[$opcion-2])) {
             $modulo = $modulos[$opcion-2];
             $this->setModuleUrl($modulo);
-            $modulo = str_replace('.', '/Module/', $modulo);
-            return DIR_WEBSITE.'/Module/'.$modulo;
+            return DIR_WEBSITE.'/Module/'.str_replace('.', '/Module/', $modulo);
+        }
+        // la ubicación está en una extensión
+        else {
+            $modulo = $extensiones_modulos[$opcion-2-count($modulos)];
+            $this->setModuleUrl($modulo['module']);
+            self::$extension = $modulo['extension'];
+            return DIR_PROJECT.'/extensions/'.$modulo['extension'].'/Module/'.str_replace('.', '/Module/', $modulo['module']);
         }
     }
 
     /**
      * Buscar recursivamente todos los módulos de la aplicación
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-03-16
+     * @version 2018-03-19
      */
-    private function getModules ($dir = null, $parentModule = '')
+    private function getModules($dir = null, $parentModule = '')
     {
         // si no se indicó directorio es el principal
-        if (!$dir) $dir = DIR_WEBSITE.'/Module';
+        if (!$dir) {
+            $dir = DIR_WEBSITE.'/Module';
+        }
         // si no existe el directorio terminar de procesar
-        if (!is_dir($dir)) return array();
+        if (!is_dir($dir)) {
+            return [];
+        }
         // buscar módulos en el directorio
         $modulesAux = array_values(array_diff(
             scandir($dir),
-            array('..', '.')
+            ['..', '.']
         ));
         // agregar módulos encontrados
-        $modules = array();
+        $modules = [];
         // por cada módulo procesar el subdirectorio
         foreach ($modulesAux as &$module) {
             // crear padre
@@ -210,12 +251,50 @@ class Shell_Command_CodeGenerator extends \Shell_App
     }
 
     /**
+     * Buscar recursivamente las extensiones y módulos disponibles en el proyecto
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2018-03-19
+     */
+    public function getExtensions()
+    {
+        $extensions = [];
+        // buscar vendors (proveedores de extensiones)
+        $dir_vendors = DIR_PROJECT.'/extensions';
+        if (!file_exists($dir_vendors)) {
+            return $extensions;
+        }
+        $vendors = array_values(array_diff(
+            scandir($dir_vendors),
+            ['..', '.']
+        ));
+        // buscar extension de cada vendor y sus módulos
+        foreach ($vendors as $vendor) {
+            $dir_vendor = $dir_vendors.'/'.$vendor;
+            $extensionsAux = array_values(array_diff(
+                scandir($dir_vendor),
+                ['..', '.']
+            ));
+            foreach ($extensionsAux as $e) {
+                $extensions[$vendor.'/'.$e] = [];
+                $extension_module_dir = $dir_vendor.'/'.$e.'/Module';
+                if (file_exists($extension_module_dir)) {
+                    $extension_modules = $this->getModules($extension_module_dir);
+                    if ($extension_modules) {
+                        $extensions[$vendor.'/'.$e] = $extension_modules;
+                    }
+                }
+            }
+        }
+        return $extensions;
+    }
+
+    /**
      * Método que asigna el nombre del módulo y su url
      * @param modulo Nombre del módulo donde se generarán los archivos
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-04-03
      */
-    private function setModuleUrl ($modulo = '')
+    private function setModuleUrl($modulo = '')
     {
         if (empty($modulo)) {
             self::$module = '';
@@ -235,16 +314,16 @@ class Shell_Command_CodeGenerator extends \Shell_App
      * Método que genera el código para la clase final de modelos
      * @param database Nombre de la conexión a la base de datos
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-25
+     * @version 2018-03-19
      */
-    private function generateModel ($database)
+    private function generateModel($database)
     {
         $this->out('<info>Generando modelos</info>');
         foreach (self::$tables as $table => &$info) {
             $class = \sowerphp\core\Utility_Inflector::camelize($table);
-            $fkNamespace = array();
-            $columns = array();
-            $columnsInfo = array();
+            $fkNamespace = [];
+            $columns = [];
+            $columnsInfo = [];
             foreach ($info['columns'] as &$column) {
                 // procesar si es FK
                 if (is_array($column['fk'])) {
@@ -252,7 +331,7 @@ class Shell_Command_CodeGenerator extends \Shell_App
                     $fkNamespace[] = "'Model_$fk_class' => '".self::$namespace."'";
                 }
                 // generar atributo
-                $columns[] = $this->src('public ${column}; ///< {comment}{type}({length}){null}{default}{auto}{pk}{fk}', array(
+                $columns[] = $this->src('public ${column}; ///< {comment}{type}({length}){null}{default}{auto}{pk}{fk}', [
                     'column'    => $column['name'],
                     'comment'    => $column['comment']!=''?$column['comment'].': ':'',
                     'type'        => $column['type'],
@@ -262,9 +341,9 @@ class Shell_Command_CodeGenerator extends \Shell_App
                     'auto'        => ($column['auto']==='YES'||$column['auto']==1)?'AUTO ':'',
                     'pk'        => in_array($column['name'], $info['pk'])?'PK ':'',
                     'fk'        => is_array($column['fk'])?'FK:'.$column['fk']['table'].'.'.$column['fk']['column']:'',
-                ));
+                ]);
                 // generar información de la columna
-                $columnsInfo[] = $this->src('Model/columnInfo.phps', array(
+                $columnsInfo[] = $this->src('Model/columnInfo.phps', [
                     'column'    => $column['name'],
                     'name'        => \sowerphp\core\Utility_Inflector::humanize($column['name']),
                     'comment'    => $column['comment'],
@@ -274,19 +353,17 @@ class Shell_Command_CodeGenerator extends \Shell_App
                     'default'    => str_replace("'", "\'", $column['default']),
                     'auto'        => ($column['auto']==='YES'||$column['auto']==1)?'true':'false',
                     'pk'        => in_array($column['name'], $info['pk'])?'true':'false',
-                    'fk'        => is_array($column['fk']) ? 'array(\'table\' => \''.$column['fk']['table'].'\', \'column\' => \''.$column['fk']['column'].'\')':'null',
-                ));
+                    'fk'        => is_array($column['fk']) ? '[\'table\' => \''.$column['fk']['table'].'\', \'column\' => \''.$column['fk']['column'].'\']':'null',
+                ]);
             }
-            if (count($fkNamespace)) {
-                $fkNamespace = "\n        ".implode(",\n        ", $fkNamespace)."\n    ";
-            } else $fkNamespace = '';
+            $fkNamespace = count($fkNamespace) ? ("\n        ".implode(",\n        ", $fkNamespace)."\n    ") : '';
             $columns = implode("\n    ", $columns);
             $columnsInfo = implode('', $columnsInfo);
             // nombres de clases
             $class = \sowerphp\core\Utility_Inflector::camelize($table);
             $classs = \sowerphp\core\Utility_Inflector::camelize(\sowerphp\core\Utility_Inflector::pluralize($table));
             // generar modelo singular
-            $file = $this->src('Model.phps', array(
+            $file = $this->src('Model.phps', [
                 'database' => $database,
                 'table' => $table,
                 'comment' => $info['comment'],
@@ -297,13 +374,13 @@ class Shell_Command_CodeGenerator extends \Shell_App
                 'namespace' => self::$namespace,
                 'columns' => $columns,
                 'columnsInfo' => $columnsInfo,
-            ));
+            ]);
             $filename = self::$destination.'/Model/'.$class.'.php';
             if (!file_exists($filename)) {
                 file_put_contents($filename, $file);
             }
             // generar modelo plural
-            $file = $this->src('Model/Models.phps', array(
+            $file = $this->src('Model/Models.phps', [
                 'database' => $database,
                 'table' => $table,
                 'comment' => $info['comment'],
@@ -311,7 +388,7 @@ class Shell_Command_CodeGenerator extends \Shell_App
                 'version' => VERSION,
                 'classs' => $classs,
                 'namespace' => self::$namespace,
-            ));
+            ]);
             $filename = self::$destination.'/Model/'.$classs.'.php';
             if (!file_exists($filename)) {
                 file_put_contents($filename, $file);
@@ -322,16 +399,16 @@ class Shell_Command_CodeGenerator extends \Shell_App
     /**
      * Método que genera el código para la clase final del controlador
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-03
+     * @version 2018-03-19
      */
-    private function generateController ()
+    private function generateController()
     {
         $this->out('<info>Generando controladores</info>');
         foreach (self::$tables as $table => &$info) {
             // generar datos
             $class = \sowerphp\core\Utility_Inflector::camelize($table);
             $classs = \sowerphp\core\Utility_Inflector::camelize(\sowerphp\core\Utility_Inflector::pluralize($table));
-            $file = $this->src('Controller.phps', array(
+            $file = $this->src('Controller.phps', [
                 'table' => $table,
                 'comment' => $info['comment'],
                 'author' => AUTHOR,
@@ -339,7 +416,7 @@ class Shell_Command_CodeGenerator extends \Shell_App
                 'class' => $class,
                 'classs' => $classs,
                 'namespace' => self::$namespace,
-            ));
+            ]);
             // guardar archivo en el directorio de clases (si no existe)
             $filename = self::$destination.'/Controller/'.$classs.'.php';
             if (!file_exists($filename)) {
@@ -354,15 +431,16 @@ class Shell_Command_CodeGenerator extends \Shell_App
      * @param variables Variables que se deben reemplazar al renderizar
      * @return String Plantilla ya renderizada
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2012-11-09
+     * @version 2018-03-19
      */
-    private function src ($plantilla, $variables = array())
+    private function src($plantilla, $variables = [])
     {
         // location
         $archivo = \sowerphp\core\App::location('Shell/Command/CodeGenerator/'.$plantilla);
         // cargar plantilla
-        if($archivo)
+        if ($archivo) {
             $plantilla = file_get_contents($archivo);
+        }
         // reemplazar variables en la plantilla
         foreach($variables as $key => $valor) {
             $plantilla = str_replace('{'.$key.'}', $valor, $plantilla);
