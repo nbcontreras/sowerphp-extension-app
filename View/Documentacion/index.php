@@ -1,4 +1,4 @@
-<h1>Documentación</h1>
+<div class="page-header"><h1>Documentación</h1></div>
 
 <?php if ($doxygen) : ?>
 <a href="<?=$_base?>/doc/html/" target="_blank" class="pull-right" title="Ver documentación en Doxygen">

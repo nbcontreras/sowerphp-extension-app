@@ -1,4 +1,4 @@
-<h1>Registro de nuevo usuario</h1>
+<div class="page-header"><h1>Registro de nuevo usuario</h1></div>
 <?php
 $form = new sowerphp\general\View_Helper_Form();
 echo $form->begin(array('focus'=>'nombreField', 'onsubmit'=>'Form.check()'));

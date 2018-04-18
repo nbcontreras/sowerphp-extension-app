@@ -1,4 +1,4 @@
-<h1>Listado de <?=$models?></h1>
+<div class="page-header"><h1>Listado de <?=$models?></h1></div>
 <p><?=$comment?></p>
 
 <?php

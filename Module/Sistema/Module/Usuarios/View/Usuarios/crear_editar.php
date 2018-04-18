@@ -7,7 +7,7 @@
     </li>
 </ul>
 <?php endif; ?>
-<h1><?=$accion?> <?=$model?></h1>
+<div class="page-header"><h1><?=$accion?> <?=$model?></h1></div>
 <?php
 // crear formulario
 $form = new \sowerphp\general\View_Helper_Form();

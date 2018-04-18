@@ -1,4 +1,4 @@
-<h1>Sistema &raquo; Logs &raquo; Buscar</h1>
+<div class="page-header"><h1>Sistema &raquo; Logs &raquo; Buscar</h1></div>
 
 <div class="modal fade" id="modal-log" tabindex="-1" role="dialog" aria-labelledby="modalLogLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">

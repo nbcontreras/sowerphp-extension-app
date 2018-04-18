@@ -1,4 +1,4 @@
-<h1>Sistema &raquo; Notificaciones</h1>
+<div class="page-header"><h1>Sistema &raquo; Notificaciones</h1></div>
 <?php
 foreach($notificaciones as &$n) {
     $n['icono'] = '<i class="'.$n['icono'].' bg-'.$n['tipo'].' img-rounded" style="padding:5px"></i>';

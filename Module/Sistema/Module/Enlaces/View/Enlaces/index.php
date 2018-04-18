@@ -1,4 +1,4 @@
-<h1>Enlaces</h1>
+<div class="page-header"><h1>Enlaces</h1></div>
 <?php
 enlaces ($enlaces);
 function enlaces ($enlaces)

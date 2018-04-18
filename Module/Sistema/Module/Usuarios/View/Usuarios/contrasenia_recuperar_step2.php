@@ -1,4 +1,4 @@
-<h1>Recuperación de contraseña del usuario <em><?=$usuario?></em></h1>
+<div class="page-header"><h1>Recuperación de contraseña del usuario <em><?=$usuario?></em></h1></div>
 <p>Aquí podrá crear una nueva contraseña para su cuenta de usuario.</p>
 <?php
 $f = new \sowerphp\general\View_Helper_Form ();

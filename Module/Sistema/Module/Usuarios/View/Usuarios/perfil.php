@@ -7,7 +7,7 @@ $(function() {
 });
 </script>
 
-<h1>Mi perfil de usuario (<?=$_Auth->User->usuario?>)</h1>
+<div class="page-header"><h1>Mi perfil de usuario (<?=$_Auth->User->usuario?>)</h1></div>
 
 <div role="tabpanel">
     <ul class="nav nav-tabs" role="tablist">

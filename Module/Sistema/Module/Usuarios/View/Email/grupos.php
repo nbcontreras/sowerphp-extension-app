@@ -1,4 +1,4 @@
-<h1>Sistema &raquo; Usuarios &raquo; Enviar email a grupos</h1>
+<div class="page-header"><h1>Sistema &raquo; Usuarios &raquo; Enviar email a grupos</h1></div>
 <?php
 $f = new \sowerphp\general\View_Helper_Form();
 echo $f->begin(['onsubmit'=>'Form.check() && Form.checkSend(\'¿Enviar email?\')']);

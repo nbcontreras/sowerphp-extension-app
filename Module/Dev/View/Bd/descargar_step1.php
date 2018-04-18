@@ -1,4 +1,4 @@
-<h1>Descargar tablas de la Base de Datos</h1>
+<div class="page-header"><h1>Descargar tablas de la Base de Datos</h1></div>
 <p>Seleccione la base de datos desde donde elegir las tablas, en la siguiente página podrá seleccionar que tablas descargar.</p>
 <?php
 $f = new \sowerphp\general\View_Helper_Form ();

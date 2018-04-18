@@ -1,4 +1,4 @@
-<h1>Recuperación de contraseña</h1>
+<div class="page-header"><h1>Recuperación de contraseña</h1></div>
 <p>Las instrucciones para recuperar su contraseña serán envíadas a su correo
 electrónico, por favor ingrese su usuario o email a continuación:</p>
 <?php

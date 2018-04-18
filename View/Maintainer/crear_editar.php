@@ -1,4 +1,4 @@
-<h1><?=$accion?> <?=$model?></h1>
+<div class="page-header"><h1><?=$accion?> <?=$model?></h1></div>
 
 <?php
 
