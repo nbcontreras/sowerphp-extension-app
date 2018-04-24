@@ -93,9 +93,9 @@ class Controller_App extends \sowerphp\core\Controller
     /**
      * Método que permite ejecutar un comando en la terminal
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2017-03-15
+     * @version 2018-04-24
      */
-    protected function shell($cmd, &$output = [])
+    protected function shell($cmd, $log = false, &$output = [])
     {
         if ($cmd[0]!='/') {
             $cmd = DIR_PROJECT.'/website/Shell/shell.php '.$cmd;
@@ -103,9 +103,16 @@ class Controller_App extends \sowerphp\core\Controller
                 $cmd .= ' --dev';
             }
         }
+        $screen_cmd = 'screen -dm';
+        if ($log) {
+            if (!is_string($log)) {
+                $log = TMP.'/screen_'.$this->Auth->ip().'_'.date('YmdHis').'.log';
+            }
+            $screen_cmd .= ' -L '.$log;
+        }
+        $screen_cmd .= ' '.$cmd;
         $rc = 0;
-        $output = [];
-        exec('screen -dm '.$cmd, $output, $rc);
+        exec($screen_cmd, $output, $rc);
         $output = implode("\n", $output);
         return $rc;
     }
