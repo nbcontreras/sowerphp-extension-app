@@ -56,7 +56,7 @@ echo $form->input(array(
     'name' => 'hash',
     'label' => 'Hash',
     'value' => $_Auth->User->hash,
-    'help' => 'Hash único para identificar el usuario (32 caracteres).<br />Si desea uno nuevo, borrar este y automáticamente se generará uno nuevo al guardar los cambios',
+    'help' => 'Código único para identificar el usuario (32 caracteres).<br />Si desea uno nuevo, borrar este y automáticamente se generará uno nuevo al guardar los cambios',
     'attr' => 'maxlength="32" onclick="this.select()" onmouseover="this.type=\'text\'" onmouseout="this.type=\'password\'"',
 ));
 echo $form->input(array(
