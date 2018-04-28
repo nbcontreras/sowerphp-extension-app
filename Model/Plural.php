@@ -56,14 +56,14 @@ abstract class Model_Plural
     /**
      * Constructor de la clase abstracta
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-03-15
+     * @version 2018-04-27
      */
     public function __construct ()
     {
         // crear statement vacío
         $this->clear();
         // recuperar conexión a la base de datos
-        $this->db = \sowerphp\core\Model_Datasource_Database::get($this->_database);
+        $this->getDB();
         // setear nombre de la clase y de la tabla según la clase que se está usando
         if (empty($this->_class)) {
             $this->_class = \sowerphp\core\Utility_Inflector::singularize(get_class($this));
@@ -76,6 +76,20 @@ abstract class Model_Plural
                 $this->_class
             );
         }
+    }
+
+    /**
+     * Método que recupera la conexión a la base de datos del objeto
+     * Si la conexión no existe se conecta
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2018-04-27
+     */
+    public function getDB()
+    {
+        if (!isset($this->db)) {
+            $this->db = \sowerphp\core\Model_Datasource_Database::get($this->_database);
+        }
+        return $this->db;
     }
 
     /**
