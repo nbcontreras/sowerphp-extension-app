@@ -38,7 +38,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         'log' => false,
         'messages' => [
             'error' => [
-                'not-found' => 'Recurso %s no soporta el método %s en la API %s',
+                'not-found' => 'Recurso %s no permite método %s en la API %s',
                 'methods-miss' => 'El recurso %s no tiene métodos asociados en la API %s',
                 'args-miss' => 'Argumentos insuficientes para el recurso %s(%s) a través de %s en la API %s',
                 'auth-miss' => 'Cabecera Authorization no fue recibida',
