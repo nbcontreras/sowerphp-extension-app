@@ -7,7 +7,7 @@ CREATE TABLE log (
     identificador VARCHAR(255) NOT NULL,
     origen SMALLINT NOT NULL,
     gravedad SMALLINT NOT NULL,
-    usuario BIGINT,
+    usuario INTEGER,
     ip VARCHAR(45),
     solicitud VARCHAR(2000),
     mensaje TEXT NOT NULL,
@@ -15,5 +15,6 @@ CREATE TABLE log (
         REFERENCES usuario (id) MATCH FULL
         ON UPDATE CASCADE ON DELETE RESTRICT
 );
+CREATE INDEX log_usuario_idx ON log (usuario);
 
 COMMIT;
