@@ -501,7 +501,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para mostrar y editar el perfil del usuario que esta autenticado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-12-23
+     * @version 2018-05-19
      */
     public function perfil()
     {
@@ -522,7 +522,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             if (isset($_POST['usuario']) and !$this->changeUsername and $this->Auth->User->usuario!=$_POST['usuario']) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario no puede ser cambiado',
-                    'warning'
+                    'error'
                 );
                 $this->redirect('/usuarios/perfil');
             }
@@ -530,24 +530,32 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             if ($this->changeUsername and !empty($_POST['usuario']))
                 $this->Auth->User->usuario = $_POST['usuario'];
             $this->Auth->User->email = strtolower($_POST['email']);
-            if (isset($_POST['hash']))
+            if (isset($_POST['hash'])) {
                 $this->Auth->User->hash = $_POST['hash'];
+                if (!empty($this->Auth->User->hash) and strlen($this->Auth->User->hash)!=32) {
+                    \sowerphp\core\Model_Datasource_Session::message(
+                        'Hash del usuario debe ser de largo 32',
+                        'error'
+                    );
+                    $this->redirect('/usuarios/perfil');
+                }
+            }
             if ($this->Auth->User->checkIfUserAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Nombre de usuario '.$_POST['usuario'].' ya está en uso',
-                    'warning'
+                    'error'
                 );
                 $this->redirect('/usuarios/perfil');
             }
             if ($this->Auth->User->checkIfHashAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Hash seleccionado ya está en uso', 'warning'
+                    'Hash seleccionado ya está en uso', 'error'
                 );
                 $this->redirect('/usuarios/perfil');
             }
             if ($this->Auth->User->checkIfEmailAlreadyExists ()) {
                 \sowerphp\core\Model_Datasource_Session::message(
-                    'Email seleccionado ya está en uso', 'warning'
+                    'Email seleccionado ya está en uso', 'error'
                 );
                 $this->redirect('/usuarios/perfil');
             }
