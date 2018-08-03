@@ -230,7 +230,7 @@ class Model_Usuario extends \Model_App
             $this->db = \sowerphp\core\Model_Datasource_Database::get($this->_database);
             // se crea usuario a través de su correo electrónico
             if (strpos($id, '@')) {
-                $id = $this->db->getValue('
+                $id = $this->getDB()->getValue('
                     SELECT id
                     FROM usuario
                     WHERE email = :email
@@ -238,7 +238,7 @@ class Model_Usuario extends \Model_App
             }
             // se crea usuario a través de su nombre de usuario
             else if (!isset($id[31])) {
-                $id = $this->db->getValue('
+                $id = $this->getDB()->getValue('
                     SELECT id
                     FROM usuario
                     WHERE usuario = :usuario
@@ -246,7 +246,7 @@ class Model_Usuario extends \Model_App
             }
             //
             else {
-                $id = $this->db->getValue('
+                $id = $this->getDB()->getValue('
                     SELECT id
                     FROM usuario
                     WHERE hash = :hash
@@ -272,7 +272,7 @@ class Model_Usuario extends \Model_App
             if (!$this->db) {
                 $this->db = \sowerphp\core\Model_Datasource_Database::get($this->_database);
             }
-            $config = $this->db->getAssociativeArray('
+            $config = $this->getDB()->getAssociativeArray('
                 SELECT configuracion, variable, valor, json
                 FROM usuario_config
                 WHERE usuario = :id
@@ -442,11 +442,11 @@ class Model_Usuario extends \Model_App
     public function checkIfUserAlreadyExists ()
     {
         if (empty($this->id)) {
-            return (boolean)$this->db->getValue('
+            return (boolean)$this->getDB()->getValue('
                 SELECT COUNT(*) FROM usuario WHERE LOWER(usuario) = :usuario
             ', [':usuario'=>strtolower($this->usuario)]);
         } else {
-            return (boolean)$this->db->getValue('
+            return (boolean)$this->getDB()->getValue('
                 SELECT COUNT(*)
                 FROM usuario
                 WHERE id != :id AND LOWER(usuario) = :usuario
@@ -463,11 +463,11 @@ class Model_Usuario extends \Model_App
     public function checkIfEmailAlreadyExists ()
     {
         if (empty($this->id)) {
-            return (boolean)$this->db->getValue('
+            return (boolean)$this->getDB()->getValue('
                 SELECT COUNT(*) FROM usuario WHERE email = :email
             ', [':email'=>$this->email]);
         } else {
-            return (boolean)$this->db->getValue('
+            return (boolean)$this->getDB()->getValue('
                 SELECT COUNT(*)
                 FROM usuario
                 WHERE id != :id AND email = :email
@@ -484,11 +484,11 @@ class Model_Usuario extends \Model_App
     public function checkIfHashAlreadyExists ()
     {
         if (empty($this->id)) {
-            return (boolean)$this->db->getValue('
+            return (boolean)$this->getDB()->getValue('
                 SELECT COUNT(*) FROM usuario WHERE hash = :hash
             ', [':hash'=>$this->hash]);
         } else {
-            return (boolean)$this->db->getValue('
+            return (boolean)$this->getDB()->getValue('
                 SELECT COUNT(*)
                 FROM usuario
                 WHERE id != :id AND hash = :hash
@@ -523,7 +523,7 @@ class Model_Usuario extends \Model_App
     private function savePasswordLocal($new)
     {
         $this->contrasenia = $this->hashPassword($new);
-        $this->db->query('
+        $this->getDB()->query('
             UPDATE usuario SET contrasenia = :contrasenia WHERE id = :id
         ', [':contrasenia'=>$this->contrasenia, ':id'=>$this->id]);
         return true;
@@ -635,7 +635,7 @@ class Model_Usuario extends \Model_App
     public function groups($forceGet = false)
     {
         if ($this->groups===null or $forceGet) {
-            $this->groups = $this->db->getAssociativeArray('
+            $this->groups = $this->getDB()->getAssociativeArray('
                 SELECT g.id, g.grupo
                 FROM grupo AS g, usuario_grupo AS ug
                 WHERE ug.usuario = :usuario AND g.id = ug.grupo
@@ -693,9 +693,9 @@ class Model_Usuario extends \Model_App
             $grupos = (new Model_Grupos())->getIDs($grupos);
         }
         $grupos = array_map('intval', $grupos);
-        $this->db->beginTransaction();
+        $this->getDB()->beginTransaction();
         if ($grupos) {
-            $this->db->query ('
+            $this->getDB()->query ('
                 DELETE FROM usuario_grupo
                 WHERE
                     usuario = :usuario
@@ -705,12 +705,12 @@ class Model_Usuario extends \Model_App
                 (new Model_UsuarioGrupo ($this->id, $grupo))->save();
             }
         } else {
-            $this->db->query ('
+            $this->getDB()->query ('
                 DELETE FROM usuario_grupo
                 WHERE usuario = :usuario
             ', [':usuario'=>$this->id]);
         }
-        $this->db->commit();
+        $this->getDB()->commit();
     }
 
     /**
@@ -732,7 +732,7 @@ class Model_Usuario extends \Model_App
             }
             $where[] = 'g.grupo IN ('.implode(', ', $grupos).')';
         }
-        return $this->db->getAssociativeArray('
+        return $this->getDB()->getAssociativeArray('
             SELECT g.id, g.grupo
             FROM usuario_grupo AS ug JOIN grupo AS g ON ug.grupo = g.id
             WHERE '.implode(' AND ', $where).'
@@ -776,7 +776,7 @@ class Model_Usuario extends \Model_App
         if ($this->db===null) {
             $this->db = \sowerphp\core\Model_Datasource_Database::get($this->_database);
         }
-        return $this->db->getCol('
+        return $this->getDB()->getCol('
             SELECT a.recurso
             FROM auth AS a, usuario_grupo AS ug, grupo AS g
             WHERE a.grupo = ug.grupo AND ug.grupo = g.id AND '.implode(' AND ', $where).'
@@ -844,7 +844,7 @@ class Model_Usuario extends \Model_App
     public function savePasswordRetry($intentos)
     {
         $this->contrasenia_intentos = $intentos;
-        $this->db->query(
+        $this->getDB()->query(
             'UPDATE usuario SET contrasenia_intentos = :intentos WHERE id = :id'
         , [':id' => $this->id, ':intentos' => $intentos]);
     }
