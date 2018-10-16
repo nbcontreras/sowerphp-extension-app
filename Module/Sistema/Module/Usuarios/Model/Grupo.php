@@ -84,6 +84,6 @@ class Model_Grupo extends \Model_App
     );
 
     // Comentario de la tabla en la base de datos
-    public static $tableComment = 'Indica si el grupo se encuentra activo';
+    public static $tableComment = 'Grupos a los que puede pertenecer un usuario';
 
 }
