@@ -49,7 +49,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2016-01-21
      */
-    public function beforeFilter ()
+    public function beforeFilter()
     {
         $this->Auth->allow('ingresar', 'salir', 'contrasenia_recuperar', 'registrar', 'preauth');
         $this->Auth->allowWithLogin('perfil', 'telegram_parear');
@@ -60,7 +60,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * Acción para que un usuario ingrese al sistema (inicie sesión)
      * @param redirect Ruta (en base64) de hacia donde hay que redireccionar una vez se autentica el usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2018-05-23
+     * @version 2018-10-16
      */
     public function ingresar($redirect = null)
     {
@@ -75,6 +75,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             );
         }
         // asignar variables para la vista
+        $this->layout = 'popup';
         $this->set([
             'redirect' => $redirect ? base64_decode ($redirect) : null,
             'self_register' => (boolean)\sowerphp\core\Configure::read('app.self_register'),
@@ -82,7 +83,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             'auth2_token_enabled' => \sowerphp\app\Model_Datasource_Auth2::tokenEnabled(),
         ]);
         // procesar inicio de sesión
-        if (isset($_POST['submit'])) {
+        if (isset($_POST['usuario'])) {
             // si el usuario o contraseña es vacio mensaje de error
             if (empty($_POST['usuario']) || empty($_POST['contrasenia'])) {
                 \sowerphp\core\Model_Datasource_Session::message(
@@ -106,7 +107,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-04-23
      */
-    public function salir ()
+    public function salir()
     {
         if ($this->Auth->logged()) {
             $this->Auth->logout();
@@ -156,16 +157,17 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * Acción para recuperar la contraseña
      * @param usuario Usuario al que se desea recuperar su contraseña
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-11-04
+     * @version 2018-10-16
      */
-    public function contrasenia_recuperar ($usuario = null, $codigo = null)
+    public function contrasenia_recuperar($usuario = null, $codigo = null)
     {
         $this->autoRender = false;
         $class = $this->Auth->settings['model'];
         // pedir correo
         if ($usuario == null) {
-            if (!isset($_POST['submit'])) {
-                $this->render ('Usuarios/contrasenia_recuperar_step1');
+            if (!isset($_POST['id'])) {
+                $this->layout = 'popup';
+                $this->render('Usuarios/contrasenia_recuperar_step1');
             } else {
                 $Usuario = new $class($_POST['id']);
                 if (!$Usuario->exists()) {
@@ -204,12 +206,13 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 );
                 $this->redirect ('/usuarios/contrasenia/recuperar');
             }
-            if (!isset($_POST['submit'])) {
+            if (!isset($_POST['contrasenia1'])) {
                 $this->set([
                     'usuario' => $usuario,
                     'codigo' => $codigo,
                 ]);
-                $this->render ('Usuarios/contrasenia_recuperar_step2');
+                $this->layout = 'popup';
+                $this->render('Usuarios/contrasenia_recuperar_step2');
             } else {
                 if ($_POST['codigo']!=md5(hash('sha256', $Usuario->contrasenia))) {
                     \sowerphp\core\Model_Datasource_Session::message (
@@ -246,7 +249,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2014-04-23
      */
-    private function contrasenia_recuperar_email ($correo, $nombre, $usuario, $hash)
+    private function contrasenia_recuperar_email($correo, $nombre, $usuario, $hash)
     {
         $this->layout = null;
         $this->set (array(
@@ -527,8 +530,9 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 $this->redirect('/usuarios/perfil');
             }
             $this->Auth->User->nombre = $_POST['nombre'];
-            if ($this->changeUsername and !empty($_POST['usuario']))
+            if ($this->changeUsername and !empty($_POST['usuario'])) {
                 $this->Auth->User->usuario = $_POST['usuario'];
+            }
             $this->Auth->User->email = strtolower($_POST['email']);
             if (isset($_POST['hash'])) {
                 $this->Auth->User->hash = $_POST['hash'];
@@ -654,7 +658,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción que permite registrar un nuevo usuario en la aplicación
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2018-05-23
+     * @version 2018-10-16
      */
     public function registrar()
     {
@@ -691,13 +695,32 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             $this->set('terms', $config['terms']);
         }
         // si se envió formulario se procesa
-        if (isset($_POST['submit'])) {
+        if (isset($_POST['usuario'])) {
             // verificar que campos no sean vacios
             if (empty($_POST['nombre']) or empty($_POST['usuario']) or empty($_POST['email'])) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Debe completar todos los campos del formulario', 'warning'
                 );
                 return;
+            }
+            // si existe la configuración para recaptcha se debe validar
+            $private_key = \sowerphp\core\Configure::read('recaptcha.private_key');
+            if ($private_key) {
+                if (empty($_POST['g-recaptcha-response'])) {
+                    \sowerphp\core\Model_Datasource_Session::message(
+                        'Se requiere Captcha para poder registrar un nuevo usuario',
+                        'warning'
+                    );
+                    return;
+                }
+                $recaptcha = new \ReCaptcha\ReCaptcha($private_key);
+                $resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+                if (!$resp->isSuccess()) {
+                    \sowerphp\core\Model_Datasource_Session::message(
+                        'Captcha incorrecto', 'error'
+                    );
+                    return;
+                }
             }
             // si existen términos y no se aceptaron se redirecciona
             if (!empty($config['terms']) and empty($_POST['terms_ok'])) {
@@ -724,25 +747,6 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     'Email seleccionado ya está en uso', 'warning'
                 );
                 return;
-            }
-            // si existe la configuración para recaptcha se debe validar
-            $private_key = \sowerphp\core\Configure::read('recaptcha.private_key');
-            if ($private_key) {
-                if (empty($_POST['g-recaptcha-response'])) {
-                    \sowerphp\core\Model_Datasource_Session::message(
-                        'Se requiere Captcha para poder registrar un nuevo usuario',
-                        'warning'
-                    );
-                    return;
-                }
-                $recaptcha = new \ReCaptcha\ReCaptcha($private_key);
-                $resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
-                if (!$resp->isSuccess()) {
-                    \sowerphp\core\Model_Datasource_Session::message(
-                        'Captcha incorrecto', 'error'
-                    );
-                    return;
-                }
             }
             // asignar contraseña al usuario
             $contrasenia = \sowerphp\core\Utility_String::random(8);

@@ -2,21 +2,19 @@
 $(function() {
     var url = document.location.toString();
     if (url.match('#')) {
-        $('.nav-tabs a[href=#'+url.split('#')[1]+']').tab('show') ;
+        $('#'+url.split('#')[1]+'-tab').tab('show');
     }
 });
 </script>
-
 <div class="page-header"><h1>Mi perfil de usuario (<?=$_Auth->User->usuario?>)</h1></div>
-
 <div role="tabpanel">
     <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active"><a href="#datos" aria-controls="datos" role="tab" data-toggle="tab">Datos básicos</a></li>
-        <li role="presentation"><a href="#contrasenia" aria-controls="contrasenia" role="tab" data-toggle="tab">Contraseña</a></li>
-        <li role="presentation"><a href="#auth" aria-controls="auth" role="tab" data-toggle="tab">Auth</a></li>
+        <li class="nav-item"><a href="#datos" aria-controls="datos" role="tab" data-toggle="tab" id="datos-tab" class="nav-link active" aria-selected="true">Datos básicos</a></li>
+        <li class="nav-item"><a href="#contrasenia" aria-controls="contrasenia" role="tab" data-toggle="tab" id="contrasenia-tab" class="nav-link">Contraseña</a></li>
+        <li class="nav-item"><a href="#auth" aria-controls="auth" role="tab" data-toggle="tab" id="auth-tab" class="nav-link">Auth</a></li>
     </ul>
-    <div class="tab-content">
-        <div role="tabpanel" class="tab-pane active" id="datos">
+    <div class="tab-content pt-4">
+        <div role="tabpanel" class="tab-pane active" id="datos" aria-labelledby="datos-tab">
             <div class="row">
                 <div class="col-sm-9">
                     <p>Aquí puede modificar los datos de su usuario.</p>
@@ -88,17 +86,17 @@ echo $form->end(array(
 ));
 ?>
                 </div>
-                <div class="col-sm-3">
-                    <a href="https://gravatar.com" title="Cambiar imagen en Gravatar" target="_blank">
-                        <img src="<?=$_Auth->User->getAvatar(200)?>" alt="Avatar" class="center img-responsive thumbnail" />
+                <div class="col-sm-3 text-center">
+                    <a href="https://gravatar.com" title="Cambiar imagen en Gravatar">
+                        <img src="<?=$_Auth->User->getAvatar(200)?>" alt="Avatar" class="img-fluid img-thumbnail" />
                     </a>
-                    <div class="text-center small" style="margin-top:0.5em">
-                        <a href="https://gravatar.com" title="Cambiar imagen en Gravatar" target="_blank">[cambiar imagen]</a>
+                    <div class="small" style="margin-top:0.5em">
+                        <a href="https://gravatar.com" title="Cambiar imagen en Gravatar">[cambiar imagen]</a>
                     </div>
                 </div>
             </div>
         </div>
-        <div role="tabpanel" class="tab-pane" id="contrasenia">
+        <div role="tabpanel" class="tab-pane" id="contrasenia" aria-labelledby="contrasenia-tab">
             <p>A través del siguiente formulario puede cambiar su contraseña.</p>
 <?php
 echo $form->begin(array(
@@ -132,11 +130,11 @@ echo $form->end(array(
 ));
 ?>
         </div>
-        <div role="tabpanel" class="tab-pane" id="auth">
+        <div role="tabpanel" class="tab-pane" id="auth" aria-labelledby="auth-tab">
 <?php if ($auths2) : foreach ($auths2 as $Auth2) : ?>
-            <div class="panel panel-default">
-                <div class="panel-heading"><?=$Auth2->getName()?></div>
-                <div class="panel-body">
+            <div class="card mb-4">
+                <div class="card-header"><?=$Auth2->getName()?></div>
+                <div class="card-body">
 <?php
 $method = $Auth2->getName();
 if (!$_Auth->User->{'config_auth2_'.$method}) {
@@ -194,18 +192,19 @@ if (!$_Auth->User->{'config_auth2_'.$method}) {
                 </div>
             </div>
 <?php endforeach; endif; ?>
-            <div class="panel panel-default">
-                <div class="panel-heading">Código QR autenticación</div>
-                <div class="panel-body">
+            <div class="card mb-4">
+                <div class="card-header">Código QR autenticación</div>
+                <div class="card-body">
                     <p>El siguiente código QR provee la dirección de la aplicación junto con su <em>hash</em> de usuario para autenticación.</p>
-                    <img src="<?=$_base?>/exportar/qrcode/<?=$qrcode?>" alt="auth_qr" class="img-responsive thumbnail" style="display:none" id="auth_qr" />
-                    <a href="#" onclick="$('#auth_qr').show(); $('#auth_qr_show').hide(); $('#auth_qr_hide').show(); return false;" class="btn btn-default" id="auth_qr_show">Ver código QR</a>
-                    <a href="#" onclick="$('#auth_qr').hide(); $('#auth_qr_hide').hide(); $('#auth_qr_show').show(); return false;" class="btn btn-default" style="display:none" id="auth_qr_hide">Ocultar código QR</a>
+                    <a href="#" onclick="$('#auth_qr').show(); $('#auth_qr_show').hide(); $('#auth_qr_hide').show(); return false;" class="btn btn-primary" id="auth_qr_show">Ver código QR</a>
+                    <a href="#" onclick="$('#auth_qr').hide(); $('#auth_qr_hide').hide(); $('#auth_qr_show').show(); return false;" class="btn btn-primary" style="display:none" id="auth_qr_hide">Ocultar código QR</a>
+                    <br/><br/>
+                    <img src="<?=$_base?>/exportar/qrcode/<?=$qrcode?>" alt="auth_qr" class="img-fluid img-thumbnail" style="display:none" id="auth_qr" />
                 </div>
             </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">Grupos y permisos</div>
-                <div class="panel-body">
+            <div class="card mb-4">
+                <div class="card-header">Grupos y permisos</div>
+                <div class="card-body">
 <?php
 $grupos = $_Auth->User->groups();
 if ($grupos) {

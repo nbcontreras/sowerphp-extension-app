@@ -70,16 +70,18 @@ class View_Helper_Paginator extends \sowerphp\general\View_Helper_Table
     public function generate($data, $pages = 1, $page = 1)
     {
         $buffer = $this->form->begin(['onsubmit'=>'buscar(this)'])."\n";
-        if ($page)
+        if ($page) {
             $buffer .= $this->paginator($pages, $page)."\n";
+        }
         $buffer .= parent::generate($data, $this->options['thead']);
         $buffer .= $this->form->end(false)."\n";
         if ($pages) {
-            $buffer .= '<div style="text-align:right;margin-bottom:1em;font-size:0.8em">'."\n";
-            if ($page)
+            $buffer .= '<div class="text-right mb-2 small">'."\n";
+            if ($page) {
                 $buffer .= '<a href="'.$this->options['link'].'/0'.$this->options['linkEnd'].'">Mostrar todos los registros (sin paginar)</a>'."\n";
-            else
+            } else {
                 $buffer .= '<a href="'.$this->options['link'].'/1'.$this->options['linkEnd'].'">Paginar registros</a>'."\n";
+            }
             $buffer .= '</div>'."\n";
         }
         return $buffer;
@@ -91,40 +93,30 @@ class View_Helper_Paginator extends \sowerphp\general\View_Helper_Table
      * @param page Página que se está revisando o 0 para no usar el paginador
      * @param groupOfPages De a cuantas páginas se mostrará en el paginador
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-04-05
+     * @version 2018-10-15
      */
     protected function paginator($pages, $page, $groupOfPages = 10)
     {
-        if (!$pages)
+        if (!$pages) {
             return;
+        }
         // cálculoss necesarios para crear enlaces
         $group = ceil($page/$groupOfPages);
         $from = ($group-1)*$groupOfPages + 1;
         $to = min($from+$groupOfPages-1, $pages);
         // crear enlaces para paginador
-        $buffer = '<div style="float:left;margin-left:20%;width:50%;text-align:center"><nav><ul class="pagination">'."\n";
-        if ($page==1)
-            $buffer .= '<li class="disabled"><span class="fa fa-fast-backward" aria-hidden="true"></span></li>';
-        else
-            $buffer .= '<li><a href="'.$this->options['link'].'/1'.$this->options['linkEnd'].'" title="Ir a la primera página"><span class="fa fa-fast-backward" aria-hidden="true"></span></a></li>';
-        if ($group==1)
-            $buffer .= '<li class="disabled"><span class="fa fa-backward" aria-hidden="true"></span></li>';
-        else
-            $buffer .= '<li><a href="'.$this->options['link'].'/'.($from-1).$this->options['linkEnd'].'" title="Ir al grupo de páginas anterior (página '.($from-1).')"><span class="fa fa-backward" aria-hidden="true"></span></a></li>';
+        $buffer = '<div class="float-left w-50" style="margin-left:20%"><nav><ul class="pagination">'."\n";
+        $buffer .= '<li class="page-item'.($page==1?' disabled':'').'"><a href="'.$this->options['link'].'/1'.$this->options['linkEnd'].'" title="Ir a la primera página" class="page-link"><i class="fa fa-fast-backward fa-fw" aria-hidden="true"></i></a></li>';
+        $buffer .= '<li class="page-item'.($group==1?' disabled':'').'"><a href="'.$this->options['link'].'/'.($from-1).$this->options['linkEnd'].'" title="Ir al grupo de páginas anterior (página '.($from-1).')" class="page-link"><i class="fa fa-backward fa-fw" aria-hidden="true"></i></a></li>';
         for ($i=$from; $i<=$to; $i++) {
-            if ($page==$i)
-                $buffer .= '<li class="active"><a href="#" onclick="return false">'.$i.'</a></li>';
-            else
-                $buffer .= '<li><a href="'.$this->options['link'].'/'.$i.$this->options['linkEnd'].'" title="Ir a la página '.$i.'">'.$i.'</a></li>';
+            if ($page==$i) {
+                $buffer .= '<li class="page-item active"><a href="#" onclick="return false" class="page-link">'.$i.'</a></li>';
+            } else {
+                $buffer .= '<li class="page-item"><a href="'.$this->options['link'].'/'.$i.$this->options['linkEnd'].'" title="Ir a la página '.$i.'" class="page-link">'.$i.'</a></li>';
+            }
         }
-        if ($group==ceil($pages/$groupOfPages))
-            $buffer .= '<li class="disabled"><span class="fa fa-forward" aria-hidden="true"></span></li>';
-        else
-            $buffer .= '<li><a href="'.$this->options['link'].'/'.($to+1).$this->options['linkEnd'].'" title="Ir al grupo de páginas siguiente (página '.($to+1).')"><span class="fa fa-forward" aria-hidden="true"></span></a></li>';
-        if ($page==$pages)
-            $buffer .= '<li class="disabled"><span class="fa fa-fast-forward" aria-hidden="true"></span></li>';
-        else
-            $buffer .= '<li><a href="'.$this->options['link'].'/'.$pages.$this->options['linkEnd'].'" title="Ir a la última página"><span class="fa fa-fast-forward" aria-hidden="true"></span></a></li>';
+        $buffer .= '<li class="page-item'.($group==ceil($pages/$groupOfPages)?' disabled':'').'"><a href="'.$this->options['link'].'/'.($to+1).$this->options['linkEnd'].'" title="Ir al grupo de páginas siguiente (página '.($to+1).')" class="page-link"><i class="fa fa-forward fa-fw" aria-hidden="true"></i></a></li>';
+            $buffer .= '<li class="page-item'.($page==$pages?' disabled':'').'"><a href="'.$this->options['link'].'/'.$pages.$this->options['linkEnd'].'" title="Ir a la última página" class="page-link"><i class="fa fa-fast-forward fa-fw" aria-hidden="true"></i></a></li>';
         $buffer .= '</ul></nav></div>'."\n";
         // retornar enlaces
         return $buffer;

@@ -38,24 +38,26 @@ class View_Helper_Maintainer extends View_Helper_Paginator
      * @param page Página que se está revisando o 0 para no usar el paginador
      * @param create =true se agrega icono para crear registro
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-04-05
+     * @version 2018-10-15
      */
-    public function listar ($data, $pages = 1, $page = 1, $create = true)
+    public function listar($data, $pages = 1, $page = 1, $create = true)
     {
         $buffer = $this->form->begin(array('onsubmit'=>'buscar(this)'))."\n";
         if ($create) {
-            $buffer .= '<div style="float:left"><a href="'.$this->options['link'].'/crear'.$this->options['listarFilterUrl'].'" title="Crear nuevo registro"><span class="fa fa-plus btn btn-default" aria-hidden="true"></span></a></div>'."\n";
+            $buffer .= '<div class="float-left"><a href="'.$this->options['link'].'/crear'.$this->options['listarFilterUrl'].'" title="Crear nuevo registro"><i class="fa fa-plus fa-fw" aria-hidden="true"></i></a></div>'."\n";
         }
         $this->options['link'] .= '/listar';
-        if ($page)
+        if ($page) {
             $buffer .= $this->paginator ($pages, $page)."\n";
+        }
         $buffer .= \sowerphp\general\View_Helper_Table::generate ($data, $this->options['thead']);
         $buffer .= $this->form->end(false)."\n";
-        $buffer .= '<div style="text-align:right;margin-bottom:1em;font-size:0.8em">'."\n";
-        if ($page)
+        $buffer .= '<div class="text-right mb-2 small">'."\n";
+        if ($page) {
             $buffer .= '<a href="'.$this->options['link'].'/0'.$this->options['linkEnd'].'">Mostrar todos los registros (sin paginar)</a>'."\n";
-        else
+        } else {
             $buffer .= '<a href="'.$this->options['link'].'/1'.$this->options['linkEnd'].'">Paginar registros</a>'."\n";
+        }
         $buffer .= '</div>'."\n";
         return $buffer;
     }

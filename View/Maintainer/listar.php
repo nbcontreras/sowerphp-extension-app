@@ -8,8 +8,8 @@ $titles = [];
 $colsWidth = [];
 foreach ($columns as $column => $info) {
     $titles[] = $info['name'].' '.
-        '<div class="pull-right"><a href="'.$_base.$module_url.$controller.'/listar/'.$page.'/'.$column.'/A'.$searchUrl.'" title="Ordenar ascendentemente por '.$info['name'].'"><span class="fas fa-sort-alpha-down"></span></a>'.
-        ' <a href="'.$_base.$module_url.$controller.'/listar/'.$page.'/'.$column.'/D'.$searchUrl.'" title="Ordenar descendentemente por '.$info['name'].'"><span class="fas fa-sort-alpha-up"></span></a></div>'
+        '<div class="float-right"><a href="'.$_base.$module_url.$controller.'/listar/'.$page.'/'.$column.'/A'.$searchUrl.'" title="Ordenar ascendentemente por '.$info['name'].'"><i class="fas fa-sort-alpha-down"></i></a>'.
+        ' <a href="'.$_base.$module_url.$controller.'/listar/'.$page.'/'.$column.'/D'.$searchUrl.'" title="Ordenar descendentemente por '.$info['name'].'"><i class="fas fa-sort-alpha-up"></i></a></div>'
     ;
     $colsWidth[] = null;
 }
@@ -54,7 +54,7 @@ foreach ($columns as $column => &$info) {
         $row[] = $form->input(array('name'=>$column, 'value'=>(isset($search[$column])?$search[$column]:'')));
     }
 }
-$row[] = '<button type="submit" class="btn btn-default"><span class="fa fa-search"></span></button>';
+$row[] = '<button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>';
 $data[] = $row;
 
 // crear filas de la tabla
@@ -64,7 +64,7 @@ foreach ($Objs as &$obj) {
         // si es un archivo
         if ($info['type']=='file') {
             if ($obj->{$column.'_size'})
-                $row[] = '<a href="'.$_base.$module_url.$controller.'/d/'.$column.'/'.urlencode($obj->id).'"><span class="fa fa-download"></span></a>';
+                $row[] = '<a href="'.$_base.$module_url.$controller.'/d/'.$column.'/'.urlencode($obj->id).'"><i class="fas fa-download fa-fw"></i></a>';
             else
                 $row[] = '';
         }
@@ -92,12 +92,12 @@ foreach ($Objs as &$obj) {
     $actions = '';
     if (!empty($extraActions)) {
         foreach ($extraActions as $a => $i) {
-            $actions .= '<a href="'.$_base.$module_url.$controller.'/'.$a.'/'.$pkURL.$listarFilterUrl.'" title="'.(isset($i['desc'])?$i['desc']:'').'"><span class="'.$i['icon'].' btn btn-default"></span></a> ';
+            $actions .= '<a href="'.$_base.$module_url.$controller.'/'.$a.'/'.$pkURL.$listarFilterUrl.'" title="'.(isset($i['desc'])?$i['desc']:'').'"><i class="'.$i['icon'].' fa-fw"></i></a> ';
         }
     }
-    $actions .= '<a href="'.$_base.$module_url.$controller.'/editar/'.$pkURL.$listarFilterUrl.'" title="Editar"><span class="fa fa-edit btn btn-default"></span></a>';
+    $actions .= '<a href="'.$_base.$module_url.$controller.'/editar/'.$pkURL.$listarFilterUrl.'" title="Editar"><i class="fa fa-edit fa-fw"></i></a>';
     if ($deleteRecord) {
-        $actions .= ' <a href="'.$_base.$module_url.$controller.'/eliminar/'.$pkURL.$listarFilterUrl.'" title="Eliminar" onclick="return eliminar(\''.$model.'\', \''.implode(', ', $pkValues).'\')"><span class="fas fa-times btn btn-default"></span></a>';
+        $actions .= ' <a href="'.$_base.$module_url.$controller.'/eliminar/'.$pkURL.$listarFilterUrl.'" title="Eliminar" onclick="return eliminar(\''.$model.'\', \''.implode(', ', $pkValues).'\')"><i class="fas fa-times fa-fw"></i></a>';
     }
     $row[] = $actions;
     $data[] = $row;
