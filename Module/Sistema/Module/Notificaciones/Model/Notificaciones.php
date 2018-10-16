@@ -44,16 +44,16 @@ class Model_Notificaciones extends \Model_Plural_App
      * @param usuario ID del usuario que se quiere obtener sus notificaciones
      * @return Tabla con las notificaciones
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-05-06
+     * @version 2018-10-15
      */
     public function getByUser($usuario)
     {
-        return $this->db->getTable('
+        $notificaciones = $this->db->getTable('
             SELECT
                 n.id,
                 n.icono,
                 n.fechahora,
-                \'primary\' AS tipo,
+                gravedad AS tipo,
                 u.usuario,
                 n.descripcion,
                 n.enlace,
@@ -62,6 +62,11 @@ class Model_Notificaciones extends \Model_Plural_App
             WHERE para = :usuario
             ORDER BY id DESC
         ', [':usuario' => $usuario]);
+        $Notificacion = new Model_Notificacion();
+        foreach ($notificaciones as &$n) {
+            $n['tipo'] = $Notificacion->getSeverity($n['tipo'])->style;
+        }
+        return $notificaciones;
     }
 
     /**
@@ -70,15 +75,15 @@ class Model_Notificaciones extends \Model_Plural_App
      * @param limit Cantidad de notificaciones que se desea obtener
      * @return Tabla con las notificaciones no leídas
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-05-06
+     * @version 2018-10-15
      */
     public function getUnreadByUser($usuario, $limit = 3)
     {
-        return $this->db->getTable('
+        $notificaciones = $this->db->getTable('
             SELECT
                 n.id,
                 n.fechahora,
-                \'primary\' AS tipo,
+                gravedad AS tipo,
                 u.usuario,
                 n.descripcion,
                 n.icono,
@@ -88,6 +93,11 @@ class Model_Notificaciones extends \Model_Plural_App
             ORDER BY id DESC
             LIMIT '.(int)$limit.'
         ', [':usuario' => $usuario]);
+        $Notificacion = new Model_Notificacion();
+        foreach ($notificaciones as &$n) {
+            $n['tipo'] = $Notificacion->getSeverity($n['tipo'])->style;
+        }
+        return $notificaciones;
     }
 
     /**

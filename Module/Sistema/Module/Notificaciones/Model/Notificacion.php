@@ -194,8 +194,9 @@ class Model_Notificacion extends \Model_App
      */
     public function getSeverity($severity = null)
     {
-        if ($severity===null)
+        if ($severity===null) {
             $severity = $this->gravedad;
+        }
         $data = [
             LOG_EMERG => (object)['glosa'=>'EMERG', 'style'=>'danger'],
             LOG_ALERT => (object)['glosa'=>'ALERT', 'style'=>'danger'],

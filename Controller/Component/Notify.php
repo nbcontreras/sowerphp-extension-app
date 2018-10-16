@@ -63,8 +63,9 @@ class Controller_Component_Notify extends \sowerphp\core\Controller_Component
         $status = true;
         foreach ($methods as $method) {
             $method = 'send'.ucfirst($method);
-            if (!$this->$method($from, $to, $message))
+            if (!$this->$method($from, $to, $message)) {
                 $status = false;
+            }
         }
         return $status;
     }
@@ -75,21 +76,30 @@ class Controller_Component_Notify extends \sowerphp\core\Controller_Component
      * @param to A quien va dirigida la notificación (un arreglo sin son varios usuarios)
      * @param message Mensaje que se desea registrar o arreglo con el mensaje y su configuración
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-09-23
+     * @version 2018-10-15
      */
     private function sendDb($from, $to, $message)
     {
-        if (!\sowerphp\core\Module::loaded('Sistema.Notificaciones'))
+        if (!\sowerphp\core\Module::loaded('Sistema.Notificaciones')) {
             return false;
+        }
         $Notificacion = new \sowerphp\app\Sistema\Notificaciones\Model_Notificacion();
-        foreach ($message as $key => $value)
+        foreach ($message as $key => $value) {
             $Notificacion->$key = $value;
+        }
+        if (!is_object($from)) {
+            $from = new $this->settings['model']($from);
+        }
         $Notificacion->de = $from ? $from->id : null;
         $status = true;
         foreach ($to as $user) {
+            if (!is_object($user)) {
+                $user = new $this->settings['model']($user);
+            }
             $Notificacion->para = $user->id;
-            if (!$Notificacion->save())
+            if (!$Notificacion->save()) {
                 $status = false;
+            }
         }
         return $status;
     }
@@ -100,19 +110,19 @@ class Controller_Component_Notify extends \sowerphp\core\Controller_Component
      * @param to ID del usuario que recibe el mensaje
      * @param message Mensaje que se desea reportar (puede ser un arreglo asociativo)
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-09-23
+     * @version 2018-10-15
      */
     private function sendEmail($from, $to, $message)
     {
         $email = new \sowerphp\core\Network_Email();
         if ($from) {
-            $From = new $this->settings['model']($from);
+            $From = is_object($from) ? $from : new $this->settings['model']($from);
             $email->replyTo($From->email, $From->nombre);
         } else {
             $aux = \sowerphp\core\Configure::read('email.default')['from'];
             $email->replyTo($aux['email'], $aux['name']);
         }
-        $To = new $this->settings['model']($to);
+        $To = is_object($to) ? $to : new $this->settings['model']($to);
         $email->to($To->email);
         $timestamp = microtime(true);
         // asunto
