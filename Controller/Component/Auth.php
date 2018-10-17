@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Componente para proveer de un sistema de autenticación y autorización
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2017-12-23
+ * @version 2018-10-17
  */
 class Controller_Component_Auth extends \sowerphp\core\Controller_Component
 {
@@ -51,12 +51,12 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             ],
             'error' => [
                 'nologin' => 'Debe iniciar sesión para tratar de acceder a <em>%s</em>',
-                'auth' => 'Usuario <em>%s</em> no dispone de permisos para acceder a <em>%s</em>',
-                'invalid' => 'Credenciales del usuario son inválidas',
+                'auth' => 'Usuario <em>%s</em> no está autorizado para acceder a <em>%s</em>',
+                'invalid' => 'Usuario o contraseña inválida',
                 'notexist' => 'Usuario <em>%s</em> no existe',
-                'inactive' => 'Cuenta de usuario <em>%s</em> no activa',
-                'newlogin' => 'Sesión cerrada. Usuario <em>%s</em> tiene una más nueva en otro lugar',
-                'login_attempts_exceeded' => 'Número de intentos de sesión excedidos para usuario <em>%s</em>. Cuenta bloqueada, debe recuperar su contraseña.',
+                'inactive' => 'Cuenta de usuario <em>%s</em> no se encuentra activa',
+                'newlogin' => 'Sesión cerrada. Usuario <em>%s</em> inició sesión en otro dispositivo.',
+                'login_attempts_exceeded' => 'Cuenta de usuario <em>%s</em> fue bloqueada por exceder intentos de sesión, debe recuperar su contraseña.',
                 'auth2' => 'Autenticación secundaria del usuario <em>%s</em> falló: %s',
                 'recaptcha_required' => 'Se detectaron intentos previos fallidos para el usuario <em>%s</em>. Se requiere Captcha',
                 'recaptcha_invalid' => 'Captcha incorrecto para el usuario <em>%s</em>',
