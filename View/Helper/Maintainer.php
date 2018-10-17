@@ -38,13 +38,13 @@ class View_Helper_Maintainer extends View_Helper_Paginator
      * @param page Página que se está revisando o 0 para no usar el paginador
      * @param create =true se agrega icono para crear registro
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2018-10-15
+     * @version 2018-10-17
      */
     public function listar($data, $pages = 1, $page = 1, $create = true)
     {
         $buffer = $this->form->begin(array('onsubmit'=>'buscar(this)'))."\n";
         if ($create) {
-            $buffer .= '<div class="float-left"><a href="'.$this->options['link'].'/crear'.$this->options['listarFilterUrl'].'" title="Crear nuevo registro"><i class="fa fa-plus fa-fw" aria-hidden="true"></i></a></div>'."\n";
+            $buffer .= '<div class="float-left"><a href="'.$this->options['link'].'/crear'.$this->options['listarFilterUrl'].'" title="Crear nuevo registro" class="btn btn-primary"><i class="fa fa-plus fa-fw" aria-hidden="true"></i></a></div>'."\n";
         }
         $this->options['link'] .= '/listar';
         if ($page) {

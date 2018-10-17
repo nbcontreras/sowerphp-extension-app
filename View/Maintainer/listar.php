@@ -64,7 +64,7 @@ foreach ($Objs as &$obj) {
         // si es un archivo
         if ($info['type']=='file') {
             if ($obj->{$column.'_size'})
-                $row[] = '<a href="'.$_base.$module_url.$controller.'/d/'.$column.'/'.urlencode($obj->id).'"><i class="fas fa-download fa-fw"></i></a>';
+                $row[] = '<a href="'.$_base.$module_url.$controller.'/d/'.$column.'/'.urlencode($obj->id).'" class="btn btn-primary"><i class="fas fa-download fa-fw"></i></a>';
             else
                 $row[] = '';
         }
@@ -92,12 +92,12 @@ foreach ($Objs as &$obj) {
     $actions = '';
     if (!empty($extraActions)) {
         foreach ($extraActions as $a => $i) {
-            $actions .= '<a href="'.$_base.$module_url.$controller.'/'.$a.'/'.$pkURL.$listarFilterUrl.'" title="'.(isset($i['desc'])?$i['desc']:'').'"><i class="'.$i['icon'].' fa-fw"></i></a> ';
+            $actions .= '<a href="'.$_base.$module_url.$controller.'/'.$a.'/'.$pkURL.$listarFilterUrl.'" title="'.(isset($i['desc'])?$i['desc']:'').'" class="btn btn-primary"><i class="'.$i['icon'].' fa-fw"></i></a> ';
         }
     }
-    $actions .= '<a href="'.$_base.$module_url.$controller.'/editar/'.$pkURL.$listarFilterUrl.'" title="Editar"><i class="fa fa-edit fa-fw"></i></a>';
+    $actions .= '<a href="'.$_base.$module_url.$controller.'/editar/'.$pkURL.$listarFilterUrl.'" title="Editar" class="btn btn-primary"><i class="fa fa-edit fa-fw"></i></a>';
     if ($deleteRecord) {
-        $actions .= ' <a href="'.$_base.$module_url.$controller.'/eliminar/'.$pkURL.$listarFilterUrl.'" title="Eliminar" onclick="return eliminar(\''.$model.'\', \''.implode(', ', $pkValues).'\')"><i class="fas fa-times fa-fw"></i></a>';
+        $actions .= ' <a href="'.$_base.$module_url.$controller.'/eliminar/'.$pkURL.$listarFilterUrl.'" title="Eliminar" onclick="return eliminar(\''.$model.'\', \''.implode(', ', $pkValues).'\')" class="btn btn-primary"><i class="fas fa-times fa-fw"></i></a>';
     }
     $row[] = $actions;
     $data[] = $row;
