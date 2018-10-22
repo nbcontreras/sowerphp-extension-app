@@ -75,7 +75,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             );
         }
         // asignar variables para la vista
-        $this->layout = 'popup';
+        $this->layout .= '.min';
         $this->set([
             'redirect' => $redirect ? base64_decode ($redirect) : null,
             'self_register' => (boolean)\sowerphp\core\Configure::read('app.self_register'),
@@ -166,7 +166,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         // pedir correo
         if ($usuario == null) {
             if (!isset($_POST['id'])) {
-                $this->layout = 'popup';
+                $this->layout .= '.min';
                 $this->render('Usuarios/contrasenia_recuperar_step1');
             } else {
                 $Usuario = new $class($_POST['id']);
@@ -211,7 +211,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     'usuario' => $usuario,
                     'codigo' => $codigo,
                 ]);
-                $this->layout = 'popup';
+                $this->layout .= '.min';
                 $this->render('Usuarios/contrasenia_recuperar_step2');
             } else {
                 if ($_POST['codigo']!=md5(hash('sha256', $Usuario->contrasenia))) {
@@ -694,6 +694,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         if (!empty($config['terms'])) {
             $this->set('terms', $config['terms']);
         }
+        $this->layout .= '.min';
         // si se envió formulario se procesa
         if (isset($_POST['usuario'])) {
             // verificar que campos no sean vacios
