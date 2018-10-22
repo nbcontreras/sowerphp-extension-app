@@ -82,3 +82,51 @@ function autocomplete(id, url) {
         }
     });});
 }
+
+function dataTable(tableSelector, aoColumns) {
+    var options = {
+        aLengthMenu: [
+            [5, 10, 20, 50, 100, 250, -1],
+            [5, 10, 20, 50, 100, 250, "Todos"]
+        ],
+        iDisplayLength: 5,
+        "aaSorting": [],
+        "language": {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ".",
+            "thousands": ".",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "<i class='fa fa-arrow-right'></i>",
+                "sPrevious": "<i class='fa fa-arrow-left'></i>"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            },
+        },
+    };
+    if (aoColumns!==undefined) {
+        options.aoColumns = aoColumns;
+    }
+    $(tableSelector).parent().css('paddingRight', '1.2em');
+    return $(tableSelector).DataTable(options);
+}
+
+function dataTableNum(data, type, full) {
+    if (type=='display') {
+        return data.toString().replace(/\B(?=(\d{3})+(?!\d))/g,".");
+    }
+    return data;
+}
