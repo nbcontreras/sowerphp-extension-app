@@ -38,4 +38,38 @@ class Model_MonedaCambios extends \Model_Plural_App
     protected $_database = 'default'; ///< Base de datos del modelo
     protected $_table = 'moneda_cambio'; ///< Tabla del modelo
 
+    /**
+     * Método que busca los valores de varios monedas al mismo tiempo para un
+     * día determinado
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2018-10-23
+     */
+    public function getValor($monedas, $dia = null)
+    {
+        if (!$monedas) {
+            return [];
+        }
+        if (!is_array($monedas)) {
+            $monedas = [$monedas];
+        }
+        if (!$dia) {
+            $dia = date('Y-m-d');
+        }
+        $where = ['fecha = :dia'];
+        $vars = [':dia' => $dia];
+        $i = 1;
+        $in = [];
+        foreach ($monedas as $m) {
+            $in[] = ':moneda'.$i;
+            $vars[':moneda'.$i] = $m;
+            $i++;
+        }
+        $where[] = 'desde IN ('.implode(', ', $in).')';
+        return $this->db->getAssociativeArray('
+            SELECT desde AS moneda, valor
+            FROM moneda_cambio
+            WHERE '.implode(' AND ', $where).'
+        ', $vars);
+    }
+
 }
