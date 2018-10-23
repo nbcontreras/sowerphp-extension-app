@@ -159,7 +159,7 @@ if (!$_Auth->User->{'config_auth2_'.$method}) {
             'type' => 'div',
             'name' => 'secretDisplay',
             'label' => 'Código pareo',
-            'value' => '<img src="'.$secret->qr.'" class="img-responsive thumbnail" alt="QR para '.$Auth2->getName().'" />',
+            'value' => '<img src="'.$secret->qr.'" class="img-fluid img-thumbnail" alt="QR para '.$Auth2->getName().'" />',
             'help' => 'Escanear el código QR o copiar el siguiente código en '.$Auth2->getName().': '.$secret->text,
         ));
     }
