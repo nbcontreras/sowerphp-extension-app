@@ -89,7 +89,7 @@ class Model_MonedaCambios extends \Model_Plural_App
         if (!$fecha) {
             $fecha = date('Y-m-d');
         }
-        if (!$decimales) {
+        if ($decimales===null) {
             $decimales = $this->getDecimales($a);
         }
         $cambio = (new \sowerphp\app\Sistema\General\Model_MonedaCambio($desde, $a, $fecha))->valor;
