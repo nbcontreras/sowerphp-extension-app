@@ -38,6 +38,13 @@ class Model_MonedaCambios extends \Model_Plural_App
     protected $_database = 'default'; ///< Base de datos del modelo
     protected $_table = 'moneda_cambio'; ///< Tabla del modelo
 
+    private $decimales = [
+        'CLP' => 0,
+        'CLF' => 2,
+        'USD' => 2,
+        'EUR' => 2,
+    ];
+
     /**
      * Método que busca los valores de varios monedas al mismo tiempo para un
      * día determinado
@@ -70,6 +77,40 @@ class Model_MonedaCambios extends \Model_Plural_App
             FROM moneda_cambio
             WHERE '.implode(' AND ', $where).'
         ', $vars);
+    }
+
+    /**
+     * Método que convierte un monto de una moneda a otra
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2018-10-26
+     */
+    public function convertir($desde, $a, $monto, $fecha = null, $decimales = null)
+    {
+        if (!$fecha) {
+            $fecha = date('Y-m-d');
+        }
+        if (!$decimales) {
+            $decimales = $this->getDecimales($a);
+        }
+        $cambio = (new \sowerphp\app\Sistema\General\Model_MonedaCambio($desde, $a, $fecha))->valor;
+        if ($cambio) {
+            return round($monto * $cambio, $decimales);
+        }
+        // buscar la combinación al revés
+        $cambio_contrario = $this->get($a, $desde, $fecha)->valor;
+        if ($cambio_contrario) {
+            return round($monto / $cambio_contrario, $decimales);
+        }
+    }
+
+    /**
+     * Método que entrega los decimales asociados a una moneda
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2018-10-26
+     */
+    public function getDecimales($moneda)
+    {
+        return isset($this->decimales[$moneda]) ? $this->decimales[$moneda] : 3;
     }
 
 }
