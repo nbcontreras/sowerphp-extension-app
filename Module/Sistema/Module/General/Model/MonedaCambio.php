@@ -108,7 +108,7 @@ class Model_MonedaCambio extends \Model_App
      * Permite utilizar como desde el nombre de la moneda en el formato de la
      * aduana de Chile
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-04-17
+     * @version 2018-10-29
      */
     public function __construct($desde = null, $a = null, $fecha = null)
     {
@@ -119,6 +119,9 @@ class Model_MonedaCambio extends \Model_App
         if ($desde and $a) {
             if (isset(self::$monedas_aduana[$desde])) {
                 $desde = self::$monedas_aduana[$desde];
+            }
+            if (isset(self::$monedas_aduana[$a])) {
+                $a = self::$monedas_aduana[$a];
             }
             if (!$fecha) {
                 $fecha = date('Y-m-d');
