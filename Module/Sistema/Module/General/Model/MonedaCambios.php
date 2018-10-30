@@ -49,7 +49,7 @@ class Model_MonedaCambios extends \Model_Plural_App
      * Método que busca los valores de varios monedas al mismo tiempo para un
      * día determinado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2018-10-23
+     * @version 2018-10-29
      */
     public function getValor($monedas, $dia = null)
     {
@@ -76,6 +76,7 @@ class Model_MonedaCambios extends \Model_Plural_App
             SELECT desde AS moneda, valor
             FROM moneda_cambio
             WHERE '.implode(' AND ', $where).'
+            ORDER BY desde
         ', $vars);
     }
 
