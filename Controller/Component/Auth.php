@@ -341,11 +341,16 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         ).$lastlogin;
         \sowerphp\core\Model_Datasource_Session::message($msg, 'ok');
         $this->log($msg);
+        // si el usuario tiene layout personalizado se asigna
+        if ($this->User->config_page_layout) {
+            \sowerphp\core\Model_Datasource_Session::write('config.page.layout', $this->User->config_page_layout);
+        }
         // redireccionar
-        if (isset($_POST['redirect'][0]))
+        if (isset($_POST['redirect'][0])) {
             $this->controller->redirect($_POST['redirect']);
-        else
+        } else {
             $this->controller->redirect($this->settings['redirect']['login']);
+        }
     }
 
     /**

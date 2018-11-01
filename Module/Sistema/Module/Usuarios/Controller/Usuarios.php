@@ -504,7 +504,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Acción para mostrar y editar el perfil del usuario que esta autenticado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2018-05-19
+     * @version 2018-10-31
      */
     public function perfil()
     {
@@ -651,6 +651,8 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 'changeUsername' => $this->changeUsername,
                 'qrcode' => base64_encode($this->request->url.';'.$this->Auth->User->hash),
                 'auths2' => \sowerphp\app\Model_Datasource_Auth2::getAll(),
+                'layouts' => (array)\sowerphp\core\Configure::read('page.layouts'),
+                'layout' => $this->Auth->User->config_page_layout ? $this->Auth->User->config_page_layout : $this->layout,
             ]);
         }
     }
@@ -911,6 +913,29 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             \sowerphp\core\Model_Datasource_Session::message('Ocurrió un error al eliminar su cuenta de Telegram: '.$e->getMessage(), 'error');
         }
         $this->redirect('/usuarios/perfil#apps');
+    }
+
+    /**
+     * Método que permite cambiar el layout por defecto del usuario
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2018-10-31
+     */
+    public function layout($layout = null)
+    {
+        // verificar se haya indicado un layout
+        $layout = !empty($_POST['layout']) ? $_POST['layout'] : $layout;
+        if (!$layout) {
+            \sowerphp\core\Model_Datasource_Session::message('Debe indicar el nuevo diseño que desea utilizar en la aplicación', 'error');
+            $this->redirect('/usuarios/perfil');
+        }
+        // cambiar layout
+        $this->Auth->User->set([
+            'config_page_layout' => $layout,
+        ]);
+        $this->Auth->User->save();
+        $this->Auth->saveCache();
+        \sowerphp\core\Model_Datasource_Session::message('Se modificó el diseño por defecto de su cuenta', 'ok');
+        $this->redirect('/session/config/page.layout/'.$layout.'/'.base64_encode('/usuarios/perfil'));
     }
 
     /**
