@@ -135,7 +135,7 @@ class Controller_Maintainer extends \Controller_App
     /**
      * Acción para listar los registros de la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-12-06
+     * @version 2018-11-11
      */
     public function listar ($page = 1, $orderby = null, $order = 'A')
     {
@@ -153,8 +153,16 @@ class Controller_Maintainer extends \Controller_App
             foreach ($filters as &$filter) {
                 list($var, $val) = explode(':', $filter);
                 $search[$var] = $val;
+                // si el valor es '!null' se compara contra IS NOT NULL
+                if ($val == '!null') {
+                    $where[] = $var.' IS NOT NULL';
+                }
+                // si el valor es null o 'null' se compara contra IS NULL
+                else if ($val === null or $val == 'null') {
+                    $where[] = $var.' IS NULL';
+                }
                 // si es un campo de texto se filtrará con LIKE
-                if (in_array($model::$columnsInfo[$var]['type'], ['char', 'character varying', 'varchar', 'text'])) {
+                else if (in_array($model::$columnsInfo[$var]['type'], ['char', 'character varying', 'varchar', 'text'])) {
                     $where[] = 'LOWER('.$var.') LIKE :'.$var;
                     $vars[':'.$var] = '%'.strtolower($val).'%';
                 }
@@ -162,14 +170,6 @@ class Controller_Maintainer extends \Controller_App
                 else if (in_array($model::$columnsInfo[$var]['type'], ['timestamp', 'timestamp without time zone'])) {
                     $where[] = 'CAST('.$var.' AS TEXT) LIKE :'.$var;
                     $vars[':'.$var] = $val.' %';
-                }
-                // si el valor es '!null' se compara contra IS NOT NULL
-                else if ($val == '!null') {
-                    $where[] = $var.' IS NOT NULL';
-                }
-                // si el valor es null o 'null' se compara contra IS NULL
-                else if ($val === null or $val == 'null') {
-                    $where[] = $var.' IS NULL';
                 }
                 // si es cualquier otro caso se comparará con una igualdad
                 else {
