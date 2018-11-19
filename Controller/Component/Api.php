@@ -222,7 +222,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * controlador y devuelve el usuario que se autenticó
      * @return Objeto con usuario autenticado o string con el error si hubo uno
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-05-02
+     * @version 2018-11-18
      */
     public function getAuthUser()
     {
@@ -252,7 +252,10 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         if (!strpos($auth, ' ')) {
             $user_pass = $auth;
         } else {
-            list($basic, $user_pass) = explode(' ', $auth);
+            list($auth_type, $user_pass) = explode(' ', $auth);
+            if ($auth_type=='Bearer') {
+                $user_pass = base64_encode($user_pass.':X');
+            }
         }
         $aux = explode(':', (string)base64_decode($user_pass));
         if (!isset($aux[1])) {
