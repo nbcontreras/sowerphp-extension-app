@@ -298,7 +298,7 @@ abstract class Model_Plural
      * @param class Se permite pasar el nombre de la clase en caso que se quieran recuperar objetos (si no se pasa se tratará de detectar)
      * @return Mixed Arreglo o valor según lo solicitado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-02-05
+     * @version 2018-12-01
      */
     private function getData($solicitado, $class = null)
     {
@@ -337,6 +337,9 @@ abstract class Model_Plural
                 foreach ($tabla as &$fila) {
                     $obj = new $class();
                     $obj->set($fila);
+                    if (method_exists($obj, '__init')) {
+                        $obj->__init();
+                    }
                     array_push($objetos, $obj);
                     unset($fila);
                 }
