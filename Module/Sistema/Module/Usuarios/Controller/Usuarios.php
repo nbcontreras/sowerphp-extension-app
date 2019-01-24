@@ -942,16 +942,13 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * Función de la API que permite obtener el perfil del usuario autenticado
      * @param usuario Usuario al que se desea obtener su perfil
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-02
+     * @version 2019-01-24
      */
-    public function _api_perfil_GET($usuario)
+    public function _api_perfil_GET()
     {
         $User = $this->Api->getAuthUser();
         if (is_string($User)) {
             $this->Api->send($User, 401);
-        }
-        if (strtolower($usuario)!=strtolower($User->usuario)) {
-            $this->Api->send('Solo es posible consultar por el perfil del usuario autenticado', 403);
         }
         return [
             'id' => $User->id,
