@@ -940,7 +940,6 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
 
     /**
      * Función de la API que permite obtener el perfil del usuario autenticado
-     * @param usuario Usuario al que se desea obtener su perfil
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2019-01-24
      */
