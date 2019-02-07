@@ -36,14 +36,14 @@ if ($message) {
                             <label for="email" class="sr-only">Correo electrónico</label>
                             <input type="email" name="email" id="email" class="form-control form-control-lg" required="required" placeholder="Correo electrónico" maxlength="50" />
                         </div>
-<?php if (!empty($public_key)) : ?>
-                        <div class="g-recaptcha mb-3" data-sitekey="<?=$public_key?>" style="width:304px;margin:0 auto"></div>
-                        <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=<?=$language?>"></script>
-<?php endif; ?>
 <?php if (!empty($terms)) : ?>
                         <label>
                             <input type="checkbox" name="terms_ok" required="required" onclick="this.value = this.checked ? 1 : 0" /> Acepto los <a href="<?=$terms?>" target="_blank">términos y condiciones de uso</a> del servicio
                         </label>
+<?php endif; ?>
+<?php if (!empty($public_key)) : ?>
+                        <div class="g-recaptcha mb-3" data-sitekey="<?=$public_key?>" style="width:304px;margin:0 auto"></div>
+                        <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=<?=$language?>"></script>
 <?php endif; ?>
                         <button type="submit" class="btn btn-primary btn-block btn-lg">Registrar usuario</button>
                     </form>
