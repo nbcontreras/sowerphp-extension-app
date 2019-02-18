@@ -72,7 +72,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que inicializa el componente y carga la sesión activa
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-12-22
+     * @version 2019-02-18
      */
     public function __construct(\sowerphp\core\Controller_Component_Collection $Components, $settings = [])
     {
@@ -87,10 +87,10 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             $this->User = $this->Cache->get($this->settings['session']['key'].$this->session['id']);
             if (!$this->User) {
                 $this->User = new $this->settings['model']($this->session['id']);
-                $this->User->groups();
-                $this->User->auths();
-                $this->Cache->set($this->settings['session']['key'].$this->session['id'], $this->User);
             }
+            $this->User->groups();
+            $this->User->auths();
+            $this->Cache->set($this->settings['session']['key'].$this->session['id'], $this->User);
         }
     }
 
