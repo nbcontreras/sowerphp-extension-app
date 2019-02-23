@@ -365,10 +365,13 @@ class Model_Usuario extends \Model_App
     /**
      * Método que guarda el usuario y su configuración personalizada si existe
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2017-10-16
+     * @version 2019-02-22
      */
     public function save()
     {
+        if ($this->db===null) {
+            $this->db = \sowerphp\core\Model_Datasource_Database::get($this->_database);
+        }
         // guardar usuario
         if (!parent::save()) {
             return false;
