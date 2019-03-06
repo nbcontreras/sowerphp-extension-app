@@ -61,6 +61,9 @@ class Controller_Component_Log extends \sowerphp\core\Controller_Component
             LOG_DAEMON => [
                 LOG_DEBUG => ['file'],
             ],
+            LOG_MAIL => [
+                LOG_DEBUG => ['email'],
+            ],
         ],
         'report_email' => [
             'groups' => ['sysadmin'], // Grupos a quienes se les envía el email
