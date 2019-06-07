@@ -388,6 +388,11 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             $filterListarUrl = '';
             $filterListar = '';
         }
+        if (strpos($filterListar, 'http')===0) {
+            $redirect = $filterListar;
+        } else {
+            $redirect = '/sistema/usuarios/usuarios/listar'.$filterListar;
+        }
         $class = $this->Auth->settings['model'];
         $Usuario = new $class($id);
         // si el registro que se quiere editar no existe error
@@ -396,7 +401,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 'Registro ('.implode(', ', func_get_args()).') no existe, no se puede editar',
                 'error'
             );
-            $this->redirect('/sistema/usuarios/usuarios/listar'.$filterListar);
+            $this->redirect($redirect);
         }
         // si no se ha enviado el formulario se mostrará
         if(!isset($_POST['submit'])) {
@@ -408,7 +413,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 'Obj' => $Usuario,
                 'columns' => $class::$columnsInfo,
                 'grupos_asignados' => array_keys($grupos_asignados),
-                'listarUrl'=>'/sistema/usuarios/usuarios/listar'.$filterListar,
+                'listarUrl'=>$redirect,
                 'ldap' => \sowerphp\core\Configure::read('ldap.default'),
             ));
             $this->autoRender = false;
@@ -473,7 +478,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                 'Registro Usuario('.implode(', ', func_get_args()).') editado',
                 'ok'
             );
-            $this->redirect('/sistema/usuarios/usuarios/listar'.$filterListar);
+            $this->redirect($redirect);
         }
     }
 

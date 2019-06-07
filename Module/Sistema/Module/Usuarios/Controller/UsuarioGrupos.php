@@ -37,5 +37,12 @@ class Controller_UsuarioGrupos extends \sowerphp\app\Controller_Maintainer
 {
 
     protected $namespace = __NAMESPACE__; ///< Namespace del controlador y modelos asociados
+    protected $deleteRecord = false; ///< Indica si se permite o no borrar registros
+
+    public function editar($usuario)
+    {
+        $listar = base64_encode($this->request->url.$this->request->base.'/sistema/usuarios/usuario_grupos/listar'.base64_decode($_GET['listar']));
+        $this->redirect('/sistema/usuarios/usuarios/editar/'.$usuario.'?listar='.$listar);
+    }
 
 }
