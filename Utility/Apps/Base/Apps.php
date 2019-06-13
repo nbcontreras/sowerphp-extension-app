@@ -36,6 +36,7 @@ abstract class Utility_Apps_Base_Apps
     protected $nombre = null; ///< Nombre de la aplicación
     protected $activa = false; ///< Indica si la aplicación está activa (disponible para ser usada en la aplicación web)
     protected $config; ///< Configuración de la aplicación
+    protected $vars; ///< Variables usadas por la aplicación pero que no son configurables por el usuario
     protected $directory; ///< Directorio de archivos de la aplicación
 
     /**
@@ -152,15 +153,21 @@ abstract class Utility_Apps_Base_Apps
     }
 
     /**
-     * Método que asigna la configuración de la aplicación procesando el formulario enviado por POST
+     * Método que asigna la configuración de la aplicación procesando el
+     * formulario enviado por POST
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2018-12-09
+     * @version 2019-06-13
      */
     public function setConfigPOST()
     {
-        $_POST['config_apps_'.$this->getCodigo()] = [
-            'disponible' => (int)(!empty($_POST['app_'.$this->getCodigo().'_disponible'])),
-        ];
+        if (!empty($_POST['app_'.$this->getCodigo().'_disponible'])) {
+            $_POST['config_apps_'.$this->getCodigo()] = [
+                'disponible' => 1,
+            ];
+        } else {
+            $_POST['config_apps_'.$this->getCodigo()] = null;
+        }
+        unset($_POST['app_'.$this->getCodigo().'_disponible']);
     }
 
     /**
@@ -171,6 +178,16 @@ abstract class Utility_Apps_Base_Apps
     public function setConfig($config)
     {
         $this->config = $config;
+    }
+
+    /**
+     * Método que asigna las variables de la aplicación
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2019-06-13
+     */
+    public function setVars($vars)
+    {
+        $this->vars = $vars;
     }
 
     /**
