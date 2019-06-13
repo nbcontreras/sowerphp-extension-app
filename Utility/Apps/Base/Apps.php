@@ -160,13 +160,9 @@ abstract class Utility_Apps_Base_Apps
      */
     public function setConfigPOST()
     {
-        if (!empty($_POST['app_'.$this->getCodigo().'_disponible'])) {
-            $_POST['config_apps_'.$this->getCodigo()] = [
-                'disponible' => 1,
-            ];
-        } else {
-            $_POST['config_apps_'.$this->getCodigo()] = null;
-        }
+        $_POST['config_apps_'.$this->getCodigo()] = [
+            'disponible' => (int)!empty($_POST['app_'.$this->getCodigo().'_disponible']),
+        ];
         unset($_POST['app_'.$this->getCodigo().'_disponible']);
     }
 
