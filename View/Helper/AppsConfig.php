@@ -84,7 +84,9 @@ class View_Helper_AppsConfig
         $buffer .= $App->getConfigPageHTML($this->form, $config);
         $buffer .= '            </div>'."\n";
         $buffer .= '            <div class="modal-footer">'."\n";
-        $buffer .= '                <a href="'.$App->getURL().'" class="btn btn-primary" target="_blank">Ir a '.$App->getNombre().'</a>'."\n";
+        if ($App->getURL()) {
+            $buffer .= '            <a href="'.$App->getURL().'" class="btn btn-primary" target="_blank">Ir a '.$App->getNombre().'</a>'."\n";
+        }
         $buffer .= '                <button type="submit" name="submit" class="btn btn-primary">Guardar configuración</button>'."\n";
         $buffer .= '            </div>'."\n";
         $buffer .= '        </div>'."\n";
