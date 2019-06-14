@@ -34,11 +34,11 @@ class Utility_Upload_Image_Imgur
     /**
      * Método que sube la imagen a imgur
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2019-06-08
+     * @version 2019-06-13
      */
-    public function upload($file)
+    public function upload($file, array $config = [])
     {
-        $Imgur = new \sowerphp\app\Apps\Model_Imgur();
+        $Imgur = new \sowerphp\app\Apps\Model_Imgur($config);
         $response = $Imgur->upload(file_get_contents($file['tmp_name']));
         return $response['link'];
     }
