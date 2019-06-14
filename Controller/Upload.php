@@ -34,11 +34,11 @@ class Controller_Upload extends \Controller_App
     /**
      * Servicio web para subir una imagen usando diferentes métodos
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2019-06-08
+     * @version 2019-06-13
      */
     public function _api_image_POST($method = 'imgur')
     {
-        $class = 'Utility_Image_'.\sowerphp\core\Utility_Inflector::camelize($method);
+        $class = 'Utility_Upload_Image_'.\sowerphp\core\Utility_Inflector::camelize($method);
         if (!class_exists($class)) {
             $this->Api->send('No se encontró el método "'.$method.'" para subir la imagen', 400);
         }
