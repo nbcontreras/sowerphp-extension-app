@@ -38,6 +38,9 @@ class Controller_Upload extends \Controller_App
      */
     public function _api_image_POST($method = 'imgur')
     {
+        if (empty($_FILES['file'])) {
+            $this->Api->send('Debe enviar la imagen', 400);
+        }
         $class = 'Utility_Upload_Image_'.\sowerphp\core\Utility_Inflector::camelize($method);
         if (!class_exists($class)) {
             $this->Api->send('No se encontró el método "'.$method.'" para subir la imagen', 400);
