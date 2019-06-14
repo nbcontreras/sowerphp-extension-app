@@ -26,9 +26,9 @@ namespace sowerphp\app;
 /**
  * Clase para subir imagenes a www.imgur.com
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2019-06-08
+ * @version 2019-06-13
  */
-class Utility_Image_Imgur
+class Utility_Upload_Image_Imgur
 {
 
     /**

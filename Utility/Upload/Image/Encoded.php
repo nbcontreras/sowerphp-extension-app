@@ -26,9 +26,9 @@ namespace sowerphp\app;
 /**
  * Clase para generar una imagen codificada (local encoded image)
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2019-06-08
+ * @version 2019-06-13
  */
-class Utility_Image_Encoded
+class Utility_Upload_Image_Encoded
 {
 
     /**
