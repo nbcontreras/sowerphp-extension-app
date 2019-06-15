@@ -50,9 +50,9 @@ class View_Helper_AppsConfig
      * Para generar la de múltiples aplicaciones se deberá iterar con este
      * método.
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2019-06-12
+     * @version 2019-06-15
      */
-    public function generate($App, $config)
+    public function generate($App)
     {
         $buffer = '';
         $buffer .= '<div class="card mb-4">'."\n";
@@ -81,7 +81,7 @@ class View_Helper_AppsConfig
         $buffer .= '            </div>'."\n";
         $buffer .= '            <div class="modal-body">'."\n";
         $buffer .= '                <p>'.$App->getDescripcion().'</p>'."\n";
-        $buffer .= $App->getConfigPageHTML($this->form, $config);
+        $buffer .= $App->getConfigPageHTML($this->form, $App->getConfig());
         $buffer .= '            </div>'."\n";
         $buffer .= '            <div class="modal-footer">'."\n";
         if ($App->getURL()) {
