@@ -190,6 +190,19 @@ abstract class Utility_Apps_Base_Apps
     }
 
     /**
+     * Método que entrega el valor de una variable de la app si existe
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2019-06-15
+     */
+    public function getVar($var)
+    {
+        if (!isset($this->vars[$var])) {
+            throw new \Exception('Variable "'.$var.'" de la aplicación "'.$this->getCodigo().'" no se encuentra asignada');
+        }
+        return $this->vars[$var];
+    }
+
+    /**
      * Método que asigna las variables de la aplicación
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
      * @version 2019-06-15
