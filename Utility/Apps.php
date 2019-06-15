@@ -39,10 +39,16 @@ class Utility_Apps
      * Constructor de la clase que procesa las aplicaciones de terceros
      * disponibles en la aplicación web
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2019-06-12
+     * @version 2019-06-15
      */
     public function __construct($config = [])
     {
+        if (!$config) {
+            $config = [
+                'directory' => DIR_WEBSITE.'/Utility/Apps',
+                'namespace' => '\website',
+            ];
+        }
         $this->config = (array)$config;
     }
 
