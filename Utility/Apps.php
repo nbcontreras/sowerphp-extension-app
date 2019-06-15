@@ -47,7 +47,18 @@ class Utility_Apps
     }
 
     /**
-     * Método que entrega todas los aplicaciones disponibles en la tienda
+     * Método que entrega una sóla aplicación
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2019-06-14
+     */
+    public function getApp($app)
+    {
+        $apps = $this->getApps(['apps'=>[$app]]);
+        return $apps ? $apps[$app] : false;
+    }
+
+    /**
+     * Método que entrega todas los aplicaciones disponibles
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
      * @version 2019-06-12
      */
