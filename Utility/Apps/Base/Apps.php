@@ -28,7 +28,7 @@ namespace sowerphp\app;
  * Clase base para las implementaciones de clases de las apps de terceros que
  * se pueden ejecutar en la aplicación
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
- * @version 2019-06-12
+ * @version 2019-06-14
  */
 abstract class Utility_Apps_Base_Apps
 {
@@ -167,13 +167,26 @@ abstract class Utility_Apps_Base_Apps
     }
 
     /**
+     * Método que obtiene la configuración de la aplicación
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2019-06-14
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
      * Método que asigna la configuración de la aplicación
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2018-12-09
+     * @version 2019-06-14
      */
     public function setConfig($config)
     {
-        $this->config = $config;
+        $this->config = (object)$config;
+        if (!isset($this->config->disponible)) {
+            $this->config->disponible = 0;
+        }
     }
 
     /**
