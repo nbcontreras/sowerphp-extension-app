@@ -36,7 +36,7 @@ abstract class Utility_Apps_Base_Apps
     protected $nombre = null; ///< Nombre de la aplicación
     protected $activa = false; ///< Indica si la aplicación está activa (disponible para ser usada en la aplicación web)
     protected $config; ///< Configuración de la aplicación
-    protected $vars; ///< Variables usadas por la aplicación pero que no son configurables por el usuario
+    protected $vars = []; ///< Variables usadas por la aplicación pero que no son configurables por el usuario
     protected $directory; ///< Directorio de archivos de la aplicación
 
     /**
@@ -192,11 +192,11 @@ abstract class Utility_Apps_Base_Apps
     /**
      * Método que asigna las variables de la aplicación
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2019-06-13
+     * @version 2019-06-15
      */
-    public function setVars($vars)
+    public function setVars(array $vars)
     {
-        $this->vars = $vars;
+        $this->vars = array_merge($this->vars, $vars);
     }
 
     /**
