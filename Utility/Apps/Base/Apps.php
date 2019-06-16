@@ -134,11 +134,10 @@ abstract class Utility_Apps_Base_Apps
     /**
      * Método que entrega el código HTML de la página de configuración de la aplicación
      * @param form Objeto con el formulario que se está usando para construir la página de configuración
-     * @param config Configuración actual del despacho
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2019-06-12
+     * @version 2019-06-16
      */
-    public function getConfigPageHTML(\sowerphp\general\View_Helper_Form $form, $config = null)
+    public function getConfigPageHTML(\sowerphp\general\View_Helper_Form $form)
     {
         $buffer = '';
         $buffer .= $form->input([
@@ -146,7 +145,7 @@ abstract class Utility_Apps_Base_Apps
             'name' => 'app_'.$this->getCodigo().'_disponible',
             'label' => '¿Disponible?',
             'options' => ['No', 'Si'],
-            'value' => (int)(!empty($config->disponible)),
+            'value' => (int)(!empty($this->getConfig()->disponible)),
             'help' => '¿Está disponible esta aplicación?',
         ]);
         return $buffer;
