@@ -157,16 +157,16 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * Acción para recuperar la contraseña
      * @param usuario Usuario al que se desea recuperar su contraseña
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2018-10-16
+     * @version 2019-06-20
      */
     public function contrasenia_recuperar($usuario = null, $codigo = null)
     {
+        $this->layout .= '.min';
         $this->autoRender = false;
         $class = $this->Auth->settings['model'];
         // pedir correo
         if ($usuario == null) {
             if (!isset($_POST['id'])) {
-                $this->layout .= '.min';
                 $this->render('Usuarios/contrasenia_recuperar_step1');
             } else {
                 $Usuario = new $class($_POST['id']);
@@ -211,7 +211,6 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     'usuario' => $usuario,
                     'codigo' => $codigo,
                 ]);
-                $this->layout .= '.min';
                 $this->render('Usuarios/contrasenia_recuperar_step2');
             } else {
                 if ($_POST['codigo']!=md5(hash('sha256', $Usuario->contrasenia))) {
