@@ -176,7 +176,7 @@ if (!$_Auth->User->{'config_auth2_'.$method}) {
 } else {
     echo '<p>Aquí podrá desasociar su cuenta de usuario con la protección entregada por <a href="',$Auth2->getUrl(),'" target="_blank">',$Auth2->getName(),'</a>.</p>',"\n";
     echo $form->begin([
-        'onsubmit' => 'Form.checkSend(\'¿Está seguro de querer eliminar la protección con '.$Auth2->getName().'?\')'
+        'onsubmit' => 'Form.confirm(this, \'¿Está seguro de querer eliminar la protección con '.$Auth2->getName().'?\')'
     ]);
     echo $form->input(array(
         'type' => 'hidden',

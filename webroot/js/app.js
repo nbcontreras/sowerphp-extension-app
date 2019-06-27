@@ -35,9 +35,9 @@ function buscar(formulario) {
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
  * @version 2019-06-26
  */
-function eliminar(registro, tupla) {
+function eliminar(objeto, registro, tupla) {
     'use strict';
-    return Form.confirm('¿Eliminar registro ' + registro + '(' + tupla + ')?');
+    return Form.confirm(objeto, '¿Eliminar registro ' + registro + '(' + tupla + ')?');
 }
 
 /**
