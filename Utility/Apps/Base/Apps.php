@@ -28,7 +28,7 @@ namespace sowerphp\app;
  * Clase base para las implementaciones de clases de las apps de terceros que
  * se pueden ejecutar en la aplicación
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
- * @version 2019-06-14
+ * @version 2019-06-27
  */
 abstract class Utility_Apps_Base_Apps
 {
@@ -57,6 +57,17 @@ abstract class Utility_Apps_Base_Apps
     public function __toString()
     {
         return $this->getNombre();
+    }
+
+    /**
+     * Método que entrega el namespace de la aplicación que se instanció
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2019-06-27
+     */
+    public function getNamespace()
+    {
+        $class = '\Utility_Apps_'.\sowerphp\core\Utility_Inflector::camelize($this->getCodigo());
+        return str_replace($class, '', get_class($this));
     }
 
     /**

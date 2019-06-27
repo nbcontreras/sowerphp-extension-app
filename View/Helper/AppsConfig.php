@@ -50,7 +50,7 @@ class View_Helper_AppsConfig
      * Para generar la de múltiples aplicaciones se deberá iterar con este
      * método.
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2019-06-16
+     * @version 2019-06-27
      */
     public function generate($App)
     {
@@ -87,7 +87,7 @@ class View_Helper_AppsConfig
         if ($App->getURL()) {
             $buffer .= '            <a href="'.$App->getURL().'" class="btn btn-primary" target="_blank">Ir a '.$App->getNombre().'</a>'."\n";
         }
-        $buffer .= '                <button type="submit" name="submit" class="btn btn-primary">Guardar configuración</button>'."\n";
+        $buffer .= '                <button type="submit" name="'.str_replace('\\', '_', $App->getNamespace()).'_'.$App->getCodigo().'SubmitApp" class="btn btn-primary">Guardar configuración</button>'."\n";
         $buffer .= '            </div>'."\n";
         $buffer .= '        </div>'."\n";
         $buffer .= '    </div>'."\n";
