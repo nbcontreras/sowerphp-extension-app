@@ -33,11 +33,11 @@ function buscar(formulario) {
  * @param registro Nombre del registro
  * @param tupla Identificador (generalmente PK) del registro
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2014-04-13
+ * @version 2019-06-26
  */
 function eliminar(registro, tupla) {
     'use strict';
-    return confirm('¿Eliminar registro ' + registro + '(' + tupla + ')?');
+    return Form.confirm('¿Eliminar registro ' + registro + '(' + tupla + ')?');
 }
 
 /**
