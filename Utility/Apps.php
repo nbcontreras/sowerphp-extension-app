@@ -39,7 +39,7 @@ class Utility_Apps
      * Constructor de la clase que procesa las aplicaciones de terceros
      * disponibles en la aplicación web
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2019-06-15
+     * @version 2019-07-01
      */
     public function __construct($config = [])
     {
@@ -50,6 +50,9 @@ class Utility_Apps
             ];
         }
         $this->config = (array)$config;
+        if (!isset($this->config[0])) {
+            $this->config = [$this->config];
+        }
     }
 
     /**
@@ -66,7 +69,7 @@ class Utility_Apps
     /**
      * Método que entrega todas los aplicaciones disponibles
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2019-06-12
+     * @version 2019-07-01
      */
     public function getApps(array $filtros = [])
     {
@@ -75,39 +78,43 @@ class Utility_Apps
             'apps' => [],
             'activas' => true,
         ], $filtros);
-        // si el directorio no existe se entrega vacio el arreglo de aplicaciones
-        // se falla silenciosamente, para no tener errores en la aplicación web
-        if (empty($this->config['directory']) or !is_dir($this->config['directory'])) {
-            return [];
-        }
         // realizar búsqueda de aplicaciones
         $apps = [];
-        $dir = opendir($this->config['directory']);
-        while (($archivo = readdir($dir)) !== false) {
-            if ($archivo[0] == '.' or is_dir($this->config['directory'].'/'.$archivo)) {
+        foreach ($this->config as $config) {
+            // si el directorio no existe se entrega vacio el arreglo de aplicaciones
+            // se falla silenciosamente, para no tener errores en la aplicación web
+            if (empty($config['directory']) or !is_dir($config['directory'])) {
                 continue;
             }
-            $class = substr($archivo,0,-4);
-            $app = \sowerphp\core\Utility_Inflector::underscore($class);
-            if ($filtros['apps'] and !in_array($app, $filtros['apps'])) {
-                continue;
+            $dir = opendir($config['directory']);
+            while (($archivo = readdir($dir)) !== false) {
+                if ($archivo[0] == '.' or is_dir($config['directory'].'/'.$archivo)) {
+                    continue;
+                }
+                $class = substr($archivo,0,-4);
+                $app = \sowerphp\core\Utility_Inflector::underscore($class);
+                if ($filtros['apps'] and !in_array($app, $filtros['apps'])) {
+                    continue;
+                }
+                $directory = $config['directory'].'/'.$class;
+                $class = $config['namespace'].'\Utility_Apps_'.$class;
+                if (!class_exists($class)) {
+                    continue;
+                }
+                $App = new $class($directory);
+                if ($filtros['activas'] and !$App->getActiva()) {
+                    continue;
+                }
+                $apps[$app] = $App;
             }
-            $directory = $this->config['directory'].'/'.$class;
-            $class = $this->config['namespace'].'\Utility_Apps_'.$class;
-            if (!class_exists($class)) {
-                continue;
-            }
-            $App = new $class($directory);
-            if ($filtros['activas'] and !$App->getActiva()) {
-                continue;
-            }
-            $apps[$app] = $App;
+            closedir($dir);
         }
-        closedir($dir);
         // ordenar apps
-        uasort($apps, function($app1, $app2) {
-            return $app1->getNombre() == $app2->getNombre() ? 0 : ( $app1->getNombre() < $app2->getNombre() ? -1 : 1);
-        });
+        if ($apps) {
+            uasort($apps, function($app1, $app2) {
+                return $app1->getNombre() == $app2->getNombre() ? 0 : ( $app1->getNombre() < $app2->getNombre() ? -1 : 1);
+            });
+        }
         // entregar apps como objetos
         return $apps;
     }
