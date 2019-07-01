@@ -84,7 +84,7 @@ class Controller_Bd extends \Controller_App
      * Acción que permite poblar datos en tablas de una BD
      * @todo Poblar tablas con PK autoincrementales (idea, actualizar serie)
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-01-24
+     * @version 2019-07-01
      */
     public function poblar ()
     {
@@ -123,8 +123,16 @@ class Controller_Bd extends \Controller_App
                     $where = $whereQuery;
                     $pkCompleta = true;
                     foreach ($info['pk'] as $pk) {
-                        if (empty($row[$cols[$pk]]))
-                            $pkCompleta = false;
+                        if (empty($row[$cols[$pk]])) {
+                            if (isset($row[$cols[$pk]])) {
+                                $col_as_string = (string)$row[$cols[$pk]];
+                                if (!isset($col_as_string[0])) {
+                                    $pkCompleta = false;
+                                }
+                            } else {
+                                $pkCompleta = false;
+                            }
+                        }
                         $where = preg_replace ('/\?/', $row[$cols[$pk]], $where, 1);
                     }
                     // si el registro existe se actualiza
