@@ -35,17 +35,19 @@ class Utility_Rut
      * Método que valida el RUT ingresado
      * @param rut RUT con dígito verificador (puntos son opcionales)
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2016-01-30
+     * @version 2019-07-04
      */
     public static function check($rut)
     {
-        if (!strpos($rut, '-'))
+        if (!strpos($rut, '-')) {
             return false;
+        }
         list($rut, $dv) = explode('-', str_replace('.', '', $rut));
-        if (!is_numeric($rut) or !is_numeric($dv))
+        if (!is_numeric($rut)) {
             return false;
+        }
         $real_dv = self::dv($rut);
-        return $dv == $real_dv ? $rut : false;
+        return strtoupper($dv) == $real_dv ? $rut : false;
     }
 
     /**
