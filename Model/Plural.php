@@ -27,12 +27,12 @@ namespace sowerphp\app;
  * Clase abstracta para todos los modelos
  * Permite trabajar con varios registros de una tabla
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2015-05-06
+ * @version 2019-07-12
  */
 abstract class Model_Plural
 {
 
-    use \sowerphp\core\Object;
+    use \sowerphp\core\Trait_Object;
 
     // Datos para la conexión a la base de datos
     protected $_database = 'default'; ///< Base de datos del modelo
