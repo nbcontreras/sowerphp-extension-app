@@ -151,7 +151,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
                         $resource,
                         $this->method,
                         get_class($this->controller)
-                    ), 403
+                    ), 402
                 );
             }
         }
