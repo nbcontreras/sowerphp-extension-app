@@ -45,21 +45,21 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         ],
         'messages' => [
             'ok' => [
-                'login' => 'Usuario <em>%s</em> ha iniciado su sesión',
-                'lastlogin' => 'Último ingreso fue el <em>%s</em> desde <em>%s</em>',
-                'logout' => 'Usuario <em>%s</em> ha cerrado su sesión',
+                'login' => 'Usuario %s ha iniciado su sesión',
+                'lastlogin' => 'Último ingreso fue el %s desde %s',
+                'logout' => 'Usuario %s ha cerrado su sesión',
             ],
             'error' => [
-                'nologin' => 'Debe iniciar sesión para tratar de acceder a <em>%s</em>',
-                'auth' => 'Usuario <em>%s</em> no está autorizado para acceder a <em>%s</em>',
+                'nologin' => 'Debe iniciar sesión para tratar de acceder a %s',
+                'auth' => 'Usuario %s no está autorizado para acceder a %s',
                 'invalid' => 'Usuario o contraseña inválida',
-                'notexist' => 'Usuario <em>%s</em> no existe',
-                'inactive' => 'Cuenta de usuario <em>%s</em> no se encuentra activa',
-                'newlogin' => 'Sesión cerrada. Usuario <em>%s</em> inició sesión en otro dispositivo.',
-                'login_attempts_exceeded' => 'Cuenta de usuario <em>%s</em> fue bloqueada por exceder intentos de sesión, debe recuperar su contraseña.',
-                'auth2' => 'Autenticación secundaria del usuario <em>%s</em> falló: %s',
-                'recaptcha_required' => 'Se detectaron intentos previos fallidos para el usuario <em>%s</em>. Se requiere Captcha',
-                'recaptcha_invalid' => 'Captcha incorrecto para el usuario <em>%s</em>',
+                'notexist' => 'Usuario %s no existe',
+                'inactive' => 'Cuenta de usuario %s no se encuentra activa',
+                'newlogin' => 'Sesión cerrada. Usuario %s inició sesión en otro dispositivo.',
+                'login_attempts_exceeded' => 'Cuenta de usuario %s fue bloqueada por exceder intentos de sesión, debe recuperar su contraseña.',
+                'auth2' => 'Autenticación secundaria del usuario %s falló: %s',
+                'recaptcha_required' => 'Se detectaron intentos previos fallidos para el usuario %s. Se requiere Captcha',
+                'recaptcha_invalid' => 'Captcha incorrecto para el usuario %s',
             ],
         ],
     ];
@@ -246,7 +246,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que realiza el login del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2017-12-23
+     * @version 2019-07-15
      */
     public function login($usuario, $contrasenia, $auth2_token = null)
     {
@@ -327,7 +327,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         if (isset($lastLogin['fecha_hora'][0])) {
             $lastlogin = '. '.sprintf(
                 $this->settings['messages']['ok']['lastlogin'],
-                $lastLogin['fecha_hora'],
+                \sowerphp\general\Utility_Date::format($lastLogin['fecha_hora'], 'd/m/Y H:i'),
                 $lastLogin['desde']
             );
         } else {
