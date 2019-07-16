@@ -26,11 +26,12 @@ namespace sowerphp\app;
 /**
  * Componente para proveer una API para funciones de los controladores
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2017-08-16
+ * @version 2019-07-15
  */
 class Controller_Component_Api extends \sowerphp\core\Controller_Component
 {
 
+    public $resource; ///< Recurso que se está solicitando a la API
     public $method; ///< Método HTTP que se utilizó para acceder a la API
     public $headers; ///< Cabeceras HTTP de la solicitud que se hizo a la API
     public $data; ///< Datos que se han pasado a la función de la API
@@ -67,7 +68,6 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         } else {
             $this->data = json_decode(file_get_contents('php://input'), true);
         }
-        $this->controller->response->type('application/json');
     }
 
     /**
@@ -76,9 +76,9 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * solicitó la ejecución. Este método es el que controla las funciones del
      * controlador que se está ejecutando.
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-08-06
+     * @version 2019-07-15
      */
-    public function run($resource, $args = null)
+    public function run($api_class_method, $args = null)
     {
         // inicializar api
         $this->init();
@@ -88,7 +88,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
             $methods = ['OPTIONS'];
             foreach ($resources as $r) {
                 $method = substr($r, strrpos($r, '_')+1);
-                if ($r == $resource.'_'.$method) {
+                if ($r == $api_class_method.'_'.$method) {
                     $methods[] = $method;
                 }
             }
@@ -99,7 +99,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
                 $this->send(
                     sprintf(
                         $this->settings['messages']['error']['methods-miss'],
-                        $resource,
+                        $api_class_method,
                         get_class($this->controller)
                     ),
                     404
@@ -107,12 +107,12 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
             }
         }
         // verificar que la función de la API del controlador exista
-        $method = '_api_'.$resource.'_'.$this->method;
+        $method = '_api_'.$api_class_method.'_'.$this->method;
         if (!method_exists($this->controller, $method)) {
             $this->send(
                 sprintf(
                     $this->settings['messages']['error']['not-found'],
-                    $resource,
+                    $api_class_method,
                     $this->method,
                     get_class($this->controller)
                 ), 404
@@ -129,7 +129,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
             $this->send(
                 sprintf(
                     $this->settings['messages']['error']['args-miss'],
-                    $resource,
+                    $api_class_method,
                     implode(', ', $args),
                     $this->method,
                     get_class($this->controller)
@@ -138,33 +138,32 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         }
         unset($reflectionMethod);
         // si se requiere autenticación se valida con el usuario que se haya pasado
-        $recurso = $this->getResource();
+        $this->resource = $this->getResource();
         if (\sowerphp\core\Configure::read('api.auth') and !$this->controller->Auth->allowedWithoutLogin($method)) {
             $User = $this->getAuthUser();
             if (is_string($User)) {
                 $this->send($User, 401);
             }
-            if (!in_array($this->controller->Auth->ip(), $this->settings['localhost']) and !$User->auth($recurso)) {
-                $this->send(
-                    sprintf(
-                        $this->settings['messages']['error']['not-auth'],
-                        $resource,
-                        $this->method,
-                        get_class($this->controller)
-                    ), 402
-                );
+            if (!in_array($this->controller->Auth->ip(), $this->settings['localhost']) and !$User->auth($this->resource)) {
+                if (\sowerphp\core\Trigger::run('api_auth', $this) !== true) {
+                    $this->send(
+                        sprintf(
+                            $this->settings['messages']['error']['not-auth'],
+                            $api_class_method,
+                            $this->method,
+                            get_class($this->controller)
+                        ), 402
+                    );
+                }
             }
-        }
-        // hacer log de la llamada a la API
-        if ($this->settings['log']) {
-            $this->controller->Log->write($recurso, LOG_INFO, $this->settings['log']);
         }
         // ejecutar función de la API
         try {
-            if ($n_args)
+            if ($n_args) {
                 $data = call_user_func_array([$this->controller, $method], array_slice(func_get_args(), 1));
-            else
+            } else {
                 $data = $this->controller->$method();
+            }
         } catch (\Exception $e) {
             $this->send($e->getMessage(), 500);
         } catch (\Error $e) {
@@ -178,13 +177,16 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
     /**
      * Método que entrega el recurso que se está accediendo a través de la API
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-03-20
+     * @version 2019-07-15
      */
     public function getResource()
     {
-        $find = '/'.$this->controller->request->params['controller'].'/'.$this->controller->request->params['pass'][0];
-        $pos = strrpos($this->controller->request->request, $find)+strlen($find);
-        return substr($this->controller->request->request, 0, $pos);
+        if (!isset($this->resource)) {
+            $find = '/'.$this->controller->request->params['controller'].'/'.$this->controller->request->params['pass'][0];
+            $pos = strrpos($this->controller->request->request, $find)+strlen($find);
+            $this->resource = substr($this->controller->request->request, 0, $pos);
+        }
+        return $this->resource;
     }
 
     /**
@@ -208,13 +210,59 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * Método para enviar respuestas hacia el cliente de la API
      * @param data Datos que se enviarán
      * @param status Estado HTTP de resultado de la ejecución de la funcionalidad
+     * @param options Opciones para ser usadas según los datos que se estén enviando
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-12-30
+     * @version 2019-07-15
      */
     public function send($data, $status = 200, $options = 0)
     {
-        $this->controller->response->status($status);
-        $this->controller->response->send(json_encode($data, $options)."\n");
+        try {
+            // preparar datos que se enviarán
+            $this->controller->response->status($status);
+            if (!$this->controller->response->type()) {
+                $this->controller->response->type('application/json');
+            }
+            if ($this->controller->response->type()['mimetype'] == 'application/json') {
+                $data = json_encode($data, $options)."\n";
+            }
+            $this->controller->response->body($data);
+            // hacer log de la consulta a la API
+            $this->log();
+            // enviar respuesta del servidor al cliente
+            $this->controller->response->send();
+        } catch (\Exception $e) {
+            $this->sendException($e);
+        } catch (\Error $e) {
+            $this->sendException($e);
+        }
+    }
+
+    /**
+     * Método que realiza el log del uso de la API
+     * @param request Objeto con la solicitud a la aplicación
+     * @param response Objeto con la respuesta de la API
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2019-07-15
+     */
+    public function log() {
+        if (\sowerphp\core\Trigger::run('api_log', $this) !== true) {
+            if ($this->settings['log']) {
+                $msg = $this->method.' '.$this->getResource().' '.$this->controller->response->status().' '.$this->controller->response->length();
+                $this->controller->Log->write($msg, LOG_INFO, $this->settings['log']);
+            }
+        }
+    }
+
+    /**
+     * Método que envía una página de error por la API
+     * @param e Excepción que se desea enviar (también puede ser un error)
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2019-07-15
+     */
+    private function sendException($e) {
+        $this->controller->response->status(500);
+        $this->controller->response->type('application/json');
+        $this->controller->response->send(json_encode($e->getMessage()));
     }
 
     /**
