@@ -76,7 +76,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * solicitó la ejecución. Este método es el que controla las funciones del
      * controlador que se está ejecutando.
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2019-07-15
+     * @version 2019-07-17
      */
     public function run($api_class_method, $args = null)
     {
@@ -140,10 +140,12 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         // si se requiere autenticación se valida con el usuario que se haya pasado
         $this->resource = $this->getResource();
         if (\sowerphp\core\Configure::read('api.auth') and !$this->controller->Auth->allowedWithoutLogin($method)) {
+            // obtener usuario autenticado y dar error si no hay uno
             $User = $this->getAuthUser();
             if (is_string($User)) {
                 $this->send($User, 401);
             }
+            // verificar que el usuario tenga acceso al recurso solicitado
             if (!in_array($this->controller->Auth->ip(), $this->settings['localhost']) and !$User->auth($this->resource)) {
                 if (\sowerphp\core\Trigger::run('api_auth', $this) !== true) {
                     $this->send(
@@ -156,6 +158,9 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
                     );
                 }
             }
+            // verificar que el usuario tenga una cuota válida de uso de la API
+            // si el usuario no tiene cuota el trigger debe llamar a Api->send()
+            \sowerphp\core\Trigger::run('api_quota', $this);
         }
         // ejecutar función de la API
         try {
