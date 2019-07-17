@@ -217,7 +217,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * @param status Estado HTTP de resultado de la ejecución de la funcionalidad
      * @param options Opciones para ser usadas según los datos que se estén enviando
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2019-07-15
+     * @version 2019-07-17
      */
     public function send($data, $status = 200, $options = 0)
     {
@@ -225,7 +225,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
             // preparar datos que se enviarán
             $this->controller->response->status($status);
             if (!$this->controller->response->type()) {
-                $this->controller->response->type('application/json');
+                $this->controller->response->type('application/json', 'utf-8');
             }
             if ($this->controller->response->type()['mimetype'] == 'application/json') {
                 $data = json_encode($data, $options)."\n";
@@ -379,6 +379,17 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
     public function setKeepRawData($keep = true)
     {
         $this->settings['data']['keep-raw'] = $keep;
+    }
+
+    /**
+     * Método que entrega el objeto de la respuesta de la solicitud HTTP
+     * @return \sowerphp\core\Network_Response
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2019-07-17
+     */
+    public function response()
+    {
+        return $this->controller->response;
     }
 
 }
