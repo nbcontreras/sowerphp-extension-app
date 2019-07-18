@@ -239,4 +239,14 @@ abstract class Utility_Apps_Base_Apps
         return \sowerphp\core\View_Helper_Pages_Php::render($plantilla, $vars);
     }
 
+    /**
+     * Método que redirecciona una URL en la aplicación
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2019-07-17
+     */
+    protected function redirect($url) {
+        header('location: '.$url);
+        exit(0); // no hay otra opción, debe ser exit para que location funcione
+    }
+
 }
