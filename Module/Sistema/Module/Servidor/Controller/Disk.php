@@ -21,16 +21,27 @@
  * En caso contrario, consulte <http://www.gnu.org/licenses/agpl.html>.
  */
 
-// Menú para el módulo
-\sowerphp\core\Configure::write('nav.module', [
-    '/usuarios' => [
-        'name' => 'Usuarios',
-        'desc' => 'Mantenedor de usuarios y grupos del sistema',
-        'icon' => 'fa fa-users',
-    ],
-    '/servidor' => [
-        'name' => 'Servidor',
-        'desc' => 'Estadísticas y administración del servidor',
-        'icon' => 'fas fa-server',
-    ],
-]);
+namespace sowerphp\app\Sistema\Servidor;
+
+/**
+ * Controlador para las acciones asociadas a los discos
+ * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+ * @version 2019-07-24
+ */
+class Controller_Disk extends \Controller_App
+{
+
+    /**
+     * Acción que muestra el listado de puntos de montaje y su uso
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2019-07-24
+     */
+    public function usage()
+    {
+        $Servidor = new Utility_Servidor_Linux();
+        $this->set([
+            'usage' => $Servidor->hardware()->disk()->usage(),
+        ]);
+    }
+
+}

@@ -21,16 +21,29 @@
  * En caso contrario, consulte <http://www.gnu.org/licenses/agpl.html>.
  */
 
-// Menú para el módulo
-\sowerphp\core\Configure::write('nav.module', [
-    '/usuarios' => [
-        'name' => 'Usuarios',
-        'desc' => 'Mantenedor de usuarios y grupos del sistema',
-        'icon' => 'fa fa-users',
-    ],
-    '/servidor' => [
-        'name' => 'Servidor',
-        'desc' => 'Estadísticas y administración del servidor',
-        'icon' => 'fas fa-server',
-    ],
-]);
+namespace sowerphp\app\Sistema\Servidor;
+
+/**
+ * Controlador para las acciones asociadas a los procesos
+ * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+ * @version 2019-07-22
+ */
+class Controller_Processes extends \Controller_App
+{
+
+    /**
+     * Acción que muestra el listado de procesos ordenado por uso de CPU o RAM
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2019-07-24
+     */
+    public function top($order)
+    {
+        $Servidor = new Utility_Servidor_Linux();
+        $top = $order == 'cpu' ? $Servidor->processes()->top_cpu() : $Servidor->processes()->top_memory();
+        $this->set([
+            'order' => $order,
+            'top' => $top
+        ]);
+    }
+
+}

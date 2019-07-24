@@ -21,16 +21,23 @@
  * En caso contrario, consulte <http://www.gnu.org/licenses/agpl.html>.
  */
 
-// Menú para el módulo
-\sowerphp\core\Configure::write('nav.module', [
-    '/usuarios' => [
-        'name' => 'Usuarios',
-        'desc' => 'Mantenedor de usuarios y grupos del sistema',
-        'icon' => 'fa fa-users',
-    ],
-    '/servidor' => [
-        'name' => 'Servidor',
-        'desc' => 'Estadísticas y administración del servidor',
-        'icon' => 'fas fa-server',
-    ],
-]);
+namespace sowerphp\app\Sistema\Servidor;
+
+/**
+ * Controlador para las acciones asociadas a PHP
+ * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+ * @version 2019-07-22
+ */
+class Controller_Php extends \Controller_App
+{
+
+    /**
+     * Acción que muestra phpinfo()
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2019-07-22
+     */
+    public function info()
+    {
+    }
+
+}
