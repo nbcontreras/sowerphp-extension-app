@@ -663,21 +663,42 @@ class Model_Usuario extends \Model_App
      * Además se revisará si pertenece al grupo sysadmin, en cuyo caso también
      * entregará true
      * @param grupos Arreglo con los grupos que se desean revisar
-     * @return =true si pertenece a alguno de los grupos que se solicitaron
+     * @return La cantidad de grupos a los que el usuario pertenece
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-01-28
+     * @version 2019-08-01
      */
-    public function inGroup ($grupos = [])
+    public function inGroup($grupos = [])
     {
-        $this->groups();
-        if (!is_array($grupos))
+        $grupos_usuario = $this->groups();
+        if (!is_array($grupos)) {
             $grupos = [$grupos];
-        $grupos[] = 'sysadmin';
-        foreach ($grupos as $g) {
-            if (in_array($g, $this->groups()))
-                return true;
         }
-        return false;
+        $n_grupos = count($grupos);
+        if (in_array('sysadmin', $grupos_usuario)) {
+            return $n_grupos;
+        }
+        $n_encontrados = 0;
+        foreach ($grupos as $g) {
+            if (in_array($g, $grupos_usuario)) {
+                $n_encontrados++;
+            }
+        }
+        return $n_encontrados;
+    }
+
+    /**
+     * Método que permite determinar si un usuario pertenece a todos los grupos
+     * que están en la consulta
+     * @param grupos Arreglo con los grupos que se desean revisar
+     * @return =true si pertenece a todos los grupos que se solicitaron
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2019-08-01
+     */
+    public function inAllGroups($grupos = [])
+    {
+        $n_grupos = count($grupos);
+        $n_encontrados = $this->inGroup($grupos);
+        return $n_grupos == $n_encontrados;
     }
 
     /**
