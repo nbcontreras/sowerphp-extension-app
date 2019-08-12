@@ -417,7 +417,7 @@ class Model_Usuario extends \Model_App
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2015-01-02
      */
-    public function update ($columns = null)
+    protected function update ($columns = null)
     {
         if ($columns) {
             return parent::update($columns);
