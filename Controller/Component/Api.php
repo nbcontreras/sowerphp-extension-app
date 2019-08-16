@@ -182,12 +182,12 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
     /**
      * Método que entrega el recurso que se está accediendo a través de la API
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2019-07-15
+     * @version 2019-08-15
      */
     public function getResource()
     {
         if (!isset($this->resource)) {
-            $find = '/'.$this->controller->request->params['controller'].'/'.$this->controller->request->params['pass'][0];
+            $find = '/'.$this->controller->request->params['controller'].'/'.(!empty($this->controller->request->params['pass'][0])?$this->controller->request->params['pass'][0]:'');
             $pos = strrpos($this->controller->request->request, $find)+strlen($find);
             $this->resource = substr($this->controller->request->request, 0, $pos);
         }
