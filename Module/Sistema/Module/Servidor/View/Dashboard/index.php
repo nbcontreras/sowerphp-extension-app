@@ -99,6 +99,7 @@ echo View_Helper_Dashboard::cards([
             <div class="card-header">Fecha y hora del sistema</div>
             <div class="card-body text-center"><?=$date?></div>
         </div>
+<?php if (!empty($memcached)) : ?>
 <?php foreach($memcached as $server => $info) : ?>
         <div class="card mb-4">
             <div class="card-header">Memcached</div>
@@ -120,6 +121,7 @@ echo View_Helper_Dashboard::cards([
             </div>
         </div>
 <?php endforeach; ?>
+<?php endif; ?>
         <a class="btn btn-success btn-lg btn-block" href="php/info" role="button">
             <span class="fab fa-php"> Información de PHP
         </a>
