@@ -92,12 +92,12 @@ foreach ($Objs as &$obj) {
     $actions = '';
     if (!empty($extraActions)) {
         foreach ($extraActions as $a => $i) {
-            $actions .= '<a href="'.$_base.$module_url.$controller.'/'.$a.'/'.$pkURL.$listarFilterUrl.'" title="'.(isset($i['desc'])?$i['desc']:'').'" class="btn btn-primary"><i class="'.$i['icon'].' fa-fw"></i></a> ';
+            $actions .= '<a href="'.$_base.$module_url.$controller.'/'.$a.'/'.$pkURL.$listarFilterUrl.'" title="'.(isset($i['desc'])?$i['desc']:'').'" class="btn btn-primary mb-2"><i class="'.$i['icon'].' fa-fw"></i></a> ';
         }
     }
-    $actions .= '<a href="'.$_base.$module_url.$controller.'/editar/'.$pkURL.$listarFilterUrl.'" title="Editar" class="btn btn-primary"><i class="fa fa-edit fa-fw"></i></a>';
+    $actions .= '<a href="'.$_base.$module_url.$controller.'/editar/'.$pkURL.$listarFilterUrl.'" title="Editar" class="btn btn-primary mb-2"><i class="fa fa-edit fa-fw"></i></a>';
     if ($deleteRecord) {
-        $actions .= ' <a href="'.$_base.$module_url.$controller.'/eliminar/'.$pkURL.$listarFilterUrl.'" title="Eliminar" onclick="return eliminar(this, \''.$model.'\', \''.implode(', ', $pkValues).'\')" class="btn btn-primary"><i class="fas fa-times fa-fw"></i></a>';
+        $actions .= ' <a href="'.$_base.$module_url.$controller.'/eliminar/'.$pkURL.$listarFilterUrl.'" title="Eliminar" onclick="return eliminar(this, \''.$model.'\', \''.implode(', ', $pkValues).'\')" class="btn btn-primary mb-2"><i class="fas fa-times fa-fw"></i></a>';
     }
     $row[] = $actions;
     $data[] = $row;
