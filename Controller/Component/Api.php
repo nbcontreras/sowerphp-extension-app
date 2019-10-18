@@ -115,7 +115,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
                     $api_class_method,
                     $this->method,
                     get_class($this->controller)
-                ), 404
+                ), 405
             );
         }
         // verificar que a lo menos se hayan pasado los argumentos requeridos
@@ -133,7 +133,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
                     implode(', ', $args),
                     $this->method,
                     get_class($this->controller)
-                ), 400
+                ), 406
             );
         }
         unset($reflectionMethod);
