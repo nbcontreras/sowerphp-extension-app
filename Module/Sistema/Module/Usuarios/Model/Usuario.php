@@ -615,12 +615,15 @@ class Model_Usuario extends \Model_App
     /**
      * Método que actualiza el último ingreso del usuario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-12-26
+     * @version 2019-10-21
      */
-    public function updateLastLogin($ip)
+    public function updateLastLogin($ip, $multipleLogins = false)
     {
+        if ($this->config_login_multiple !== null) {
+            $multipleLogins = $this->config_login_multiple;
+        }
         $timestamp = date('Y-m-d H:i:s');
-        $hash = md5($ip.$timestamp.$this->contrasenia);
+        $hash = md5($multipleLogins ? $this->contrasenia : ($ip.$timestamp.$this->contrasenia));
         $this->update ([
             'ultimo_ingreso_fecha_hora' => $timestamp,
             'ultimo_ingreso_desde' => $ip,

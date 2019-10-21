@@ -26,12 +26,13 @@ namespace sowerphp\app;
 /**
  * Componente para proveer de un sistema de autenticación y autorización
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2018-10-17
+ * @version 2019-10-21
  */
 class Controller_Component_Auth extends \sowerphp\core\Controller_Component
 {
 
     public $settings = [ ///< Opciones por defecto
+        'multipleLogins' => false,
         'maxLoginAttempts' => 3,
         'model' => '\sowerphp\app\Sistema\Usuarios\Model_Usuario',
         'session' => [
@@ -356,11 +357,11 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que crea la sesión del usuario registrado en la autenticación
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-01-25
+     * @version 2019-10-21
      */
     private function createSession()
     {
-        $hash = $this->User->updateLastLogin($this->ip(true));
+        $hash = $this->User->updateLastLogin($this->ip(true), $this->settings['multipleLogins']);
         if ($this->settings['maxLoginAttempts']) {
             $this->User->savePasswordRetry($this->settings['maxLoginAttempts']);
         }
