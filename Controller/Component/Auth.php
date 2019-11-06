@@ -37,6 +37,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
         'model' => '\sowerphp\app\Sistema\Usuarios\Model_Usuario',
         'session' => [
             'key' => 'session.auth',
+            'cache' => 1800,
         ],
         'redirect' => [
             'login' => '/',
@@ -73,7 +74,7 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
     /**
      * Método que inicializa el componente y carga la sesión activa
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2019-02-18
+     * @version 2019-11-06
      */
     public function __construct(\sowerphp\core\Controller_Component_Collection $Components, $settings = [])
     {
@@ -91,18 +92,18 @@ class Controller_Component_Auth extends \sowerphp\core\Controller_Component
             }
             $this->User->groups();
             $this->User->auths();
-            $this->Cache->set($this->settings['session']['key'].$this->session['id'], $this->User);
+            $this->saveCache();
         }
     }
 
     /**
      * Método que actualiza el usuario autenticado en la caché
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-10-23
+     * @version 2019-11-06
      */
     public function saveCache()
     {
-        $this->Cache->set($this->settings['session']['key'].$this->session['id'], $this->User);
+        $this->Cache->set($this->settings['session']['key'].$this->session['id'], $this->User, $this->settings['session']['cache']);
     }
 
     /**
