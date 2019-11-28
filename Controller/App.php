@@ -93,40 +93,14 @@ class Controller_App extends \sowerphp\core\Controller
     /**
      * Método que permite ejecutar un comando en la terminal
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2019-07-23
+     * @version 2019-11-28
      */
     protected function shell($cmd, $log = false, &$output = [])
     {
-        $cmd = trim($cmd);
-        if (empty($cmd)) {
-            return 255;
+        if ($log and !is_string($log)) {
+            $log = TMP.'/screen_'.$this->Auth->ip().'_'.date('YmdHis').'.log';
         }
-        if ($cmd[0]!='/') {
-            $cmd = DIR_PROJECT.'/website/Shell/shell.php '.$cmd;
-            if (defined('ENVIRONMENT_DEV') and ENVIRONMENT_DEV) {
-                $cmd .= ' --dev';
-            }
-        }
-        $screen_cmd = 'screen -dm';
-        if ($log) {
-            if (!is_string($log)) {
-                $log = TMP.'/screen_'.$this->Auth->ip().'_'.date('YmdHis').'.log';
-            } else {
-                $log = trim($log);
-            }
-            exec('screen --version', $screen_version);
-            $version = explode(' ', $screen_version[0])[2];
-            if ($version >= '4.06.00') {
-                $screen_cmd .= ' -L -Logfile '.escapeshellarg($log);
-            } else {
-                $screen_cmd .= ' -L '.escapeshellarg($log);
-            }
-        }
-        $screen_cmd .= ' '.$cmd;
-        $rc = 0;
-        exec($screen_cmd, $output, $rc);
-        $output = implode("\n", $output);
-        return $rc;
+        return shell_exec_async($cmd, $log, $output);
     }
 
 }
