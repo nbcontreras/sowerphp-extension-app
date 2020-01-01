@@ -6,6 +6,7 @@
         "php": ">=7.0",
         "elevenpaths/latch-sdk-php": "dev-master",
         "robthree/twofactorauth": "1.6.1",
-        "google/auth": "1.2.0"
+        "google/auth": "1.2.0",
+        "guzzlehttp/guzzle": "~6.0"
     }
 }
