@@ -246,7 +246,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * @param usuario Nombre de usuario
      * @param hash Hash para identificar que el usuario es quien dice ser y cambiar su contraseña
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2014-04-23
+     * @version 2020-02-09
      */
     private function contrasenia_recuperar_email($correo, $nombre, $usuario, $hash)
     {
@@ -261,7 +261,11 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
         $email = new \sowerphp\core\Network_Email();
         $email->to($correo);
         $email->subject('Recuperación de contraseña');
-        $email->send($msg);
+        $status = $email->send($msg);
+        if ($status !== true and $status['type']=='error') {
+            \sowerphp\core\Model_Datasource_Session::message($status['message'], 'error');
+            $this->redirect('/usuarios/contrasenia/recuperar');
+        }
     }
 
     /**
