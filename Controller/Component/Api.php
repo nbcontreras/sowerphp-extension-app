@@ -139,7 +139,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         unset($reflectionMethod);
         // si se requiere autenticación se valida con el usuario que se haya pasado
         $this->resource = $this->getResource();
-        if (\sowerphp\core\Configure::read('api.auth') and !($this->controller->Auth->allowedWithoutLogin($method) or !$this->controller->Auth->allowedWithLogin($method))) {
+        if (\sowerphp\core\Configure::read('api.auth') and !$this->controller->Auth->allowedWithoutLogin($method) and !$this->controller->Auth->allowedWithLogin($method)) {
             // obtener usuario autenticado y dar error si no hay uno
             $User = $this->getAuthUser();
             if (is_string($User)) {
