@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Componente para proveer una API para funciones de los controladores
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2019-07-15
+ * @version 2020-02-24
  */
 class Controller_Component_Api extends \sowerphp\core\Controller_Component
 {
@@ -51,6 +51,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         'data' => [
             'keep-raw' => false, // por defecto los datos de entrada por POST se asumen JSON y se parsean como tal
         ],
+        'cors' => false, // permite activar CORS en las solicitudes a la API
     ];
     protected $User = null; ///< Usuario que se ha autenticado en la API
 
@@ -76,23 +77,32 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * solicitó la ejecución. Este método es el que controla las funciones del
      * controlador que se está ejecutando.
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2019-07-17
+     * @version 2020-02-24
      */
     public function run($api_class_method, $args = null)
     {
         // inicializar api
         $this->init();
+        // cors
+        if ($this->settings['cors']) {
+            $headers = ['Origin', 'Content-Type', 'Accept', 'Access-Control-Request-Method', 'Authorization'];
+            $this->controller->response->header('Access-Control-Allow-Headers',  implode(',', $headers));
+            $this->controller->response->header('Access-Control-Allow-Origin', '*');
+        }
         // si se solicitan opciones se buscan para el recurso
         if ($this->method=='OPTIONS') {
             $resources = $this->resources();
             $methods = ['OPTIONS'];
             foreach ($resources as $r) {
                 $method = substr($r, strrpos($r, '_')+1);
-                if ($r == $api_class_method.'_'.$method) {
+                if ($r == $api_class_method.'_'.$method and !in_array($method, $methods)) {
                     $methods[] = $method;
                 }
             }
             if (isset($methods[1])) {
+                if ($this->settings['cors']) {
+                    $this->controller->response->header('Access-Control-Allow-Methods',  implode(',', $methods));
+                }
                 $this->controller->response->header('Allow', implode(',', $methods));
                 $this->send($methods);
             } else {
