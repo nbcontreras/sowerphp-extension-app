@@ -949,7 +949,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Función de la API que permite obtener el perfil del usuario autenticado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2019-07-15
+     * @version 2020-02-24
      */
     public function _api_perfil_GET()
     {
@@ -962,7 +962,14 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
             'nombre' => $User->nombre,
             'usuario' => $User->usuario,
             'email' => $User->email,
-            'hash' => $User->getAuth2() ? (!empty($_GET['auth2_token']) ? $User->hash : null) : $User->hash,
+            'hash' =>
+                $User->getAuth2()
+                ? (
+                    (!empty($_GET['auth2_token']) and $User->checkAuth2($_GET['auth2_token']))
+                    ? $User->hash
+                    : null
+                )
+                : $User->hash,
         ];
     }
 
