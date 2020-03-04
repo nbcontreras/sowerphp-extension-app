@@ -277,12 +277,12 @@ class Controller_Maintainer extends \Controller_App
      * Acción para editar un registro de la tabla
      * @param pk Parámetro que representa la PK, pueden ser varios parámetros los pasados
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-04-24
+     * @version 2020-03-04
      */
     public function editar ($pk)
     {
         $filterListar = !empty($_GET['listar']) ? base64_decode($_GET['listar']) : '';
-        $Obj = new $this->model(func_get_args());
+        $Obj = new $this->model(array_map('urldecode', func_get_args()));
         // si el registro que se quiere editar no existe error
         if(!$Obj->exists()) {
             \sowerphp\core\Model_Datasource_Session::message(
@@ -332,7 +332,7 @@ class Controller_Maintainer extends \Controller_App
      * Acción para eliminar un registro de la tabla
      * @param pk Parámetro que representa la PK, pueden ser varios parámetros los pasados
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-01-16
+     * @version 2020-03-04
      */
     public function eliminar ($pk)
     {
@@ -345,7 +345,7 @@ class Controller_Maintainer extends \Controller_App
             );
         }
         $filterListar = !empty($_GET['listar']) ? base64_decode($_GET['listar']) : '';
-        $Obj = new $this->model(func_get_args());
+        $Obj = new $this->model(array_map('urldecode', func_get_args()));
         // si el registro que se quiere eliminar no existe error
         if(!$Obj->exists()) {
             \sowerphp\core\Model_Datasource_Session::message(
