@@ -3,7 +3,7 @@
         "vendor-dir": "Vendor"
     },
     "require": {
-        "php": ">=7.0",
+        "php": ">=7.3",
         "elevenpaths/latch-sdk-php": "dev-master",
         "robthree/twofactorauth": "1.6.1",
         "google/auth": "1.2.0",
