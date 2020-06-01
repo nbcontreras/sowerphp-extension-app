@@ -289,9 +289,9 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * controlador y devuelve el usuario que se autenticó
      * @return Objeto con usuario autenticado o string con el error si hubo uno
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2019-02-22
+     * @version 2020-06-01
      */
-    public function getAuthUser()
+    public function getAuthUser($auth2_check = true)
     {
         // si ya se determinó el usuario se entrega
         if ($this->User!==null) {
@@ -367,11 +367,13 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
                 return $this->User;
             }
             // verificar token en sistema secundario de autorización
-            try {
-                $User->checkAuth2(!empty($_GET['auth2_token']) ? $_GET['auth2_token'] : null);
-            } catch (\Exception $e) {
-                $this->User = sprintf($this->controller->Auth->settings['messages']['error']['auth2'], $User->usuario, $e->getMessage());
-                return $this->User;
+            if ($auth2_check) {
+                try {
+                    $User->checkAuth2(!empty($_GET['auth2_token']) ? $_GET['auth2_token'] : null);
+                } catch (\Exception $e) {
+                    $this->User = sprintf($this->controller->Auth->settings['messages']['error']['auth2'], $User->usuario, $e->getMessage());
+                    return $this->User;
+                }
             }
             // actualizar intentos de contraseña
             $User->setContraseniaIntentos($this->controller->Auth->settings['maxLoginAttempts']);

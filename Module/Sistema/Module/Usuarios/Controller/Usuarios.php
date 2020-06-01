@@ -47,11 +47,11 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
      * Permitir ciertas acciones y luego ejecutar verificar permisos con
      * parent::beforeFilter()
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-01-21
+     * @version 2020-06-01
      */
     public function beforeFilter()
     {
-        $this->Auth->allow('ingresar', 'salir', 'contrasenia_recuperar', 'registrar', 'preauth');
+        $this->Auth->allow('ingresar', 'salir', 'contrasenia_recuperar', 'registrar', 'preauth', '_api_perfil_GET');
         $this->Auth->allowWithLogin('perfil', 'telegram_parear');
         parent::beforeFilter();
     }
@@ -949,11 +949,11 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
     /**
      * Función de la API que permite obtener el perfil del usuario autenticado
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2020-02-24
+     * @version 2020-06-01
      */
     public function _api_perfil_GET()
     {
-        $User = $this->Api->getAuthUser();
+        $User = $this->Api->getAuthUser(false);
         if (is_string($User)) {
             $this->Api->send($User, 401);
         }
@@ -970,6 +970,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     : null
                 )
                 : $User->hash,
+            'grupos' => array_values($User->groups()),
         ];
     }
 
