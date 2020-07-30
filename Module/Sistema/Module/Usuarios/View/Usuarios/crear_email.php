@@ -1,22 +1,23 @@
-<?php echo $nombre; ?>,
+<?=$nombre?>,
 
-Bienvenid@, se ha creado una cuenta para usted en la aplicación web disponible
-en:
+Se ha creado una cuenta para usted en la aplicación web disponible en:
 
-    <?php echo $_url,"\n"; ?>
+    <?=$_url."\n"?>
 
 Sus datos de acceso son:
 
-Usuario: <?php echo $usuario,"\n"; ?>
-Contraseña: <?php echo $contrasenia,"\n"; ?>
+- Usuario: <?=$usuario."\n"?>
+- Contraseña: <?=$contrasenia."\n"?>
 
 El enlace directo para iniciar sesión es el siguiente:
 
-    <?php echo $_url; ?>/usuarios/ingresar
+    <?=$_url?>/usuarios/ingresar
 
-Una vez ingrese al sistema puede editar su perfil, cambiando su contraseña y
-otros datos básicos de su cuenta.
+Una vez ingrese al sistema puede editar su perfil, cambiar su contraseña y
+modificar otros datos básicos de su cuenta en:
 
-Saludos,
+    <?=$_url?>/usuarios/perfil
+
+atte,
 
 PD: este correo es generado de forma automática, por favor no contestar.

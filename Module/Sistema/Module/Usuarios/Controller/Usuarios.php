@@ -331,7 +331,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     }
                     // enviar correo
                     $emailConfig = \sowerphp\core\Configure::read('email.default');
-                    if (!empty($emailConfig['type']) && !empty($emailConfig['user']) && !empty($emailConfig['pass'])) {
+                    if (!empty($emailConfig['type']) && !empty($emailConfig['from'])) {
                         $layout = $this->layout;
                         $this->layout = null;
                         $this->set(array(
@@ -772,7 +772,7 @@ class Controller_Usuarios extends \sowerphp\app\Controller_Maintainer
                     $Usuario->saveGroups($config['groups']);
                 // enviar correo
                 $emailConfig = \sowerphp\core\Configure::read('email.default');
-                if (!empty($emailConfig['type']) && !empty($emailConfig['user']) && !empty($emailConfig['pass'])) {
+                if (!empty($emailConfig['type']) && !empty($emailConfig['from'])) {
                     $layout = $this->layout;
                     $this->layout = null;
                     $this->set([
