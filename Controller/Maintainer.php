@@ -135,9 +135,9 @@ class Controller_Maintainer extends \Controller_App
     /**
      * Acción para listar los registros de la tabla
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2018-11-11
+     * @version 2020-08-20
      */
-    public function listar ($page = 1, $orderby = null, $order = 'A')
+    public function listar($page = 1, $orderby = null, $order = 'A')
     {
         $model = $this->model;
         // crear objeto
@@ -160,6 +160,11 @@ class Controller_Maintainer extends \Controller_App
                 // si el valor es null o 'null' se compara contra IS NULL
                 else if ($val === null or $val == 'null') {
                     $where[] = $var.' IS NULL';
+                }
+                // si es una FK se filtra con igualdad
+                else if (!empty($model::$columnsInfo[$var]['fk'])) {
+                    $where[] = $var.' = :'.$var;
+                    $vars[':'.$var] = $val;
                 }
                 // si es un campo de texto se filtrará con LIKE
                 else if (in_array($model::$columnsInfo[$var]['type'], ['char', 'character varying', 'varchar', 'text'])) {
