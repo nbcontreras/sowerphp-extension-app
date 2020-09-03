@@ -77,9 +77,6 @@ abstract class Utility_Apps_Base_Apps
      */
     public function getActiva()
     {
-        if ($this->activa == 'dev') {
-            return defined('ENVIRONMENT_DEV');
-        }
         return $this->activa;
     }
 
