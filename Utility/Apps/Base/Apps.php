@@ -73,13 +73,10 @@ abstract class Utility_Apps_Base_Apps
     /**
      * Método que indica si la app está o no activa
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2020-09-02
+     * @version 2020-09-03
      */
     public function getActiva()
     {
-        if (empty($this->activa)) {
-            return false;
-        }
         if ($this->activa == 'dev') {
             return defined('ENVIRONMENT_DEV');
         }
