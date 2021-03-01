@@ -26,7 +26,7 @@ namespace sowerphp\app;
 /**
  * Componente para proveer una API para funciones de los controladores
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
- * @version 2020-02-24
+ * @version 2021-03-01
  */
 class Controller_Component_Api extends \sowerphp\core\Controller_Component
 {
@@ -36,6 +36,9 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
     public $headers; ///< Cabeceras HTTP de la solicitud que se hizo a la API
     public $data; ///< Datos que se han pasado a la función de la API
     public $settings = [
+        'auth' => [
+            'model' => '\sowerphp\app\Sistema\Usuarios\Model_Usuario',
+        ],
         'log' => false,
         'messages' => [
             'error' => [
@@ -289,7 +292,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
      * controlador y devuelve el usuario que se autenticó
      * @return Objeto con usuario autenticado o string con el error si hubo uno
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2020-06-01
+     * @version 2021-03-01
      */
     public function getAuthUser($auth2_check = true)
     {
@@ -332,7 +335,7 @@ class Controller_Component_Api extends \sowerphp\core\Controller_Component
         list($user, $pass) = $aux;
         // crear objeto del usuario
         try {
-            $User = new \sowerphp\app\Sistema\Usuarios\Model_Usuario($user);
+            $User = new $this->settings['auth']['model']($user);
         } catch (\sowerphp\core\Exception_Model_Datasource_Database $e) {
             $this->User = $e->getMessage();
             return $this->User;
