@@ -15,7 +15,7 @@ foreach ($messages as $message) {
     ];
     echo '<div class="alert alert-',$message['type'],'" role="alert">',"\n";
     echo '    <span class="glyphicon glyphicon-',$icons[$message['type']],'" aria-hidden="true"></span>',"\n";
-    echo '    <span class="sr-only">',$message['type'],': </span>',$message['text'],"\n";
+    echo '    <span class="visually-hidden">',$message['type'],': </span>',$message['text'],"\n";
     echo '    <a href="#" class="close" data-dismiss="alert" aria-label="close" title="Cerrar">&times;</a>',"\n";
     echo '</div>'."\n";
 }
@@ -24,12 +24,12 @@ foreach ($messages as $message) {
                 <div class="card-body">
                     <h1 class="text-center mb-4">Reiniciar contraseña</h1>
                     <form action="<?=$_base.$_request?>" method="post" onsubmit="return Form.check()" class="mb-4">
-                        <div class="form-group">
-                            <label for="pass1" class="sr-only">Contraseña</label>
+                        <div class="mb-3">
+                            <label for="pass1" class="visually-hidden">Contraseña</label>
                             <input type="password" name="contrasenia1" id="pass1" class="form-control form-control-lg" required="required" placeholder="Nueva contraseña">
                         </div>
-                        <div class="form-group">
-                            <label for="pass2" class="sr-only">Contraseña</label>
+                        <div class="mb-3">
+                            <label for="pass2" class="visually-hidden">Contraseña</label>
                             <input type="password" name="contrasenia2" id="pass2" class="form-control form-control-lg" required="required" placeholder="Repetir contraseña">
                         </div>
                         <input type="hidden" name="codigo" value="<?=$codigo?>" />

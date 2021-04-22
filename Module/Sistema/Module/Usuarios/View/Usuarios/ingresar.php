@@ -15,7 +15,7 @@ foreach ($messages as $message) {
     ];
     echo '<div class="alert alert-',$message['type'],'" role="alert">',"\n";
     echo '    <span class="glyphicon glyphicon-',$icons[$message['type']],'" aria-hidden="true"></span>',"\n";
-    echo '    <span class="sr-only">',$message['type'],': </span>',$message['text'],"\n";
+    echo '    <span class="visually-hidden">',$message['type'],': </span>',$message['text'],"\n";
     echo '    <a href="#" class="close" data-dismiss="alert" aria-label="close" title="Cerrar">&times;</a>',"\n";
     echo '</div>'."\n";
 }
@@ -24,17 +24,17 @@ foreach ($messages as $message) {
                 <div class="card-body">
                     <h1 class="text-center mb-4">Ingresar</h1>
                     <form action="<?=$_base?>/usuarios/ingresar" method="post" onsubmit="return Form.check()" class="mb-4">
-                        <div class="form-group">
-                            <label for="user" class="sr-only">Usuario</label>
+                        <div class="mb-3">
+                            <label for="user" class="visually-hidden">Usuario</label>
                             <input type="text" name="usuario" id="user" class="form-control form-control-lg" required="required" placeholder="Usuario o correo electrónico">
                         </div>
-                        <div class="form-group">
-                            <label for="pass" class="sr-only">Contraseña</label>
+                        <div class="mb-3">
+                            <label for="pass" class="visually-hidden">Contraseña</label>
                             <input type="password" name="contrasenia" id="pass" class="form-control form-control-lg" required="required" placeholder="Contraseña">
                         </div>
 <?php if ($auth2_token_enabled) : ?>
-                        <div class="form-group">
-                            <label for="auth2" class="sr-only">Token 2FA</label>
+                        <div class="mb-3">
+                            <label for="auth2" class="visually-hidden">Token 2FA</label>
                             <input type="text" name="auth2_token" id="auth2" class="form-control form-control-lg" placeholder="Token 2FA si es necesario">
                         </div>
 <?php endif; ?>
@@ -43,7 +43,9 @@ foreach ($messages as $message) {
                         <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=<?=$language?>"></script>
 <?php endif; ?>
                         <input type="hidden" name="redirect" value="<?=$redirect?>" />
-                        <button type="submit" class="btn btn-primary btn-block btn-lg">Iniciar sesión</button>
+                        <div class="d-grid gap-2 col-6 mx-auto">
+                            <button type="submit" class="btn btn-primary btn-lg">Iniciar sesión</button>
+                        </div>
                     </form>
                     <p class="text-center small"><a href="<?=$_base?>/usuarios/contrasenia/recuperar">¿perdió su contraseña?</a></p>
                 </div>
